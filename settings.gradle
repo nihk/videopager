@@ -1,0 +1,2 @@
+rootProject.name = "exo-viewpager-fun"
+include ':app'
