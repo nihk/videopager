@@ -45,8 +45,11 @@ dependencies {
     testImplementation 'junit:junit:4.+'
 
     implementation "com.google.android.exoplayer:exoplayer:2.14.1"
-    implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation "androidx.viewpager2:viewpager2:1.1.0-alpha01"
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
     implementation "androidx.activity:activity-ktx:1.2.3"
+    implementation "io.coil-kt:coil:1.2.2"
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

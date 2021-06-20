@@ -5,35 +5,92 @@ import android.content.Context
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 
 @SuppressLint("StaticFieldLeak")
 class MainViewModel(
     private val appContext: Context,
+    private val repository: VideoDataRepository,
     private val handle: SavedStateHandle
 ) : ViewModel() {
     private var exoPlayer: ExoPlayer? = null
+    private var listening: Job? = null
+
+    private val showPlayer = MutableStateFlow(false)
+    fun showPlayer(): Flow<Boolean> = showPlayer
+
+    val videoData = repository.videoData()
+        .onEach { videoData -> exoPlayer?.setUpWith(videoData) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
 
     fun getPlayer(): ExoPlayer {
         return exoPlayer ?: SimpleExoPlayer.Builder(appContext)
             .build()
             .apply {
-                val mediaItems = videoUris.map { videoUri ->
-                    MediaItem.fromUri(videoUri)
-                }
-                addMediaItems(mediaItems)
-                prepare()
-                repeatMode = Player.REPEAT_MODE_ONE
+                repeatMode = Player.REPEAT_MODE_ONE // Loop the active video
 
-                val initialState = handle[KEY_PLAYER_STATE] ?: PlayerState.INITIAL
-                seekTo(initialState.playlistPosition, initialState.seekPositionMillis)
-                playWhenReady = initialState.isPlaying
+                listening = listen()
+                    .onEach { showPlayer -> this@MainViewModel.showPlayer.value = showPlayer }
+                    .launchIn(viewModelScope)
+
+                setUpWith(videoData.value)
+                prepare()
             }
             .also { exoPlayer = it }
+    }
+
+    private fun ExoPlayer.setUpWith(videoData: List<VideoData>) {
+        if (videoData.isEmpty()) return
+        val isInitializing = currentMediaItem == null
+
+        clearMediaItems()
+        addMediaItems(videoData.toMediaItems())
+
+        val playerState = if (isInitializing) {
+            handle[KEY_PLAYER_STATE] ?: PlayerState.INITIAL
+        } else {
+            toPlayerState()
+        }
+        seekTo(playerState.playlistPosition, playerState.seekPositionMillis)
+        playWhenReady = playerState.isPlaying
+    }
+
+    private fun List<VideoData>.toMediaItems(): List<MediaItem> {
+        return map { videoData ->
+            MediaItem.fromUri(videoData.mediaUri)
+        }
+    }
+
+    private fun ExoPlayer.listen() = callbackFlow {
+        val listener = object : Player.Listener {
+            override fun onIsLoadingChanged(isLoading: Boolean) {
+                if (!isLoading) {
+                    trySend(true)
+                }
+            }
+        }
+
+        addListener(listener)
+
+        awaitClose { removeListener(listener) }
     }
 
     fun playMediaAt(position: Int) {
@@ -43,16 +100,22 @@ class MainViewModel(
             return
         }
 
+        // Hide player view while next playlist item is being prepared.
+        showPlayer.value = false
+
         exoPlayer.seekToDefaultPosition(position)
-        // In case content was paused by user.
+        // In case previous media content was paused by user.
         exoPlayer.playWhenReady = true
     }
 
     fun tearDown() {
-        val exoPlayer = requireNotNull(exoPlayer)
-        handle[KEY_PLAYER_STATE] = exoPlayer.toPlayerState()
-        exoPlayer.release()
-        this.exoPlayer = null
+        listening?.cancel()
+        listening = null
+        exoPlayer?.run {
+            handle[KEY_PLAYER_STATE] = toPlayerState()
+            release()
+        }
+        exoPlayer = null
     }
 
     private fun ExoPlayer.toPlayerState(): PlayerState {
@@ -69,6 +132,7 @@ class MainViewModel(
 
     class Factory(
         private val appContext: Context,
+        private val repository: VideoDataRepository,
         owner: SavedStateRegistryOwner
     ) : AbstractSavedStateViewModelFactory(owner, null) {
         override fun <T : ViewModel?> create(
@@ -77,7 +141,7 @@ class MainViewModel(
             handle: SavedStateHandle
         ): T {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(appContext, handle) as T
+            return MainViewModel(appContext, repository, handle) as T
         }
     }
 }
