@@ -81,9 +81,9 @@ class MainViewModel(
 
     private fun ExoPlayer.listen() = callbackFlow {
         val listener = object : Player.Listener {
-            override fun onIsLoadingChanged(isLoading: Boolean) {
-                if (!isLoading) {
-                    trySend(true)
+            override fun onPlaybackStateChanged(state: Int) {
+                when (state) {
+                    Player.STATE_READY -> trySend(true)
                 }
             }
         }
