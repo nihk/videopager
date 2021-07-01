@@ -5,18 +5,20 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.ImageLoader
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
 import com.google.android.exoplayer2.ui.PlayerView
 
 class PagerAdapter(
-    private val playerView: PlayerView
+    private val playerView: PlayerView,
+    private val imageLoader: ImageLoader
 ) : ListAdapter<VideoData, PageViewHolder>(VideoDataDiffCallback) {
     private var recyclerView: RecyclerView? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageViewHolder {
         return LayoutInflater.from(parent.context)
             .let { inflater -> PageItemBinding.inflate(inflater, parent, false) }
-            .let { binding -> PageViewHolder(binding) }
+            .let { binding -> PageViewHolder(binding, imageLoader) }
     }
 
     override fun onBindViewHolder(holder: PageViewHolder, position: Int) {

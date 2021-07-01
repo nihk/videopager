@@ -16,18 +16,9 @@ class AssetVideoDataRepository : VideoDataRepository {
         private const val path = "file:///android_asset"
 
         private val videoData = listOf(
-            VideoData(
-                mediaUri = "$path/waves.mp4",
-                firstFrameUri = "$path/waves_preview.png",
-            ),
-            VideoData(
-                mediaUri = "$path/christmas.mp4",
-                firstFrameUri = "$path/christmas_preview.png",
-            ),
-            VideoData(
-                mediaUri = "$path/yellow.mp4",
-                firstFrameUri = "$path/yellow_preview.png",
-            ),
+            VideoData(mediaUri = "$path/waves.mp4"),
+            VideoData(mediaUri = "$path/christmas.mp4"),
+            VideoData(mediaUri = "$path/yellow.mp4"),
         )
     }
 }

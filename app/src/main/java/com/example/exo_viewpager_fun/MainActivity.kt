@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import coil.ImageLoader
+import coil.decode.VideoFrameDecoder
+import coil.fetch.VideoFrameUriFetcher
 import com.example.exo_viewpager_fun.databinding.MainActivityBinding
 import com.google.android.exoplayer2.ui.PlayerView
 import kotlinx.coroutines.flow.filter
@@ -17,6 +20,15 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels {
         MainViewModel.Factory(applicationContext, AssetVideoDataRepository(), this)
     }
+    private val imageLoader by lazy {
+        val context = this
+        ImageLoader.Builder(context)
+            .componentRegistry {
+                add(VideoFrameUriFetcher(context))
+                add(VideoFrameDecoder(context)) // Fallback
+            }
+            .build()
+    }
     // Use one PlayerView instance that gets attached to the ViewHolder of the active ViewPager page
     private val playerView: PlayerView by lazy {
         layoutInflater.inflate(R.layout.player_view, null) as PlayerView
@@ -26,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val adapter = PagerAdapter(playerView)
+        val adapter = PagerAdapter(playerView, imageLoader)
         binding.viewPager.adapter = adapter
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
