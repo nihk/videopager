@@ -2,6 +2,7 @@ package com.example.exo_viewpager_fun
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
 import coil.load
@@ -31,5 +32,9 @@ class PageViewHolder(
     private fun View.detachFromParent() {
         val parent = parent as? ViewGroup ?: return
         parent.removeView(this)
+    }
+
+    fun setFirstFramePreview(isVisible: Boolean) {
+        binding.firstFramePreview.isVisible = isVisible
     }
 }

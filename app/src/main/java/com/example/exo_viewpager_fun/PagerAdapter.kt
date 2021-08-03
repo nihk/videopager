@@ -2,6 +2,7 @@ package com.example.exo_viewpager_fun
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -36,10 +37,31 @@ class PagerAdapter(
     // There's no good RecyclerView.Adapter callback for when a ViewPager page is settled on.
     // onBindViewHolder and other misc. callbacks like onViewAttached/DetachedFromWindow happen
     // outside that event.
-    fun onPageSettled(position: Int) {
+    fun attachPlayerTo(position: Int) {
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder
         viewHolder?.attach(playerView)
+    }
+
+    // Showing the player is not executed at the time of attaching the player in order to avoid
+    // surface view flickering that can happen with attaching/revealing the player in one action.
+    fun showPlayerFor(currentItem: Int) {
+        val viewHolder = recyclerView?.findViewHolderForAdapterPosition(currentItem)
+            as? PageViewHolder
+        // Can be null after a config change.
+        if (viewHolder == null) {
+            // Enqueue
+            recyclerView?.doOnLayout {
+                showPlayerFor(currentItem)
+            }
+        } else {
+            viewHolder.setFirstFramePreview(isVisible = false)
+        }
+    }
+
+    override fun onViewDetachedFromWindow(holder: PageViewHolder) {
+        // Reset state
+        holder.setFirstFramePreview(isVisible = true)
     }
 
     private object VideoDataDiffCallback : DiffUtil.ItemCallback<VideoData>() {

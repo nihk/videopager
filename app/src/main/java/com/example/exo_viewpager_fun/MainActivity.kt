@@ -3,7 +3,6 @@ package com.example.exo_viewpager_fun
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import coil.ImageLoader
@@ -53,7 +52,7 @@ class MainActivity : AppCompatActivity() {
                 val pageSettled = positionOffsetPixels == 0
                 if (pageSettled) {
                     viewModel.playMediaAt(position)
-                    adapter.onPageSettled(position)
+                    adapter.attachPlayerTo(position)
                 }
             }
         })
@@ -70,10 +69,14 @@ class MainActivity : AppCompatActivity() {
             }
             .launchIn(lifecycleScope)
 
-        // Only show the PlayerView when video is ready to play. This makes for a nice transition
+        // Only reveal the PlayerView when video is ready to play. This makes for a nice transition
         // from the video preview image to video content.
-        viewModel.showPlayer()
-            .onEach { showPlayer -> playerView.isVisible = showPlayer }
+        viewModel.isPlayerRendering()
+            .onEach { isPlayerRendering ->
+                if (isPlayerRendering) {
+                    adapter.showPlayerFor(binding.viewPager.currentItem)
+                }
+            }
             .launchIn(lifecycleScope)
     }
 

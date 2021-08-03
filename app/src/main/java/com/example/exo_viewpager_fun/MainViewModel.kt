@@ -30,8 +30,8 @@ class MainViewModel(
     private var exoPlayer: ExoPlayer? = null
     private var listening: Job? = null
 
-    private val showPlayer = MutableStateFlow(false)
-    fun showPlayer(): Flow<Boolean> = showPlayer
+    private val isPlayerRendering = MutableStateFlow(false)
+    fun isPlayerRendering(): Flow<Boolean> = isPlayerRendering
 
     val videoData = repository.videoData()
         .onEach { videoData -> exoPlayer?.setUpWith(videoData) }
@@ -47,8 +47,8 @@ class MainViewModel(
             .apply {
                 repeatMode = Player.REPEAT_MODE_ONE // Loop the active video
 
-                listening = listen()
-                    .onEach { showPlayer -> this@MainViewModel.showPlayer.value = showPlayer }
+                listening = isPlayerRendering()
+                    .onEach { isPlayerRendering -> this@MainViewModel.isPlayerRendering.value = isPlayerRendering }
                     .launchIn(viewModelScope)
 
                 setUpWith(videoData.value)
@@ -79,12 +79,10 @@ class MainViewModel(
         }
     }
 
-    private fun ExoPlayer.listen() = callbackFlow {
+    private fun ExoPlayer.isPlayerRendering() = callbackFlow {
         val listener = object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                when (state) {
-                    Player.STATE_READY -> trySend(true)
-                }
+            override fun onRenderedFirstFrame() {
+                trySend(true)
             }
         }
 
@@ -100,8 +98,7 @@ class MainViewModel(
             return
         }
 
-        // Hide player view while next playlist item is being prepared.
-        showPlayer.value = false
+        isPlayerRendering.value = false
 
         exoPlayer.seekToDefaultPosition(position)
         // In case previous media content was paused by user.

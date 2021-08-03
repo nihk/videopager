@@ -4,6 +4,4 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:resize_mode="zoom"
-    app:shutter_background_color="@android:color/transparent"
-    app:surface_type="texture_view" />
-<!-- texture_view avoids flickering that surface_view can have during animations -->
+    app:shutter_background_color="@android:color/transparent" />
