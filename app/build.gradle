@@ -49,9 +49,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
     implementation "androidx.activity:activity-ktx:1.2.3"
-    def coil_version = "1.2.2"
-    implementation "io.coil-kt:coil:$coil_version"
-    implementation "io.coil-kt:coil-video:$coil_version"
+    implementation "io.coil-kt:coil:1.2.2"
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

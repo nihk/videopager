@@ -4,17 +4,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import coil.ImageLoader
 import coil.load
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
 import com.google.android.exoplayer2.ui.PlayerView
 
-class PageViewHolder(
-    private val binding: PageItemBinding,
-    private val imageLoader: ImageLoader
-) : RecyclerView.ViewHolder(binding.root) {
+class PageViewHolder(private val binding: PageItemBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(videoData: VideoData) {
-        binding.firstFramePreview.load(videoData.mediaUri, imageLoader) {
+        binding.firstFramePreview.load(videoData.previewImageUri) {
             crossfade(true)
         }
     }

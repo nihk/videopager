@@ -13,12 +13,21 @@ class AssetVideoDataRepository : VideoDataRepository {
     }
 
     companion object {
-        private const val path = "file:///android_asset"
+        private const val ASSET_PATH = "file:///android_asset"
 
         private val videoData = listOf(
-            VideoData(mediaUri = "$path/waves.mp4"),
-            VideoData(mediaUri = "$path/christmas.mp4"),
-            VideoData(mediaUri = "$path/yellow.mp4"),
+            VideoData(
+                mediaUri = "$ASSET_PATH/waves.mp4",
+                previewImageUri = "$ASSET_PATH/preview_waves.png",
+            ),
+            VideoData(
+                mediaUri = "$ASSET_PATH/christmas.mp4",
+                previewImageUri = "$ASSET_PATH/preview_christmas.png",
+            ),
+            VideoData(
+                mediaUri = "$ASSET_PATH/yellow.mp4",
+                previewImageUri = "$ASSET_PATH/preview_yellow.png",
+            ),
         )
     }
 }
