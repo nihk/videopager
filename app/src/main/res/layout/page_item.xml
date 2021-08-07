@@ -10,7 +10,7 @@
         android:layout_height="match_parent" />
 
     <ImageView
-        android:id="@+id/first_frame_preview"
+        android:id="@+id/preview_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"

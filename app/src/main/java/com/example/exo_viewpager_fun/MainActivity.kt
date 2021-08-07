@@ -29,16 +29,9 @@ class MainActivity : AppCompatActivity() {
         binding.viewPager.adapter = adapter
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            // onPageScrollStateChanged would also work, but onPageScrolled in contrast fires
-            // an initial callback here for the current page when items are submitted to the
-            // ViewPager adapter. This is convenient for setting up the current page.
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
-                val pageSettled = positionOffsetPixels == 0
-                if (pageSettled) {
+            override fun onPageScrollStateChanged(state: Int) {
+                if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    val position = binding.viewPager.currentItem
                     viewModel.playMediaAt(position)
                     adapter.attachPlayerTo(position)
                 }
@@ -54,6 +47,8 @@ class MainActivity : AppCompatActivity() {
                 if (restoredPage != null) {
                     binding.viewPager.setCurrentItem(restoredPage, false)
                 }
+
+                adapter.attachPlayerTo(binding.viewPager.currentItem)
             }
             .launchIn(lifecycleScope)
 

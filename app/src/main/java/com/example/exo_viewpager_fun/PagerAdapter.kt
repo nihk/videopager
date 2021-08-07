@@ -38,28 +38,32 @@ class PagerAdapter(
     fun attachPlayerTo(position: Int) {
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder
-        viewHolder?.attach(playerView)
+        if (viewHolder == null && currentList.isNotEmpty()) {
+            recyclerView?.doOnLayout {
+                attachPlayerTo(position)
+            }
+        } else {
+            viewHolder?.attach(playerView)
+        }
     }
 
     // Showing the player is not executed at the time of attaching the player in order to avoid
     // surface view flickering that can happen with attaching/revealing the player in one action.
-    fun showPlayerFor(currentItem: Int) {
-        val viewHolder = recyclerView?.findViewHolderForAdapterPosition(currentItem)
+    fun showPlayerFor(position: Int) {
+        val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder
-        // Can be null after a config change.
-        if (viewHolder == null) {
-            // Enqueue
+        if (viewHolder == null && currentList.isNotEmpty()) {
             recyclerView?.doOnLayout {
-                showPlayerFor(currentItem)
+                showPlayerFor(position)
             }
         } else {
-            viewHolder.setFirstFramePreview(isVisible = false)
+            viewHolder?.setPreviewImage(isVisible = false)
         }
     }
 
     override fun onViewDetachedFromWindow(holder: PageViewHolder) {
         // Reset state
-        holder.setFirstFramePreview(isVisible = true)
+        holder.setPreviewImage(isVisible = true)
     }
 
     private object VideoDataDiffCallback : DiffUtil.ItemCallback<VideoData>() {

@@ -10,7 +10,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 
 class PageViewHolder(private val binding: PageItemBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(videoData: VideoData) {
-        binding.firstFramePreview.load(videoData.previewImageUri) {
+        binding.previewImage.load(videoData.previewImageUri) {
             crossfade(true)
         }
     }
@@ -30,7 +30,7 @@ class PageViewHolder(private val binding: PageItemBinding) : RecyclerView.ViewHo
         parent.removeView(this)
     }
 
-    fun setFirstFramePreview(isVisible: Boolean) {
-        binding.firstFramePreview.isVisible = isVisible
+    fun setPreviewImage(isVisible: Boolean) {
+        binding.previewImage.isVisible = isVisible
     }
 }
