@@ -38,12 +38,17 @@ class PagerAdapter(
     fun attachPlayerTo(position: Int) {
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder
-        if (viewHolder == null && currentList.isNotEmpty()) {
-            recyclerView?.doOnLayout {
-                attachPlayerTo(position)
+
+        if (viewHolder == null) {
+            if (currentList.isNotEmpty()) {
+                recyclerView?.doOnLayout {
+                    attachPlayerTo(position)
+                }
+            } else {
+                // Nothing to do here.
             }
         } else {
-            viewHolder?.attach(playerView)
+            viewHolder.attach(playerView)
         }
     }
 
@@ -52,12 +57,17 @@ class PagerAdapter(
     fun showPlayerFor(position: Int) {
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder
-        if (viewHolder == null && currentList.isNotEmpty()) {
-            recyclerView?.doOnLayout {
-                showPlayerFor(position)
+
+        if (viewHolder == null) {
+            if (currentList.isNotEmpty()) {
+                recyclerView?.doOnLayout {
+                    showPlayerFor(position)
+                }
+            } else {
+                // Nothing to do here.
             }
         } else {
-            viewHolder?.setPreviewImage(isVisible = false)
+            viewHolder.setPreviewImage(isVisible = false)
         }
     }
 
