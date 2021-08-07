@@ -1,7 +1,7 @@
 package com.example.exo_viewpager_fun
 
 import android.view.View
-import android.view.ViewGroup
+import android.view.ViewManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -26,7 +26,7 @@ class PageViewHolder(private val binding: PageItemBinding) : RecyclerView.ViewHo
     }
 
     private fun View.detachFromParent() {
-        val parent = parent as? ViewGroup ?: return
+        val parent = parent as? ViewManager ?: return
         parent.removeView(this)
     }
 
