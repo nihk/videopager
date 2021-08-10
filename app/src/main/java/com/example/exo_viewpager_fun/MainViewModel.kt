@@ -61,14 +61,15 @@ class MainViewModel(
         if (videoData.isEmpty()) return
         val isInitializing = currentMediaItem == null
 
-        clearMediaItems()
-        addMediaItems(videoData.toMediaItems())
-
         val playerState = if (isInitializing) {
             handle[KEY_PLAYER_STATE] ?: PlayerState.INITIAL
         } else {
             toPlayerState()
         }
+
+        clearMediaItems()
+        addMediaItems(videoData.toMediaItems())
+
         seekTo(playerState.playlistPosition, playerState.seekPositionMillis)
         playWhenReady = playerState.isPlaying
     }
