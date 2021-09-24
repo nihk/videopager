@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.Job
@@ -25,6 +24,7 @@ import kotlinx.coroutines.flow.stateIn
 class MainViewModel(
     private val appContext: Context,
     private val repository: VideoDataRepository,
+    private val updater: VideoDataUpdater,
     private val handle: SavedStateHandle
 ) : ViewModel() {
     private var exoPlayer: ExoPlayer? = null
@@ -61,23 +61,24 @@ class MainViewModel(
         if (videoData.isEmpty()) return
         val isInitializing = currentMediaItem == null
 
+        updater.update(this, videoData)
+
         val playerState = if (isInitializing) {
-            handle[KEY_PLAYER_STATE] ?: PlayerState.INITIAL
+            val savedPlayerState: PlayerState? = handle[KEY_PLAYER_STATE]
+            // When restoring saved state, the saved window index might be unavailable, e.g. if
+            // the saved index before process death was from a data set not known immediately after
+            // process restoration.
+            if (savedPlayerState == null || savedPlayerState.playlistPosition >= mediaItemCount) {
+                PlayerState.INITIAL
+            } else {
+                savedPlayerState
+            }
         } else {
             toPlayerState()
         }
 
-        clearMediaItems()
-        addMediaItems(videoData.toMediaItems())
-
         seekTo(playerState.playlistPosition, playerState.seekPositionMillis)
         playWhenReady = playerState.isPlaying
-    }
-
-    private fun List<VideoData>.toMediaItems(): List<MediaItem> {
-        return map { videoData ->
-            MediaItem.fromUri(videoData.mediaUri)
-        }
     }
 
     private fun ExoPlayer.isPlayerRendering() = callbackFlow {
@@ -131,6 +132,7 @@ class MainViewModel(
     class Factory(
         private val appContext: Context,
         private val repository: VideoDataRepository,
+        private val updater: VideoDataUpdater,
         owner: SavedStateRegistryOwner
     ) : AbstractSavedStateViewModelFactory(owner, null) {
         override fun <T : ViewModel?> create(
@@ -139,7 +141,7 @@ class MainViewModel(
             handle: SavedStateHandle
         ): T {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(appContext, repository, handle) as T
+            return MainViewModel(appContext, repository, updater, handle) as T
         }
     }
 }

@@ -14,7 +14,12 @@ import kotlinx.coroutines.flow.onEach
 class MainActivity : AppCompatActivity() {
     private val binding by lazy { MainActivityBinding.inflate(layoutInflater) }
     private val viewModel: MainViewModel by viewModels {
-        MainViewModel.Factory(applicationContext, AssetVideoDataRepository(), this)
+        MainViewModel.Factory(
+            applicationContext,
+            OneShotAssetVideoDataRepository(),
+            RecyclerViewVideoDataUpdater(),
+            this
+        )
     }
     // Use one PlayerView instance that gets attached to the ViewHolder of the active ViewPager page
     private val playerView: PlayerView by lazy {
@@ -44,7 +49,9 @@ class MainActivity : AppCompatActivity() {
                 adapter.submitList(videoData)
 
                 val restoredPage = savedInstanceState?.consume<Int>(KEY_PAGE)
-                if (restoredPage != null) {
+                // Only restore a page in saved state if it's a page that can actually be navigated to.
+                if (restoredPage != null && adapter.itemCount >= restoredPage) {
+                    savedInstanceState.remove(KEY_PAGE)
                     binding.viewPager.setCurrentItem(restoredPage, false)
                 }
 
