@@ -4,4 +4,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:resize_mode="zoom"
-    app:shutter_background_color="@android:color/transparent" />
+    app:shutter_background_color="@android:color/transparent"
+    app:use_controller="false" />
