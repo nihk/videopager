@@ -9,6 +9,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
 import com.google.android.exoplayer2.ui.PlayerView
 
+/**
+ * The two main functions of interest here are [attachPlayerTo] and [showPlayerFor].
+ *
+ * [attachPlayerTo] attaches a [PlayerView] instance (which owns the active ExoPlayer instance) to a
+ * ViewGroup owned by a ViewHolder.
+ *
+ * [showPlayerFor] hides the video image preview of a given ViewHolder so that video playback can
+ * be visible.
+ *
+ * These two functions are not atomic because ExoPlayer won't give any signal that a video is
+ * ready to play (see [com.google.android.exoplayer2.Player.Listener.onRenderedFirstFrame]) unless
+ * the underlying surface of a PlayerView is actually in the View hierarchy.
+ */
 class PagerAdapter(
     private val playerView: PlayerView
 ) : ListAdapter<VideoData, PageViewHolder>(VideoDataDiffCallback) {
@@ -17,11 +30,11 @@ class PagerAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageViewHolder {
         return LayoutInflater.from(parent.context)
             .let { inflater -> PageItemBinding.inflate(inflater, parent, false) }
-            .let { binding -> PageViewHolder(binding) }
+            .let(::PageViewHolder)
     }
 
     override fun onBindViewHolder(holder: PageViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        getItem(position).let(holder::bind)
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -32,9 +45,10 @@ class PagerAdapter(
         this.recyclerView = null
     }
 
-    // There's no good RecyclerView.Adapter callback for when a ViewPager page is settled on.
-    // onBindViewHolder and other misc. callbacks like onViewAttached/DetachedFromWindow happen
-    // outside that event.
+    /**
+     * Attach [playerView] to the ViewHolder at [position]. The player won't actually be visible in
+     * the UI until [showPlayerFor] is also called.
+     * */
     fun attachPlayerTo(position: Int) {
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder
@@ -52,8 +66,7 @@ class PagerAdapter(
         }
     }
 
-    // Showing the player is not executed at the time of attaching the player in order to avoid
-    // surface view flickering that can happen with attaching/revealing the player in one action.
+    // Hides the video preview image when the player is ready to be shown.
     fun showPlayerFor(position: Int) {
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder

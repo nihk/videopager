@@ -17,7 +17,8 @@ class OneShotAssetVideoDataRepository : VideoDataRepository {
     }
 }
 
-// Simulate a stream of data, not unlike pagination.
+// Simulate a stream of data, not unlike pagination. Note the support for emissions that shuffle
+// up the order compared to previous emissions.
 class StreamingAssetVideoDataRepository : VideoDataRepository {
     override fun videoData(): Flow<List<VideoData>> {
         return flow {

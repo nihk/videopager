@@ -20,6 +20,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * Holds a stateful ExoPlayer instance that will frequently get created and torn down as [getPlayer]
+ * and [tearDown] are called alongside Activity lifecycle state changes.
+ */
 @SuppressLint("StaticFieldLeak")
 class MainViewModel(
     private val appContext: Context,
@@ -30,25 +34,30 @@ class MainViewModel(
     private var exoPlayer: ExoPlayer? = null
     private var listening: Job? = null
 
-    private val isPlayerRendering = MutableStateFlow(false)
-    fun isPlayerRendering(): Flow<Boolean> = isPlayerRendering
+    // Emissions dictate player visibility in UI.
+    private val showPlayer = MutableStateFlow(false)
+    fun showPlayer(): Flow<Boolean> = showPlayer
 
+    // Emit video data to the UI (ViewPager2) so it can render video image previews and send
+    // page position changes back to this ViewModel.
     val videoData = repository.videoData()
         .onEach { videoData -> exoPlayer?.setUpWith(videoData) }
         .stateIn(
             scope = viewModelScope,
+            // Repository video data might be slow to fetch, so start this as early as possible.
             started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
+    // Returns any active ExoPlayer instance or creates a new one.
     fun getPlayer(): ExoPlayer {
         return exoPlayer ?: SimpleExoPlayer.Builder(appContext)
             .build()
             .apply {
-                repeatMode = Player.REPEAT_MODE_ONE // Loop the active video
+                loopVideos()
 
                 listening = isPlayerRendering()
-                    .onEach { isPlayerRendering -> this@MainViewModel.isPlayerRendering.value = isPlayerRendering }
+                    .onEach { isPlayerRendering -> showPlayer.value = isPlayerRendering }
                     .launchIn(viewModelScope)
 
                 setUpWith(videoData.value)
@@ -57,30 +66,55 @@ class MainViewModel(
             .also { exoPlayer = it }
     }
 
+    // Videos are a heavy resource, so tear ExoPlayer down when the app is not in the foreground.
+    fun tearDown() {
+        listening?.cancel()
+        listening = null
+        exoPlayer?.run {
+            // Keep track of player state so that it can be restored across player recreations.
+            handle[KEY_PLAYER_STATE] = toPlayerState()
+            release()
+        }
+        exoPlayer = null
+    }
+
     private fun ExoPlayer.setUpWith(videoData: List<VideoData>) {
-        if (videoData.isEmpty()) return
+        // A signal to restore any saved video state.
         val isInitializing = currentMediaItem == null
 
-        updater.update(this, videoData)
+        /** Delegate video insertion, removing, moving, etc. to this [updater] */
+        updater.update(exoPlayer = this, incoming = videoData)
+        val currentMediaItems = currentMediaItems
 
         val playerState = if (isInitializing) {
             val savedPlayerState: PlayerState? = handle[KEY_PLAYER_STATE]
-            // When restoring saved state, the saved window index might be unavailable, e.g. if
-            // the saved index before process death was from a data set not known immediately after
-            // process restoration.
-            if (savedPlayerState == null || savedPlayerState.playlistPosition >= mediaItemCount) {
-                PlayerState.INITIAL
+            /**
+             * When restoring saved state, the saved media item might be unavailable, e.g. if
+             * the saved media item before process death was from a data set different than [videoData].
+             */
+            val canRestoreSavedPlayerState = savedPlayerState != null
+                && currentMediaItems.any { mediaItem -> mediaItem.mediaId == savedPlayerState.currentMediaItemId }
+
+            if (canRestoreSavedPlayerState) {
+                requireNotNull(savedPlayerState)
             } else {
-                savedPlayerState
+                PlayerState.INITIAL
             }
         } else {
             toPlayerState()
         }
 
-        seekTo(playerState.playlistPosition, playerState.seekPositionMillis)
+        val windowIndex = currentMediaItems.indexOfFirst { mediaItem ->
+            mediaItem.mediaId == playerState.currentMediaItemId
+        }
+        if (windowIndex != -1) {
+            seekTo(windowIndex, playerState.seekPositionMillis)
+        }
         playWhenReady = playerState.isPlaying
     }
 
+    // A signal that video content is immediately ready to play; any preview images
+    // on top of the video can be hidden to reveal actual video playback underneath.
     private fun ExoPlayer.isPlayerRendering() = callbackFlow {
         val listener = object : Player.Listener {
             override fun onRenderedFirstFrame() {
@@ -96,30 +130,21 @@ class MainViewModel(
     fun playMediaAt(position: Int) {
         val exoPlayer = requireNotNull(exoPlayer)
         if (exoPlayer.currentWindowIndex == position) {
-            // Already playing the MediaItem at $position
+            /** Already playing the MediaItem at [position]; no-op. */
             return
         }
 
-        isPlayerRendering.value = false
+        /** Tell UI to hide player while player is loading content at [position]. */
+        showPlayer.value = false
 
         exoPlayer.seekToDefaultPosition(position)
         // In case previous media content was paused by user.
         exoPlayer.playWhenReady = true
     }
 
-    fun tearDown() {
-        listening?.cancel()
-        listening = null
-        exoPlayer?.run {
-            handle[KEY_PLAYER_STATE] = toPlayerState()
-            release()
-        }
-        exoPlayer = null
-    }
-
     private fun ExoPlayer.toPlayerState(): PlayerState {
         return PlayerState(
-            playlistPosition = currentWindowIndex,
+            currentMediaItemId = currentMediaItem?.mediaId,
             seekPositionMillis = currentPosition,
             isPlaying = isPlaying
         )

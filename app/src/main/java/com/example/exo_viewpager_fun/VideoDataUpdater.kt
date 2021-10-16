@@ -9,27 +9,19 @@ interface VideoDataUpdater {
     fun update(exoPlayer: ExoPlayer, incoming: List<VideoData>)
 }
 
-// androidx.recyclerview has out-of-the-box diffing algorithms that are useful for updating/diffing
-// any incoming VideoData compared to current VideoData. This enables modifying the ViewPager2
-// data set of videos without necessarily stopping active video content playing -- essential for
-// pagination.
+/**
+ * [androidx.recyclerview.widget] has out-of-the-box diffing algorithms that are useful for
+ * updating/diffing any incoming VideoData compared to current [VideoData]. This class doesn't
+ * actually have anything to do with RecyclerView or UI, it just uses RecyclerView APIs for
+ * convenience.
+ */
 class RecyclerViewVideoDataUpdater : VideoDataUpdater {
     override fun update(exoPlayer: ExoPlayer, incoming: List<VideoData>) {
         val newMediaItems = incoming.toMediaItems()
-        val diffCallback = MediaItemDiffCallback(exoPlayer.mediaItems, newMediaItems)
+        val diffCallback = MediaItemDiffCallback(exoPlayer.currentMediaItems, newMediaItems)
         val updateCallback = ExoPlayerUpdateCallback(exoPlayer, newMediaItems)
         val result = DiffUtil.calculateDiff(diffCallback)
         result.dispatchUpdatesTo(updateCallback)
-    }
-
-    private val ExoPlayer.mediaItems: List<MediaItem> get() {
-        val mediaItems = mutableListOf<MediaItem>()
-
-        for (i in 0 until mediaItemCount) {
-            mediaItems += getMediaItemAt(i)
-        }
-
-        return mediaItems
     }
 
     private fun List<VideoData>.toMediaItems(): List<MediaItem> {

@@ -1,7 +1,5 @@
 package com.example.exo_viewpager_fun
 
-import android.view.View
-import android.view.ViewManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -10,9 +8,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 
 class PageViewHolder(private val binding: PageItemBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(videoData: VideoData) {
-        binding.previewImage.load(videoData.previewImageUri) {
-            crossfade(true)
-        }
+        binding.previewImage.load(videoData.previewImageUri)
     }
 
     fun attach(playerView: PlayerView) {
@@ -21,13 +17,13 @@ class PageViewHolder(private val binding: PageItemBinding) : RecyclerView.ViewHo
             return
         }
 
+        /**
+         * Since effectively only one [PlayerView] instance is used in the app, it might currently
+         * be attached to a View from a previous page. In that case, remove it from that parent
+         * and add it to this ViewHolder's View.
+         */
         playerView.detachFromParent()
         binding.playerContainer.addView(playerView)
-    }
-
-    private fun View.detachFromParent() {
-        val parent = parent as? ViewManager ?: return
-        parent.removeView(this)
     }
 
     fun setPreviewImage(isVisible: Boolean) {

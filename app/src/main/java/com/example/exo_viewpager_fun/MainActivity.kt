@@ -7,7 +7,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.exo_viewpager_fun.databinding.MainActivityBinding
 import com.google.android.exoplayer2.ui.PlayerView
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -44,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.videoData
-            .filter { videoData -> videoData.isNotEmpty() }
             .onEach { videoData ->
                 adapter.submitList(videoData)
 
@@ -61,9 +59,9 @@ class MainActivity : AppCompatActivity() {
 
         // Only reveal the PlayerView when video is ready to play. This makes for a nice transition
         // from the video preview image to video content.
-        viewModel.isPlayerRendering()
-            .onEach { isPlayerRendering ->
-                if (isPlayerRendering) {
+        viewModel.showPlayer()
+            .onEach { showPlayer ->
+                if (showPlayer) {
                     adapter.showPlayerFor(binding.viewPager.currentItem)
                 }
             }

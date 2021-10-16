@@ -5,13 +5,13 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class PlayerState(
-    val playlistPosition: Int,
+    val currentMediaItemId: String?,
     val seekPositionMillis: Long,
     val isPlaying: Boolean
 ) : Parcelable {
     companion object {
         val INITIAL = PlayerState(
-            playlistPosition = 0,
+            currentMediaItemId = null,
             seekPositionMillis = 0L,
             isPlaying = true
         )
