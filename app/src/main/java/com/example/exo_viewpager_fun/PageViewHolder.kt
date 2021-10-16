@@ -4,26 +4,25 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
-import com.google.android.exoplayer2.ui.PlayerView
 
 class PageViewHolder(private val binding: PageItemBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(videoData: VideoData) {
         binding.previewImage.load(videoData.previewImageUri)
     }
 
-    fun attach(playerView: PlayerView) {
-        if (binding.playerContainer == playerView.parent) {
+    fun attach(appPlayerView: AppPlayerView) {
+        if (binding.playerContainer == appPlayerView.view.parent) {
             // Already attached
             return
         }
 
         /**
-         * Since effectively only one [PlayerView] instance is used in the app, it might currently
+         * Since effectively only one [AppPlayerView] instance is used in the app, it might currently
          * be attached to a View from a previous page. In that case, remove it from that parent
-         * and add it to this ViewHolder's View.
+         * before adding it to this ViewHolder's View.
          */
-        playerView.detachFromParent()
-        binding.playerContainer.addView(playerView)
+        appPlayerView.view.detachFromParent()
+        binding.playerContainer.addView(appPlayerView.view)
     }
 
     fun setPreviewImage(isVisible: Boolean) {
