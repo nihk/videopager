@@ -4,6 +4,6 @@ It's pretty straightforward to get started using ExoPlayer by following the libr
 
 With this repository I wanted to demonstrate a simple app showing how to do YouTube Shorts/TikTok style video paging in a way that reconciles Android lifecycles and state management.
 
-The approach I took is to reuse the same `ExoPlayer` and `PlayerView` instance for all pages. The `ExoPlayer` instance lives in and is managed by `MainViewModel`, and a singular `PlayerView` gets attached to whichever `ViewHolder` is active on the current page. Having only one `PlayerView` made things simple because I didn't have to depend on any `RecyclerView.Adapter` callbacks like `onViewAttached/DetachedToWindow` which can get tricky to coordinate.
+The approach I took is to reuse the same `ExoPlayer` and `PlayerView` instance for all pages. The `ExoPlayer` instance lives in and is managed by `MainViewModel`, and a singular `PlayerView` gets attached to whichever `ViewHolder` is active on the current page. Having only one `PlayerView` makes for a lot less state management.
 
 I've been a bit more verbose with comments than I typically would in this repository, for the purposes of clarity.
