@@ -9,7 +9,8 @@ import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import coil.ImageLoader
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +22,8 @@ import org.junit.Test
 
 class MainActivityTest {
     @Test
-    fun whenActivityIsStarted_shouldStartPlayer() = mainActivity {
-        assertPlayerStarted()
+    fun whenActivityIsStarted_shouldCreatePlayer() = mainActivity {
+        assertPlayerCreated()
     }
 
     @Test
@@ -52,16 +53,35 @@ class MainActivityTest {
     }
 
     @Test
+    fun whenPlayerIsRenderingFrames_shouldHideImagePreview() {
+        val isPlayerRendering = MutableStateFlow(false)
+
+        mainActivity(isPlayerRendering = isPlayerRendering) {
+            emit(TEST_VIDEO_DATA)
+            isPlayerRendering.value = true
+
+            assertImagePreviewVisibility(isVisible = false)
+        }
+    }
+
+    @Test
     fun whenSwipedToNextPage_shouldLoadNextPlayerItem() = mainActivity {
         emit(TEST_VIDEO_DATA)
 
         swipeToNextPage()
 
-        assertPlayingMediaAt(1)
+        assertPlaylistChangedTo(1)
     }
 
     @Test
-    fun whenSwipedToNextPage_shouldAttachPlayerView() = mainActivity {
+    fun whenActivityStartedWithVideoData_shouldAttachPlayerView() = mainActivity {
+        emit(TEST_VIDEO_DATA)
+
+        assertPlayerViewPosition(0)
+    }
+
+    @Test
+    fun whenSwipedToNextPage_shouldAttachPlayerViewToNextPage() = mainActivity {
         emit(TEST_VIDEO_DATA)
 
         swipeToNextPage()
@@ -72,6 +92,11 @@ class MainActivityTest {
     @Test
     fun whenActivityIsRecreated_shouldRestorePage() = mainActivity {
         emit(TEST_VIDEO_DATA)
+
+        recreate()
+
+        assertPage(0)
+
         swipeToNextPage()
 
         recreate()
@@ -80,7 +105,7 @@ class MainActivityTest {
     }
 
     fun mainActivity(
-        videoData: List<VideoData> = emptyList(),
+        videoData: List<VideoData>? = null,
         isPlayerRendering: Flow<Boolean> = emptyFlow(),
         block: MainActivityRobot.() -> Unit
     ) {
@@ -88,7 +113,7 @@ class MainActivityTest {
     }
 
     class MainActivityRobot(
-        videoData: List<VideoData>,
+        videoData: List<VideoData>?,
         isPlayerRendering: Flow<Boolean>
     ) {
         private val app: App = ApplicationProvider.getApplicationContext()
@@ -138,8 +163,8 @@ class MainActivityTest {
             scenario.recreate()
         }
 
-        fun assertPlayerStarted() {
-            assertEquals(videoDataFlow.value, appPlayer.setups.last())
+        fun assertPlayerCreated() {
+            assertEquals(1, appPlayerFactory.createCount)
         }
 
         fun assertPlayerStopped() {
@@ -170,7 +195,7 @@ class MainActivityTest {
                 .check(matches(matcher))
         }
 
-        fun assertPlayingMediaAt(position: Int) {
+        fun assertPlaylistChangedTo(position: Int) {
             assertEquals(position, appPlayer.playingMediaAt)
         }
 
