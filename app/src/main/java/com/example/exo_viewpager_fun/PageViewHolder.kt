@@ -2,12 +2,19 @@ package com.example.exo_viewpager_fun
 
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import coil.ImageLoader
 import coil.load
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
 
-class PageViewHolder(private val binding: PageItemBinding) : RecyclerView.ViewHolder(binding.root) {
+class PageViewHolder(
+    private val binding: PageItemBinding,
+    private val imageLoader: ImageLoader
+) : RecyclerView.ViewHolder(binding.root) {
     fun bind(videoData: VideoData) {
-        binding.previewImage.load(videoData.previewImageUri)
+        binding.previewImage.load(
+            uri = videoData.previewImageUri,
+            imageLoader = imageLoader
+        )
     }
 
     fun attach(appPlayerView: AppPlayerView) {

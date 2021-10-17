@@ -6,12 +6,13 @@ import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.ImageLoader
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
 
 /**
- * The two main functions of interest here are [attachPlayer] and [showPlayerFor].
+ * The two main functions of interest here are [attachPlayerView] and [showPlayerFor].
  *
- * [attachPlayer] attaches a [AppPlayerView] instance to a ViewGroup owned by a ViewHolder.
+ * [attachPlayerView] attaches a [AppPlayerView] instance to a ViewGroup owned by a ViewHolder.
  *
  * [showPlayerFor] hides the video image preview of a given ViewHolder so that video playback can
  * be visible.
@@ -19,13 +20,15 @@ import com.example.exo_viewpager_fun.databinding.PageItemBinding
  * These are two distinct functions because a PlayerView has to first be attached to a View hierarchy
  * before an ExoPlayer instance will callback listeners that it has started rendering frames.
  */
-class PagerAdapter : ListAdapter<VideoData, PageViewHolder>(VideoDataDiffCallback) {
+class PagerAdapter(
+    private val imageLoader: ImageLoader
+) : ListAdapter<VideoData, PageViewHolder>(VideoDataDiffCallback) {
     private var recyclerView: RecyclerView? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageViewHolder {
         return LayoutInflater.from(parent.context)
             .let { inflater -> PageItemBinding.inflate(inflater, parent, false) }
-            .let(::PageViewHolder)
+            .let { binding -> PageViewHolder(binding, imageLoader) }
     }
 
     override fun onBindViewHolder(holder: PageViewHolder, position: Int) {
@@ -44,14 +47,14 @@ class PagerAdapter : ListAdapter<VideoData, PageViewHolder>(VideoDataDiffCallbac
      * Attach [appPlayerView] to the ViewHolder at [position]. The player won't actually be visible in
      * the UI until [showPlayerFor] is also called.
      * */
-    fun attachPlayer(appPlayerView: AppPlayerView, position: Int) {
+    fun attachPlayerView(appPlayerView: AppPlayerView, position: Int) {
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder
 
         if (viewHolder == null) {
             if (currentList.isNotEmpty()) {
                 recyclerView?.doOnLayout {
-                    attachPlayer(appPlayerView, position)
+                    attachPlayerView(appPlayerView, position)
                 }
             } else {
                 // Nothing to do here.

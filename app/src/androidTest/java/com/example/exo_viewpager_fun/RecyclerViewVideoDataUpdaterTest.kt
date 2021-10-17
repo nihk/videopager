@@ -16,13 +16,13 @@ class RecyclerViewVideoDataUpdaterTest {
         val videoData = listOf(
             VideoData(
                 mediaUri = "1",
-                previewImageUri = "1"
+                previewImageUri = ""
             )
         )
 
         update(videoData)
 
-        assertMediaIdOrder(videoData.map(VideoData::mediaUri))
+        assertMediaItemIdOrder(listOf("1"))
     }
 
     @Test
@@ -30,14 +30,14 @@ class RecyclerViewVideoDataUpdaterTest {
         val videoData = listOf(
             VideoData(
                 mediaUri = "1",
-                previewImageUri = "1"
+                previewImageUri = ""
             )
         )
         update(videoData)
 
         update(emptyList())
 
-        assertMediaIdOrder(emptyList())
+        assertMediaItemIdOrder(emptyList())
     }
 
     @Test
@@ -45,11 +45,11 @@ class RecyclerViewVideoDataUpdaterTest {
         val videoData = listOf(
             VideoData(
                 mediaUri = "1",
-                previewImageUri = "1"
+                previewImageUri = ""
             ),
             VideoData(
                 mediaUri = "3",
-                previewImageUri = "3"
+                previewImageUri = ""
             )
         )
         update(videoData)
@@ -57,20 +57,20 @@ class RecyclerViewVideoDataUpdaterTest {
         val newList = listOf(
             VideoData(
                 mediaUri = "1",
-                previewImageUri = "1"
+                previewImageUri = ""
             ),
             VideoData(
                 mediaUri = "2",
-                previewImageUri = "2"
+                previewImageUri = ""
             ),
             VideoData(
                 mediaUri = "3",
-                previewImageUri = "3"
+                previewImageUri = ""
             )
         )
         update(newList)
 
-        assertMediaIdOrder(newList.map(VideoData::mediaUri))
+        assertMediaItemIdOrder(listOf("1", "2", "3"))
     }
 
     fun updater(block: suspend UpdaterRobot.() -> Unit) = runBlocking {
@@ -88,7 +88,7 @@ class RecyclerViewVideoDataUpdaterTest {
             updater.update(exoPlayer, videoData)
         }
 
-        fun assertMediaIdOrder(ids: List<String>) {
+        fun assertMediaItemIdOrder(ids: List<String>) {
             assertEquals(ids, exoPlayer.currentMediaItems.map(MediaItem::mediaId))
         }
 

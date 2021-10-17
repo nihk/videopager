@@ -10,27 +10,17 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class MainActivity : AppCompatActivity() {
+    private val mainModule: MainModule by lazy { (application as App).mainModule }
     private val binding by lazy { MainActivityBinding.inflate(layoutInflater) }
-    private val viewModel: MainViewModel by viewModels {
-        MainViewModel.Factory(
-            repository = OneShotAssetVideoDataRepository(),
-            appPlayerFactory = ExoAppPlayer.Factory(
-                context = applicationContext,
-                updater = RecyclerViewVideoDataUpdater()
-            ),
-            savedStateRegistryOwner = this
-        )
-    }
+    private val viewModel: MainViewModel by viewModels { mainModule.viewModelFactory(this) }
     // Use one instance that gets attached to the ViewHolder of the active ViewPager page
-    private val appPlayerView: AppPlayerView by lazy {
-        ExoAppPlayerView(layoutInflater)
-    }
+    private val appPlayerView: AppPlayerView by lazy { mainModule.appPlayerView(layoutInflater) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val adapter = PagerAdapter()
+        val adapter = PagerAdapter(mainModule.imageLoader())
         binding.viewPager.adapter = adapter
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -38,7 +28,7 @@ class MainActivity : AppCompatActivity() {
                 if (state == ViewPager2.SCROLL_STATE_IDLE) {
                     val position = binding.viewPager.currentItem
                     viewModel.playMediaAt(position)
-                    adapter.attachPlayer(appPlayerView, position)
+                    adapter.attachPlayerView(appPlayerView, position)
                 }
             }
         })
@@ -46,14 +36,13 @@ class MainActivity : AppCompatActivity() {
         viewModel.videoData
             .onEach { videoData ->
                 adapter.submitList(videoData)
-
                 val restoredPage = savedInstanceState?.consume<Int>(KEY_PAGE)
                 // Only restore a page in saved state if it's a page that can actually be navigated to.
                 if (restoredPage != null && adapter.itemCount >= restoredPage) {
                     binding.viewPager.setCurrentItem(restoredPage, false)
                 }
 
-                adapter.attachPlayer(appPlayerView, binding.viewPager.currentItem)
+                adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
             }
             .launchIn(lifecycleScope)
 
