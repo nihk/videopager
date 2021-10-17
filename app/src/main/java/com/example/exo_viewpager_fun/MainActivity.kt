@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.exo_viewpager_fun.databinding.MainActivityBinding
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -34,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.videoData
+            .filterNotNull()
             .onEach { videoData ->
                 adapter.submitList(videoData)
                 val restoredPage = savedInstanceState?.consume<Int>(KEY_PAGE)

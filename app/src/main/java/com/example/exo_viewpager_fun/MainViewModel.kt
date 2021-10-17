@@ -37,7 +37,7 @@ class MainViewModel(
             scope = viewModelScope,
             // Repository video data might be slow to fetch, so start this as early as possible.
             started = SharingStarted.Eagerly,
-            initialValue = emptyList()
+            initialValue = null
         )
 
     // Returns any active player instance or creates a new one.
@@ -48,7 +48,7 @@ class MainViewModel(
             listening = isPlayerRendering()
                 .onEach { isPlayerRendering -> showPlayer.value = isPlayerRendering }
                 .launchIn(viewModelScope)
-            setUpWith(videoData.value, handle.get())
+            videoData.value?.let { videoData -> setUpWith(videoData, handle.get()) }
         }.also {
             appPlayer = it
         }

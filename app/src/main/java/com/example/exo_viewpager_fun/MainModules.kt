@@ -7,9 +7,7 @@ import coil.ImageLoader
 import coil.imageLoader
 
 interface MainModule {
-    fun viewModelFactory(
-        savedStateRegistryOwner: SavedStateRegistryOwner
-    ): MainViewModel.Factory
+    fun viewModelFactory(savedStateRegistryOwner: SavedStateRegistryOwner): MainViewModel.Factory
 
     fun appPlayerView(layoutInflater: LayoutInflater): AppPlayerView
 
@@ -17,9 +15,7 @@ interface MainModule {
 }
 
 class DefaultMainModule(private val context: Context) : MainModule {
-    override fun viewModelFactory(
-        savedStateRegistryOwner: SavedStateRegistryOwner
-    ): MainViewModel.Factory {
+    override fun viewModelFactory(savedStateRegistryOwner: SavedStateRegistryOwner): MainViewModel.Factory {
         return MainViewModel.Factory(
             repository = OneShotAssetVideoDataRepository(),
             appPlayerFactory = ExoAppPlayer.Factory(
