@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.exo_viewpager_fun.databinding.MainActivityBinding
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -34,26 +33,21 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.videoData
-            .filterNotNull()
-            .onEach { videoData ->
-                adapter.submitList(videoData)
-                val restoredPage = savedInstanceState?.consume<Int>(KEY_PAGE)
-                // Only restore a page in saved state if it's a page that can actually be navigated to.
-                if (restoredPage != null && adapter.itemCount >= restoredPage) {
-                    binding.viewPager.setCurrentItem(restoredPage, false)
-                }
+        viewModel.viewState()
+            .onEach { viewState ->
+                if (viewState.videoData != null) {
+                    adapter.submitList(viewState.videoData)
+                    val restoredPage = savedInstanceState?.consume<Int>(KEY_PAGE)
+                    // Only restore a page in saved state if it's a page that can actually be navigated to.
+                    if (restoredPage != null && adapter.itemCount >= restoredPage) {
+                        binding.viewPager.setCurrentItem(restoredPage, false)
+                    }
 
-                adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
-            }
-            .launchIn(lifecycleScope)
+                    adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
 
-        // Only show the player when video is ready to play. This makes for a nice transition
-        // from the video preview image to video content.
-        viewModel.showPlayer()
-            .onEach { showPlayer ->
-                if (showPlayer) {
-                    adapter.showPlayerFor(binding.viewPager.currentItem)
+                    if (viewState.showPlayer) {
+                        adapter.showPlayerFor(binding.viewPager.currentItem)
+                    }
                 }
             }
             .launchIn(lifecycleScope)
@@ -73,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         appPlayerView.onStop()
-        // Keep Player resource alive across config changes
+        // Keep player resource alive across config changes
         if (!isChangingConfigurations) {
             viewModel.tearDown()
         }

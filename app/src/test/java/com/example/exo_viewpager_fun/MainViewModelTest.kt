@@ -4,9 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -160,7 +158,7 @@ class MainViewModelTest {
         }
 
         fun setCurrentMediaIndex(index: Int) {
-            appPlayer.currentMediaIndex = index
+            appPlayer.currentPlayerState = appPlayer.currentPlayerState.copy(currentMediaIndex = index)
         }
 
         fun changeMediaPosition(position: Int) {
@@ -183,12 +181,12 @@ class MainViewModelTest {
             assertEquals(playerState, handle.get())
         }
 
-        fun assertShowPlayer(value: Boolean) = runBlocking {
-            assertEquals(value, viewModel.showPlayer().first())
+        fun assertShowPlayer(value: Boolean) {
+            assertEquals(value, viewModel.viewState().value.showPlayer)
         }
 
         fun assertCachedVideoData(videoData: List<VideoData>) {
-            assertEquals(videoData, viewModel.videoData.value)
+            assertEquals(videoData, viewModel.viewState().value.videoData)
         }
 
         fun assertPlayerSetupWith(videoData: List<VideoData>) {

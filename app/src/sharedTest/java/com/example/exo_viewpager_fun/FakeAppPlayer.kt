@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 
 class FakeAppPlayer(private val isPlayerRendering: Flow<Boolean>) : AppPlayer {
     override var currentPlayerState: PlayerState = PlayerState.INITIAL
-    override var currentMediaIndex: Int = 0
     val setups = mutableListOf<List<VideoData>>()
     var playingMediaAt: Int = -1
     var didRelease: Boolean = false

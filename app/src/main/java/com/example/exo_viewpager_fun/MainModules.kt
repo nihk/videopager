@@ -8,9 +8,7 @@ import coil.imageLoader
 
 interface MainModule {
     fun viewModelFactory(savedStateRegistryOwner: SavedStateRegistryOwner): MainViewModel.Factory
-
     fun appPlayerView(layoutInflater: LayoutInflater): AppPlayerView
-
     fun imageLoader(): ImageLoader
 }
 

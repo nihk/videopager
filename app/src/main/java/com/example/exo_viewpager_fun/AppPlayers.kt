@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.callbackFlow
 // Abstract the underlying player to facilitate testing and hide player implementation details.
 interface AppPlayer {
     val currentPlayerState: PlayerState
-    val currentMediaIndex: Int
 
     fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?)
     fun isPlayerRendering(): Flow<Boolean>
@@ -32,7 +31,6 @@ class ExoAppPlayer(
     private val updater: VideoDataUpdater
 ) : AppPlayer {
     override val currentPlayerState: PlayerState get() = exoPlayer.toPlayerState()
-    override val currentMediaIndex: Int get() = exoPlayer.currentWindowIndex
 
     override fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?) {
         // A signal to restore any saved video state.
@@ -86,6 +84,7 @@ class ExoAppPlayer(
     private fun ExoPlayer.toPlayerState(): PlayerState {
         return PlayerState(
             currentMediaItemId = currentMediaItem?.mediaId,
+            currentMediaIndex = currentWindowIndex,
             seekPositionMillis = currentPosition,
             isPlaying = isPlaying
         )

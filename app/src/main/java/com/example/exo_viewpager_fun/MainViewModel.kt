@@ -6,12 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
 /**
  * Holds a stateful [AppPlayer] instance that will frequently get created and torn down as [getPlayer]
@@ -25,20 +24,17 @@ class MainViewModel(
     private var appPlayer: AppPlayer? = null
     private var listening: Job? = null
 
-    // Emissions dictate player visibility in UI.
-    private val showPlayer = MutableStateFlow(false)
-    fun showPlayer(): Flow<Boolean> = showPlayer
+    private val viewState = MutableStateFlow(ViewState())
+    fun viewState(): StateFlow<ViewState> = viewState
 
-    // Emit video data to the UI (ViewPager2) so it can render video image previews and send
-    // page position changes back to this ViewModel.
-    val videoData = repository.videoData()
-        .onEach { videoData -> appPlayer?.setUpWith(videoData, handle.get()) }
-        .stateIn(
-            scope = viewModelScope,
-            // Repository video data might be slow to fetch, so start this as early as possible.
-            started = SharingStarted.Eagerly,
-            initialValue = null
-        )
+    init {
+        repository.videoData()
+            .onEach { videoData ->
+                appPlayer?.setUpWith(videoData, handle.get())
+                viewState.update { it.copy(videoData = videoData) }
+            }
+            .launchIn(viewModelScope)
+    }
 
     // Returns any active player instance or creates a new one.
     fun getPlayer(): AppPlayer {
@@ -46,9 +42,9 @@ class MainViewModel(
             config = AppPlayer.Factory.Config(loopVideos = true)
         ).apply {
             listening = isPlayerRendering()
-                .onEach { isPlayerRendering -> showPlayer.value = isPlayerRendering }
+                .onEach { isPlayerRendering -> viewState.update { it.copy(showPlayer = isPlayerRendering) } }
                 .launchIn(viewModelScope)
-            videoData.value?.let { videoData -> setUpWith(videoData, handle.get()) }
+            viewState.value.videoData?.let { setUpWith(it, handle.get()) }
         }.also {
             appPlayer = it
         }
@@ -68,13 +64,13 @@ class MainViewModel(
 
     fun playMediaAt(position: Int) {
         val appPlayer = requireNotNull(appPlayer)
-        if (appPlayer.currentMediaIndex == position) {
+        if (appPlayer.currentPlayerState.currentMediaIndex == position) {
             /** Already playing the media at [position]; no-op. */
             return
         }
 
         /** Tell UI to hide player while player is loading content at [position]. */
-        showPlayer.value = false
+        viewState.update { it.copy(showPlayer = false) }
 
         appPlayer.playMediaAt(position)
     }
