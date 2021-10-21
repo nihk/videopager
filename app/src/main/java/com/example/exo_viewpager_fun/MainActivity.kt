@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.viewState()
+        viewModel.viewStates()
             .onEach { viewState ->
                 if (viewState.videoData != null) {
                     adapter.submitList(viewState.videoData)
@@ -50,6 +50,14 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+            .launchIn(lifecycleScope)
+
+        viewModel.viewEffects()
+            .onEach { viewEffect -> appPlayerView.renderEffect(viewEffect) }
+            .launchIn(lifecycleScope)
+
+        appPlayerView.view.taps()
+            .onEach { viewModel.onPlayerTapped() }
             .launchIn(lifecycleScope)
     }
 

@@ -119,6 +119,28 @@ class MainViewModelTest {
         assertPlayerSetupWith(TEST_VIDEO_DATA)
     }
 
+    @Test
+    fun `should pause player when tapped while playing`() = mainViewModel(
+        initialState = PlayerState.INITIAL.copy(isPlaying = true)
+    ) {
+        initPlayer()
+
+        tapPlayer()
+
+        assertPlaying(false)
+    }
+
+    @Test
+    fun `should play player when tapped while paused`() = mainViewModel(
+        initialState = PlayerState.INITIAL.copy(isPlaying = false)
+    ) {
+        initPlayer()
+
+        tapPlayer()
+
+        assertPlaying(true)
+    }
+
     fun mainViewModel(
         initialState: PlayerState = PlayerState.INITIAL,
         videoData: List<VideoData> = TEST_VIDEO_DATA,
@@ -133,7 +155,9 @@ class MainViewModelTest {
         videoData: List<VideoData>,
         isPlayerRendering: Flow<Boolean>
     ) : Closeable {
-        private val appPlayer = FakeAppPlayer(isPlayerRendering)
+        private val appPlayer = FakeAppPlayer(isPlayerRendering).apply {
+            currentPlayerState = initialState
+        }
         private val appPlayerFactory = FakeAppPlayer.Factory(appPlayer)
         private val handle = PlayerSavedStateHandle(
             handle = SavedStateHandle()
@@ -169,6 +193,10 @@ class MainViewModelTest {
             videoDataFlow.value = videoData
         }
 
+        fun tapPlayer() {
+            viewModel.onPlayerTapped()
+        }
+
         fun assertPlayerCreatedCount(times: Int) {
             assertEquals(times, appPlayerFactory.createCount)
         }
@@ -182,15 +210,19 @@ class MainViewModelTest {
         }
 
         fun assertShowPlayer(value: Boolean) {
-            assertEquals(value, viewModel.viewState().value.showPlayer)
+            assertEquals(value, viewModel.viewStates().value.showPlayer)
         }
 
         fun assertCachedVideoData(videoData: List<VideoData>) {
-            assertEquals(videoData, viewModel.viewState().value.videoData)
+            assertEquals(videoData, viewModel.viewStates().value.videoData)
         }
 
         fun assertPlayerSetupWith(videoData: List<VideoData>) {
             assertEquals(videoData, appPlayer.setups.last())
+        }
+
+        fun assertPlaying(isPlaying: Boolean) {
+            assertEquals(isPlaying, appPlayer.currentPlayerState.isPlaying)
         }
 
         override fun close() {

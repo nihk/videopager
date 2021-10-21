@@ -18,6 +18,14 @@ class FakeAppPlayer(private val isPlayerRendering: Flow<Boolean>) : AppPlayer {
         playingMediaAt = position
     }
 
+    override fun pause() {
+        currentPlayerState = currentPlayerState.copy(isPlaying = false)
+    }
+
+    override fun play() {
+        currentPlayerState = currentPlayerState.copy(isPlaying = true)
+    }
+
     override fun release() {
         didRelease = true
     }

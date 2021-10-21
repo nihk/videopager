@@ -15,6 +15,8 @@ interface AppPlayer {
     fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?)
     fun isPlayerRendering(): Flow<Boolean>
     fun playMediaAt(position: Int)
+    fun play()
+    fun pause()
     fun release()
 
     interface Factory {
@@ -93,6 +95,14 @@ class ExoAppPlayer(
     override fun playMediaAt(position: Int) {
         exoPlayer.seekToDefaultPosition(position)
         exoPlayer.playWhenReady = true
+    }
+
+    override fun play() {
+        exoPlayer.play()
+    }
+
+    override fun pause() {
+        exoPlayer.pause()
     }
 
     override fun release() {

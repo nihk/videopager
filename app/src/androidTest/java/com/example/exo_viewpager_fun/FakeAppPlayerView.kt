@@ -6,12 +6,14 @@ import android.view.View
 import android.widget.FrameLayout
 
 class FakeAppPlayerView(context: Context) : AppPlayerView {
+    val viewId = View.generateViewId()
     override val view: View = FrameLayout(context).apply {
-        id = View.generateViewId()
+        id = viewId
         setBackgroundColor(Color.GREEN)
     }
     var didStart: Boolean = false
     var didStop: Boolean = false
+    var latestEffect: ViewEffect? = null
 
     override fun onStart(appPlayer: AppPlayer) {
         didStart = true
@@ -19,5 +21,9 @@ class FakeAppPlayerView(context: Context) : AppPlayerView {
 
     override fun onStop() {
         didStop = true
+    }
+
+    override fun renderEffect(viewEffect: ViewEffect) {
+        latestEffect = viewEffect
     }
 }

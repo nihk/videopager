@@ -104,6 +104,34 @@ class MainActivityTest {
         assertPage(1)
     }
 
+    @Test
+    fun whenScreenIsTapped_shouldPausePlayer() = mainActivity {
+        emit(TEST_VIDEO_DATA)
+
+        tapScreen()
+
+        assertPlaying(false)
+    }
+
+    @Test
+    fun whenScreenIsTappedTwice_shouldPlayPlayer() = mainActivity {
+        emit(TEST_VIDEO_DATA)
+
+        tapScreen()
+        tapScreen()
+
+        assertPlaying(true)
+    }
+
+    @Test
+    fun whenScreenIsTapped_shouldRenderEffect() = mainActivity {
+        emit(TEST_VIDEO_DATA)
+
+        tapScreen()
+
+        assertEffect(ShowPauseAnimation)
+    }
+
     fun mainActivity(
         videoData: List<VideoData>? = null,
         isPlayerRendering: Flow<Boolean> = emptyFlow(),
@@ -163,6 +191,11 @@ class MainActivityTest {
             scenario.recreate()
         }
 
+        fun tapScreen() {
+            onView(withId(appPlayerView.viewId))
+                .perform(Tap())
+        }
+
         fun assertPlayerCreated() {
             assertEquals(1, appPlayerFactory.createCount)
         }
@@ -202,6 +235,14 @@ class MainActivityTest {
         fun assertPlayerViewPosition(position: Int) {
             onView(withId(R.id.view_pager))
                 .check(matches(AtViewPager2Position(position, IsParentOf(appPlayerView.view))))
+        }
+
+        fun assertPlaying(isPlaying: Boolean) {
+            assertEquals(isPlaying, appPlayer.currentPlayerState.isPlaying)
+        }
+
+        fun assertEffect(viewEffect: ViewEffect) {
+            assertEquals(viewEffect, appPlayerView.latestEffect)
         }
     }
 }
