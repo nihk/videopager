@@ -38,9 +38,11 @@ class MainViewModel(
     private var appPlayer: AppPlayer? = null
     private var listening: Job? = null
 
+    // State that's persisted in-memory.
     private val viewStates = MutableStateFlow(ViewState())
     fun viewStates(): StateFlow<ViewState> = viewStates
 
+    // One-shot side-effects.
     private val viewEffects = MutableSharedFlow<ViewEffect>()
     fun viewEffects(): SharedFlow<ViewEffect> = viewEffects
 
