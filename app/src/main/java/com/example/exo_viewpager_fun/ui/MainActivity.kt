@@ -12,7 +12,6 @@ import com.example.exo_viewpager_fun.models.AttachPlayerViewToPage
 import com.example.exo_viewpager_fun.models.PlayerViewEffect
 import com.example.exo_viewpager_fun.models.SettledOnPage
 import com.example.exo_viewpager_fun.models.TappedPlayer
-import com.example.exo_viewpager_fun.taps
 import com.example.exo_viewpager_fun.vm.MainViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -67,7 +66,7 @@ class MainActivity : AppCompatActivity() {
             }
             .launchIn(lifecycleScope)
 
-        appPlayerView.view.taps()
+        appPlayerView.taps()
             .onEach { viewModel.processEvent(TappedPlayer) }
             .launchIn(lifecycleScope)
     }
