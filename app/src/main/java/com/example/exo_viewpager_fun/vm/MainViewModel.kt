@@ -8,7 +8,12 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.example.exo_viewpager_fun.models.ShowPauseAnimation
 import com.example.exo_viewpager_fun.models.ShowPlayAnimation
 import com.example.exo_viewpager_fun.data.VideoDataRepository
+import com.example.exo_viewpager_fun.models.AttachPlayerViewToPage
+import com.example.exo_viewpager_fun.models.ResetAnyPlayPauseAnimations
+import com.example.exo_viewpager_fun.models.SettledOnPage
+import com.example.exo_viewpager_fun.models.TappedPlayer
 import com.example.exo_viewpager_fun.models.ViewEffect
+import com.example.exo_viewpager_fun.models.ViewEvent
 import com.example.exo_viewpager_fun.models.ViewState
 import com.example.exo_viewpager_fun.players.AppPlayer
 import kotlinx.coroutines.Job
@@ -74,20 +79,14 @@ class MainViewModel(
         appPlayer = null
     }
 
-    fun playMediaAt(position: Int) {
-        val appPlayer = requireNotNull(appPlayer)
-        if (appPlayer.currentPlayerState.currentMediaIndex == position) {
-            /** Already playing the media at [position]; no-op. */
-            return
+    fun processEvent(viewEvent: ViewEvent) {
+        when (viewEvent) {
+            is TappedPlayer -> onPlayerTapped()
+            is SettledOnPage -> onPageSettled(viewEvent.page)
         }
-
-        /** Tell UI to hide player while player is loading content at [position]. */
-        viewStates.update { it.copy(showPlayer = false) }
-
-        appPlayer.playMediaAt(position)
     }
 
-    fun onPlayerTapped() {
+    private fun onPlayerTapped() {
         val appPlayer = requireNotNull(appPlayer)
         val viewEffect = if (appPlayer.currentPlayerState.isPlaying) {
             appPlayer.pause()
@@ -99,6 +98,33 @@ class MainViewModel(
         viewModelScope.launch {
             viewEffects.emit(viewEffect)
         }
+    }
+
+    private fun onPageSettled(page: Int) {
+        val didChangeMedia = playMediaAt(page)
+        viewModelScope.launch {
+            if (didChangeMedia) {
+                viewEffects.emit(ResetAnyPlayPauseAnimations)
+            }
+            viewEffects.emit(AttachPlayerViewToPage(page))
+        }
+    }
+
+    /**
+     * @return Whether the media position was actually changed.
+     */
+    private fun playMediaAt(position: Int): Boolean {
+        val appPlayer = requireNotNull(appPlayer)
+        if (appPlayer.currentPlayerState.currentMediaIndex == position) {
+            /** Already playing the media at [position] */
+            return false
+        }
+
+        /** Tell UI to hide player while player is loading content at [position]. */
+        viewStates.update { it.copy(showPlayer = false) }
+
+        appPlayer.playMediaAt(position)
+        return true
     }
 
     class Factory(

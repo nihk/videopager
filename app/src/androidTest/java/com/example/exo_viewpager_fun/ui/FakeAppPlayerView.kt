@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.view.View
 import android.widget.FrameLayout
-import com.example.exo_viewpager_fun.models.ViewEffect
+import com.example.exo_viewpager_fun.models.PlayerViewEffect
 import com.example.exo_viewpager_fun.players.AppPlayer
 
 class FakeAppPlayerView(context: Context) : AppPlayerView {
@@ -15,7 +15,7 @@ class FakeAppPlayerView(context: Context) : AppPlayerView {
     }
     var didStart: Boolean = false
     var didStop: Boolean = false
-    var latestEffect: ViewEffect? = null
+    var latestEffect: PlayerViewEffect? = null
 
     override fun onStart(appPlayer: AppPlayer) {
         didStart = true
@@ -25,7 +25,7 @@ class FakeAppPlayerView(context: Context) : AppPlayerView {
         didStop = true
     }
 
-    override fun renderEffect(viewEffect: ViewEffect) {
-        latestEffect = viewEffect
+    override fun renderEffect(playerViewEffect: PlayerViewEffect) {
+        latestEffect = playerViewEffect
     }
 }

@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
 import com.example.exo_viewpager_fun.data.FakeVideoDataRepository
 import com.example.exo_viewpager_fun.models.PlayerState
+import com.example.exo_viewpager_fun.models.SettledOnPage
+import com.example.exo_viewpager_fun.models.TappedPlayer
 import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.players.FakeAppPlayer
 import com.example.exo_viewpager_fun.utils.CoroutinesTestRule
@@ -192,7 +194,7 @@ class MainViewModelTest {
         }
 
         fun changeMediaPosition(position: Int) {
-            viewModel.playMediaAt(position)
+            viewModel.processEvent(SettledOnPage(position))
         }
 
         fun emitVideoData(videoData: List<VideoData>) {
@@ -200,7 +202,7 @@ class MainViewModelTest {
         }
 
         fun tapPlayer() {
-            viewModel.onPlayerTapped()
+            viewModel.processEvent(TappedPlayer)
         }
 
         fun assertPlayerCreatedCount(times: Int) {

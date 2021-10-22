@@ -6,10 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.exo_viewpager_fun.App
-import com.example.exo_viewpager_fun.di.MainModule
-import com.example.exo_viewpager_fun.vm.MainViewModel
 import com.example.exo_viewpager_fun.databinding.MainActivityBinding
+import com.example.exo_viewpager_fun.di.MainModule
+import com.example.exo_viewpager_fun.models.AttachPlayerViewToPage
+import com.example.exo_viewpager_fun.models.PlayerViewEffect
+import com.example.exo_viewpager_fun.models.SettledOnPage
+import com.example.exo_viewpager_fun.models.TappedPlayer
 import com.example.exo_viewpager_fun.taps
+import com.example.exo_viewpager_fun.vm.MainViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -30,9 +34,7 @@ class MainActivity : AppCompatActivity() {
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrollStateChanged(state: Int) {
                 if (state == ViewPager2.SCROLL_STATE_IDLE) {
-                    val position = binding.viewPager.currentItem
-                    viewModel.playMediaAt(position)
-                    adapter.attachPlayerView(appPlayerView, position)
+                    viewModel.processEvent(SettledOnPage(binding.viewPager.currentItem))
                 }
             }
         })
@@ -57,11 +59,16 @@ class MainActivity : AppCompatActivity() {
             .launchIn(lifecycleScope)
 
         viewModel.viewEffects()
-            .onEach { viewEffect -> appPlayerView.renderEffect(viewEffect) }
+            .onEach { viewEffect ->
+                when (viewEffect) {
+                    is PlayerViewEffect -> appPlayerView.renderEffect(viewEffect)
+                    is AttachPlayerViewToPage -> adapter.attachPlayerView(appPlayerView, viewEffect.page)
+                }
+            }
             .launchIn(lifecycleScope)
 
         appPlayerView.view.taps()
-            .onEach { viewModel.onPlayerTapped() }
+            .onEach { viewModel.processEvent(TappedPlayer) }
             .launchIn(lifecycleScope)
     }
 

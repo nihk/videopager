@@ -5,8 +5,9 @@ import android.view.View
 import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.models.ShowPauseAnimation
 import com.example.exo_viewpager_fun.models.ShowPlayAnimation
-import com.example.exo_viewpager_fun.models.ViewEffect
 import com.example.exo_viewpager_fun.databinding.PlayerViewBinding
+import com.example.exo_viewpager_fun.models.ResetAnyPlayPauseAnimations
+import com.example.exo_viewpager_fun.models.PlayerViewEffect
 import com.example.exo_viewpager_fun.players.AppPlayer
 import com.example.exo_viewpager_fun.players.ExoAppPlayer
 
@@ -25,12 +26,18 @@ class ExoAppPlayerView(layoutInflater: LayoutInflater) : AppPlayerView {
         binding.playerView.player = null
     }
 
-    override fun renderEffect(viewEffect: ViewEffect) {
-        val drawableRes = when (viewEffect) {
-            ShowPauseAnimation -> R.drawable.pause
-            ShowPlayAnimation -> R.drawable.play
+    override fun renderEffect(playerViewEffect: PlayerViewEffect) {
+        when (playerViewEffect) {
+            ResetAnyPlayPauseAnimations -> animationEffect.reset()
+            ShowPauseAnimation, ShowPlayAnimation -> {
+                val drawableRes = if (playerViewEffect is ShowPlayAnimation) {
+                    R.drawable.play
+                } else {
+                    R.drawable.pause
+                }
+                binding.playPause.setImageResource(drawableRes)
+                animationEffect.go()
+            }
         }
-        binding.playPause.setImageResource(drawableRes)
-        animationEffect.go()
     }
 }

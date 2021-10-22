@@ -10,8 +10,7 @@ class FadeInThenOutAnimationEffect(private val view: View) {
     private var animatorSet: AnimatorSet? = null
 
     fun go() {
-        animatorSet?.cancel()
-        view.reset()
+        reset()
 
         val fadeIn = PropertyValuesHolder.ofFloat(View.ALPHA, 0f, 1f)
         val fadeOut = PropertyValuesHolder.ofFloat(View.ALPHA, 1f, 0f)
@@ -33,9 +32,12 @@ class FadeInThenOutAnimationEffect(private val view: View) {
         }
     }
 
-    private fun View.reset() {
-        alpha = 0f
-        scaleX = 0f
-        scaleY = 0f
+    fun reset() {
+        animatorSet?.cancel()
+        with(view) {
+            alpha = 0f
+            scaleX = 0f
+            scaleY = 0f
+        }
     }
 }
