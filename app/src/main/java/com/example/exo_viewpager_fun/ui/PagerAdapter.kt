@@ -19,7 +19,7 @@ import com.example.exo_viewpager_fun.databinding.PageItemBinding
  * be visible.
  *
  * These are two distinct functions because a PlayerView has to first be attached to a View hierarchy
- * before an ExoPlayer instance will callback listeners that it has started rendering frames.
+ * before an ExoPlayer instance will notify listeners that it has started rendering frames.
  */
 class PagerAdapter(
     private val imageLoader: ImageLoader
@@ -47,7 +47,11 @@ class PagerAdapter(
     /**
      * Attach [appPlayerView] to the ViewHolder at [position]. The player won't actually be visible in
      * the UI until [showPlayerFor] is also called.
-     * */
+     *
+     * For this function and [showPlayerFor], the ViewHolder at [position] isn't always immediately
+     * available. In those cases, simply wait for the RecyclerView to be laid out and re-query that
+     * ViewHolder.
+     */
     fun attachPlayerView(appPlayerView: AppPlayerView, position: Int) {
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder

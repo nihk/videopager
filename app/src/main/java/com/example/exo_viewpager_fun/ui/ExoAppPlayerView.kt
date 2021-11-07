@@ -10,9 +10,12 @@ import com.example.exo_viewpager_fun.models.ResetAnyPlayPauseAnimations
 import com.example.exo_viewpager_fun.models.PlayerViewEffect
 import com.example.exo_viewpager_fun.players.AppPlayer
 import com.example.exo_viewpager_fun.players.ExoAppPlayer
-import com.example.exo_viewpager_fun.taps
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * An implementation of AppPlayerView that uses ExoPlayer APIs,
+ * namely [com.google.android.exoplayer2.ui.PlayerView]
+ */
 class ExoAppPlayerView(layoutInflater: LayoutInflater) : AppPlayerView {
     override val view: View = layoutInflater.inflate(R.layout.player_view, null)
     private val binding = PlayerViewBinding.bind(view)

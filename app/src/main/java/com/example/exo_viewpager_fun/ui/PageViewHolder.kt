@@ -6,7 +6,6 @@ import coil.ImageLoader
 import coil.load
 import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
-import com.example.exo_viewpager_fun.detachFromParent
 
 class PageViewHolder(
     private val binding: PageItemBinding,

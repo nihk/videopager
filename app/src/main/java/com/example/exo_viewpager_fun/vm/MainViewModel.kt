@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * Holds a stateful [AppPlayer] instance that will frequently get created and torn down as [getPlayer]
+ * Holds a stateful [appPlayer] instance that will frequently get created and torn down as [getPlayer]
  * and [tearDown] are invoked in parallel to Activity lifecycle state changes.
  */
 class MainViewModel(
@@ -36,6 +36,8 @@ class MainViewModel(
     private val handle: PlayerSavedStateHandle
 ) : ViewModel() {
     private var appPlayer: AppPlayer? = null
+    // A job associated with listening to AppPlayer events. It's managed along the same lifecycle
+    // as the appPlayer field.
     private var listening: Job? = null
 
     // State that's persisted in-memory.
@@ -47,6 +49,7 @@ class MainViewModel(
     fun viewEffects(): SharedFlow<ViewEffect> = viewEffects
 
     init {
+        // Listen indefinitely to video data emissions.
         repository.videoData()
             .onEach { videoData ->
                 appPlayer?.setUpWith(videoData, handle.get())
@@ -81,6 +84,7 @@ class MainViewModel(
         appPlayer = null
     }
 
+    // Inputs from the UI.
     fun processEvent(viewEvent: ViewEvent) {
         when (viewEvent) {
             is TappedPlayer -> onPlayerTapped()

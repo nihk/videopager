@@ -3,6 +3,7 @@ package com.example.exo_viewpager_fun.vm
 import androidx.lifecycle.SavedStateHandle
 import com.example.exo_viewpager_fun.models.PlayerState
 
+// Convenience wrapper for a SavedStateHandle.
 class PlayerSavedStateHandle(
     private val handle: SavedStateHandle
 ) {

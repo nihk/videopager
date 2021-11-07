@@ -5,6 +5,7 @@ import com.example.exo_viewpager_fun.models.PlayerViewEffect
 import com.example.exo_viewpager_fun.players.AppPlayer
 import kotlinx.coroutines.flow.Flow
 
+// Abstraction over the player view. This facilitates testing and hides implementation details.
 interface AppPlayerView {
     val view: View
 
