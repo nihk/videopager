@@ -17,16 +17,16 @@ class FakeAppPlayerView(
         id = viewId
         setBackgroundColor(Color.GREEN)
     }
-    var didStart: Boolean = false
-    var didStop: Boolean = false
+    var didAttach: Boolean = false
+    var didDetach: Boolean = false
     var latestEffect: PlayerViewEffect? = null
 
-    override fun onStart(appPlayer: AppPlayer) {
-        didStart = true
+    override fun attach(appPlayer: AppPlayer) {
+        didAttach = true
     }
 
-    override fun onStop() {
-        didStop = true
+    override fun detachPlayer() {
+        didDetach = true
     }
 
     override fun renderEffect(playerViewEffect: PlayerViewEffect) {

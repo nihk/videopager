@@ -1,11 +1,11 @@
 package com.example.exo_viewpager_fun.players
 
 import android.content.Context
+import com.example.exo_viewpager_fun.currentMediaItems
+import com.example.exo_viewpager_fun.data.VideoDataUpdater
+import com.example.exo_viewpager_fun.loopVideos
 import com.example.exo_viewpager_fun.models.PlayerState
 import com.example.exo_viewpager_fun.models.VideoData
-import com.example.exo_viewpager_fun.data.VideoDataUpdater
-import com.example.exo_viewpager_fun.currentMediaItems
-import com.example.exo_viewpager_fun.loopVideos
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -18,30 +18,29 @@ class ExoAppPlayer(
     private val updater: VideoDataUpdater
 ) : AppPlayer {
     override val currentPlayerState: PlayerState get() = exoPlayer.toPlayerState()
+    private var isPlayerSetUp = false
 
     override fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?) {
-        // A signal to restore any saved video state.
-        val isInitializing = exoPlayer.currentMediaItem == null
-
         /** Delegate video insertion, removing, moving, etc. to this [updater] */
         updater.update(exoPlayer = exoPlayer, incoming = videoData)
+
+        if (isPlayerSetUp) return
+        setUpPlayer(playerState)
+        isPlayerSetUp = true
+    }
+
+    private fun setUpPlayer(playerState: PlayerState?) {
         val currentMediaItems = exoPlayer.currentMediaItems
 
-        val reconciledPlayerState = if (isInitializing) {
-            /**
-             * When restoring saved state, the saved media item might be unavailable, e.g. if
-             * the saved media item before process death was from a data set different than [videoData].
-             */
-            val canRestoreSavedPlayerState = playerState != null
-                && currentMediaItems.any { mediaItem -> mediaItem.mediaId == playerState.currentMediaItemId }
+         // When restoring saved state, the saved media item might be not be in the player's current
+         // collection of media items. In that case, the saved media item cannot be restored.
+        val canRestoreSavedPlayerState = playerState != null
+            && currentMediaItems.any { mediaItem -> mediaItem.mediaId == playerState.currentMediaItemId }
 
-            if (canRestoreSavedPlayerState) {
-                requireNotNull(playerState)
-            } else {
-                PlayerState.INITIAL
-            }
+        val reconciledPlayerState = if (canRestoreSavedPlayerState) {
+            requireNotNull(playerState)
         } else {
-            exoPlayer.toPlayerState()
+            PlayerState.INITIAL
         }
 
         val windowIndex = currentMediaItems.indexOfFirst { mediaItem ->
@@ -73,7 +72,7 @@ class ExoAppPlayer(
             currentMediaItemId = currentMediaItem?.mediaId,
             currentMediaIndex = currentWindowIndex,
             seekPositionMillis = currentPosition,
-            isPlaying = isPlaying
+            isPlaying = playWhenReady
         )
     }
 

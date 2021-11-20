@@ -1,4 +1,4 @@
-package com.example.exo_viewpager_fun.ui
+package com.example.exo_viewpager_fun.ui.extensions
 
 import androidx.viewpager2.widget.ViewPager2
 import kotlinx.coroutines.channels.awaitClose

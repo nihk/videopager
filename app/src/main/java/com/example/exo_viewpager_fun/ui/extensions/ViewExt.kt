@@ -1,4 +1,4 @@
-package com.example.exo_viewpager_fun.ui
+package com.example.exo_viewpager_fun.ui.extensions
 
 import android.annotation.SuppressLint
 import android.view.GestureDetector

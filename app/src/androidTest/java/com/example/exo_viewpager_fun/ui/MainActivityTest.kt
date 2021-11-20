@@ -18,8 +18,7 @@ import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
 import com.example.exo_viewpager_fun.data.FakeVideoDataRepository
 import com.example.exo_viewpager_fun.di.MainModule
-import com.example.exo_viewpager_fun.models.ShowPauseAnimation
-import com.example.exo_viewpager_fun.models.ShowPlayAnimation
+import com.example.exo_viewpager_fun.models.AnimationEffect
 import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.models.ViewEffect
 import com.example.exo_viewpager_fun.players.FakeAppPlayer
@@ -141,11 +140,11 @@ class MainActivityTest {
 
         tapScreen()
 
-        assertEffect(ShowPauseAnimation)
+        assertEffect(AnimationEffect(R.drawable.pause))
 
         tapScreen()
 
-        assertEffect(ShowPlayAnimation)
+        assertEffect(AnimationEffect(R.drawable.play))
     }
 
     fun mainActivity(
@@ -222,11 +221,11 @@ class MainActivityTest {
         }
 
         fun assertPlayerViewStarted() {
-            assertTrue(appPlayerView.didStart)
+            assertTrue(appPlayerView.didAttach)
         }
 
         fun assertPlayerViewStopped() {
-            assertTrue(appPlayerView.didStop)
+            assertTrue(appPlayerView.didDetach)
         }
 
         fun assertPage(page: Int) {

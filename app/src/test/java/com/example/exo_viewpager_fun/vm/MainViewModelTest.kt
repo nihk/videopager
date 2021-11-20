@@ -3,56 +3,72 @@ package com.example.exo_viewpager_fun.vm
 import androidx.lifecycle.SavedStateHandle
 import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
 import com.example.exo_viewpager_fun.data.FakeVideoDataRepository
+import com.example.exo_viewpager_fun.models.OnPageSettledEvent
+import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
 import com.example.exo_viewpager_fun.models.PlayerState
-import com.example.exo_viewpager_fun.models.SettledOnPage
-import com.example.exo_viewpager_fun.models.TappedPlayer
+import com.example.exo_viewpager_fun.models.TappedPlayerEvent
 import com.example.exo_viewpager_fun.models.VideoData
+import com.example.exo_viewpager_fun.models.ViewState
 import com.example.exo_viewpager_fun.players.FakeAppPlayer
 import com.example.exo_viewpager_fun.utils.CoroutinesTestRule
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
-import java.io.Closeable
 
 class MainViewModelTest {
     @get:Rule
     val rule = CoroutinesTestRule()
 
     @Test
-    fun `should create new player when non exist`() = mainViewModel {
-        initPlayer()
+    fun `should create new player when none exist`() = mainViewModel {
+        startPlayer()
 
         assertPlayerCreatedCount(1)
+        assertStateOwnsPlayer()
     }
 
     @Test
     fun `should not create new player when one exists`() = mainViewModel {
-        initPlayer()
-        initPlayer()
+        startPlayer()
+        startPlayer()
 
         assertPlayerCreatedCount(1)
+        assertStateOwnsPlayer()
     }
 
     @Test
-    fun `should create new player when cached is torn down`() = mainViewModel {
-        initPlayer()
-        tearDown()
-        initPlayer()
+    fun `should create new player after stop event and not changing configs`() = mainViewModel {
+        startPlayer()
+        tearDownPlayer(isChangingConfigurations = false)
+        startPlayer()
 
         assertPlayerCreatedCount(2)
+        assertStateOwnsPlayer()
     }
 
     @Test
-    fun `should tear down player when view model is torn down`() = mainViewModel {
-        initPlayer()
-        tearDown()
+    fun `should tear down player when stopped event and not changing configs`() = mainViewModel {
+        startPlayer()
+        tearDownPlayer(isChangingConfigurations = false)
 
-        assertPlayerReleased()
+        assertPlayerReleased(didRelease = true)
+        assertStateDoesNotOwnPlayer()
+    }
+
+    @Test
+    fun `should not tear down player when stopped event and changing configs`() = mainViewModel {
+        startPlayer()
+        tearDownPlayer(isChangingConfigurations = true)
+
+        assertPlayerReleased(didRelease = false)
+        assertStateOwnsPlayer()
     }
 
     @Test
@@ -62,9 +78,9 @@ class MainViewModelTest {
             seekPositionMillis = 60L,
             isPlaying = false
         )
-        initPlayer()
+        startPlayer()
         setPlayerState(playerState)
-        tearDown()
+        tearDownPlayer(isChangingConfigurations = false)
 
         assertPlayerStateSaved(playerState)
     }
@@ -73,7 +89,7 @@ class MainViewModelTest {
     fun `should hide player when media position is changed`() = mainViewModel(
         isPlayerRendering = flowOf(true)
     ) {
-        initPlayer()
+        startPlayer()
         setCurrentMediaIndex(7)
         changeMediaPosition(42)
 
@@ -84,7 +100,7 @@ class MainViewModelTest {
     fun `should not hide player when media position change to same position is attempted`() = mainViewModel(
         isPlayerRendering = flowOf(true)
     ) {
-        initPlayer()
+        startPlayer()
         setCurrentMediaIndex(7)
         changeMediaPosition(7)
 
@@ -95,7 +111,7 @@ class MainViewModelTest {
     fun `should show player when player starts rendering`() {
         val isPlayerRendering = MutableStateFlow(false)
         mainViewModel(isPlayerRendering = isPlayerRendering) {
-            initPlayer()
+            startPlayer()
             isPlayerRendering.value = true
 
             assertShowPlayer(true)
@@ -111,7 +127,7 @@ class MainViewModelTest {
 
     @Test
     fun `should setup app player when repository emits video data`() = mainViewModel {
-        initPlayer()
+        startPlayer()
         val videoData = TEST_VIDEO_DATA + listOf(VideoData(mediaUri = "asdf", previewImageUri = "png"))
         emitVideoData(videoData)
 
@@ -122,16 +138,16 @@ class MainViewModelTest {
     fun `should setup app player when player is requested and cached video data exists`() = mainViewModel(
         videoData = TEST_VIDEO_DATA
     ) {
-        initPlayer()
+        startPlayer()
 
         assertPlayerSetupWith(TEST_VIDEO_DATA)
     }
 
     @Test
     fun `should pause player when tapped while playing`() = mainViewModel(
-        initialState = PlayerState.INITIAL.copy(isPlaying = true)
+        initialPlayerState = PlayerState.INITIAL.copy(isPlaying = true)
     ) {
-        initPlayer()
+        startPlayer()
 
         tapPlayer()
 
@@ -140,9 +156,9 @@ class MainViewModelTest {
 
     @Test
     fun `should play player when tapped while paused`() = mainViewModel(
-        initialState = PlayerState.INITIAL.copy(isPlaying = false)
+        initialPlayerState = PlayerState.INITIAL.copy(isPlaying = false)
     ) {
-        initPlayer()
+        startPlayer()
 
         tapPlayer()
 
@@ -150,39 +166,48 @@ class MainViewModelTest {
     }
 
     fun mainViewModel(
-        initialState: PlayerState = PlayerState.INITIAL,
+        initialPlayerState: PlayerState = PlayerState.INITIAL,
         videoData: List<VideoData> = TEST_VIDEO_DATA,
         isPlayerRendering: Flow<Boolean> = emptyFlow(),
-        block: MainViewModelRobot.() -> Unit
-    ) {
-        MainViewModelRobot(initialState, videoData, isPlayerRendering).use(block)
+        block: suspend MainViewModelRobot.() -> Unit
+    ) = rule.testDispatcher.runBlockingTest {
+        MainViewModelRobot(
+            initialPlayerState = initialPlayerState,
+            videoData = videoData,
+            isPlayerRendering = isPlayerRendering
+        ).block()
     }
 
     class MainViewModelRobot(
-        initialState: PlayerState,
+        initialPlayerState: PlayerState,
         videoData: List<VideoData>,
         isPlayerRendering: Flow<Boolean>
-    ) : Closeable {
+    ) {
         private val appPlayer = FakeAppPlayer(isPlayerRendering).apply {
-            currentPlayerState = initialState
+            currentPlayerState = initialPlayerState
         }
         private val appPlayerFactory = FakeAppPlayer.Factory(appPlayer)
         private val handle = PlayerSavedStateHandle(
             handle = SavedStateHandle()
-        ).apply { set(initialState) }
+        ).apply { set(initialPlayerState) }
         private val videoDataFlow = MutableStateFlow(videoData)
         private val viewModel = MainViewModel(
             repository = FakeVideoDataRepository(videoDataFlow),
             appPlayerFactory = appPlayerFactory,
-            handle = handle
+            handle = handle,
+            initialState = ViewState(videoData = videoData)
         )
 
-        fun initPlayer() {
-            viewModel.getPlayer()
+        suspend fun startPlayer() {
+            viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Start))
+            awaitState { state -> state.appPlayer != null }
         }
 
-        fun tearDown() {
-            viewModel.tearDown()
+        suspend fun tearDownPlayer(isChangingConfigurations: Boolean) {
+            viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Stop(isChangingConfigurations)))
+            if (!isChangingConfigurations) {
+                awaitState { state -> state.appPlayer == null }
+            }
         }
 
         fun setPlayerState(playerState: PlayerState) {
@@ -194,7 +219,7 @@ class MainViewModelTest {
         }
 
         fun changeMediaPosition(position: Int) {
-            viewModel.processEvent(SettledOnPage(position))
+            viewModel.processEvent(OnPageSettledEvent(position))
         }
 
         fun emitVideoData(videoData: List<VideoData>) {
@@ -202,15 +227,25 @@ class MainViewModelTest {
         }
 
         fun tapPlayer() {
-            viewModel.processEvent(TappedPlayer)
+            viewModel.processEvent(TappedPlayerEvent)
         }
 
         fun assertPlayerCreatedCount(times: Int) {
             assertEquals(times, appPlayerFactory.createCount)
         }
 
-        fun assertPlayerReleased() {
-            assertTrue(appPlayer.didRelease)
+        fun assertPlayerReleased(didRelease: Boolean) {
+            assertEquals(didRelease, appPlayer.didRelease)
+        }
+
+        suspend fun assertStateOwnsPlayer() {
+            awaitState { state -> state.appPlayer != null }
+            assertNotNull(viewModel.states.value.appPlayer)
+        }
+
+        suspend fun assertStateDoesNotOwnPlayer() {
+            awaitState { state -> state.appPlayer == null }
+            assertNull(viewModel.states.value.appPlayer)
         }
 
         fun assertPlayerStateSaved(playerState: PlayerState) {
@@ -218,11 +253,11 @@ class MainViewModelTest {
         }
 
         fun assertShowPlayer(value: Boolean) {
-            assertEquals(value, viewModel.viewStates().value.showPlayer)
+            assertEquals(value, viewModel.states.value.showPlayer)
         }
 
         fun assertCachedVideoData(videoData: List<VideoData>) {
-            assertEquals(videoData, viewModel.viewStates().value.videoData)
+            assertEquals(videoData, viewModel.states.value.videoData)
         }
 
         fun assertPlayerSetupWith(videoData: List<VideoData>) {
@@ -233,8 +268,8 @@ class MainViewModelTest {
             assertEquals(isPlaying, appPlayer.currentPlayerState.isPlaying)
         }
 
-        override fun close() {
-            viewModel.tearDown()
+        private suspend fun awaitState(predicate: (ViewState) -> Boolean) {
+            viewModel.states.takeWhile { state -> !predicate(state) }.collect()
         }
     }
 }

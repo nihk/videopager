@@ -66,7 +66,7 @@ class ExoAppPlayerTest {
             currentMediaIndex = 0,
             currentMediaItemId = "1. mediaUri", // See TEST_VIDEO_DATA
             seekPositionMillis = 100L,
-            isPlaying = false // even tho playWhenReady is true, there's no actual media to play for this test
+            isPlaying = true
         )
         assertPlayerState(expected)
     }

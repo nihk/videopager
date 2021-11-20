@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 interface AppPlayerView {
     val view: View
 
-    fun onStart(appPlayer: AppPlayer)
-    fun onStop()
+    fun attach(appPlayer: AppPlayer)
+    fun detachPlayer()
     fun renderEffect(playerViewEffect: PlayerViewEffect)
     fun taps(): Flow<Unit>
 }

@@ -3,134 +3,165 @@ package com.example.exo_viewpager_fun.vm
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
-import com.example.exo_viewpager_fun.models.ShowPauseAnimation
-import com.example.exo_viewpager_fun.models.ShowPlayAnimation
+import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.data.VideoDataRepository
-import com.example.exo_viewpager_fun.models.AttachPlayerViewToPage
-import com.example.exo_viewpager_fun.models.ResetAnyPlayPauseAnimations
-import com.example.exo_viewpager_fun.models.SettledOnPage
-import com.example.exo_viewpager_fun.models.TappedPlayer
+import com.example.exo_viewpager_fun.models.AnimationEffect
+import com.example.exo_viewpager_fun.models.AttachPlayerToViewEvent
+import com.example.exo_viewpager_fun.models.AttachPlayerToViewResult
+import com.example.exo_viewpager_fun.models.CreatePlayerResult
+import com.example.exo_viewpager_fun.models.LoadVideoDataEvent
+import com.example.exo_viewpager_fun.models.LoadVideoDataResult
+import com.example.exo_viewpager_fun.models.OnPageSettledEvent
+import com.example.exo_viewpager_fun.models.OnPageSettledResult
+import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
+import com.example.exo_viewpager_fun.models.PlayerRenderingResult
+import com.example.exo_viewpager_fun.models.ResetAnimationsEffect
+import com.example.exo_viewpager_fun.models.TappedPlayerEvent
+import com.example.exo_viewpager_fun.models.TappedPlayerResult
+import com.example.exo_viewpager_fun.models.TearDownPlayerResult
 import com.example.exo_viewpager_fun.models.ViewEffect
 import com.example.exo_viewpager_fun.models.ViewEvent
+import com.example.exo_viewpager_fun.models.ViewResult
 import com.example.exo_viewpager_fun.models.ViewState
 import com.example.exo_viewpager_fun.players.AppPlayer
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn
+import com.example.exo_viewpager_fun.ui.extensions.ViewState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 /**
- * Holds a stateful [appPlayer] instance that will frequently get created and torn down as [getPlayer]
- * and [tearDown] are invoked in parallel to Activity lifecycle state changes.
+ * Owns a stateful [ViewState.appPlayer] instance that will frequently get created and torn down in
+ * parallel with Activity lifecycle state changes.
  */
 class MainViewModel(
     private val repository: VideoDataRepository,
     private val appPlayerFactory: AppPlayer.Factory,
-    private val handle: PlayerSavedStateHandle
-) : ViewModel() {
-    private var appPlayer: AppPlayer? = null
-    // A job associated with listening to AppPlayer events. It's managed along the same lifecycle
-    // as the appPlayer field.
-    private var listening: Job? = null
-
-    // State that's persisted in-memory.
-    private val viewStates = MutableStateFlow(ViewState())
-    fun viewStates(): StateFlow<ViewState> = viewStates
-
-    // One-shot side-effects.
-    private val viewEffects = MutableSharedFlow<ViewEffect>()
-    fun viewEffects(): SharedFlow<ViewEffect> = viewEffects
+    private val handle: PlayerSavedStateHandle,
+    initialState: ViewState
+) : MviViewModel<ViewEvent, ViewResult, ViewState, ViewEffect>(initialState) {
 
     init {
-        // Listen indefinitely to video data emissions.
-        repository.videoData()
-            .onEach { videoData ->
-                appPlayer?.setUpWith(videoData, handle.get())
-                viewStates.update { it.copy(videoData = videoData) }
+        processEvent(LoadVideoDataEvent)
+    }
+
+    override fun Flow<ViewEvent>.toResults(): Flow<ViewResult> {
+        return merge(
+            filterIsInstance<LoadVideoDataEvent>().toLoadVideoDataResults(),
+            filterIsInstance<PlayerLifecycleEvent>().toPlayerLifecycleResults(),
+            filterIsInstance<AttachPlayerToViewEvent>().toAttachPlayerToViewResults(),
+            filterIsInstance<TappedPlayerEvent>().toTappedPlayerResults(),
+            filterIsInstance<OnPageSettledEvent>().toPageSettledResults()
+        )
+    }
+
+    private fun Flow<LoadVideoDataEvent>.toLoadVideoDataResults(): Flow<ViewResult> {
+        return flatMapLatest { repository.videoData() }
+            .onEach { videoData -> states.value.appPlayer?.setUpWith(videoData, handle.get()) }
+            .map { videoData -> LoadVideoDataResult(videoData) }
+    }
+
+    private fun Flow<PlayerLifecycleEvent>.toPlayerLifecycleResults(): Flow<ViewResult> {
+        return filterNot { event ->
+            // Don't need to create a player when one already exists. This can happen
+            // after a configuration change
+            states.value.appPlayer != null && event.type is PlayerLifecycleEvent.Type.Start
+                // Keep player in memory across configuration changes
+                || event.type is PlayerLifecycleEvent.Type.Stop && event.type.isChangingConfigurations
+        }.flatMapLatest { event ->
+            when (event.type) {
+                is PlayerLifecycleEvent.Type.Start -> createPlayer()
+                is PlayerLifecycleEvent.Type.Stop -> tearDownPlayer()
             }
-            .launchIn(viewModelScope)
-    }
-
-    // Returns any active player instance or creates a new one.
-    fun getPlayer(): AppPlayer {
-        return appPlayer ?: appPlayerFactory.create(
-            config = AppPlayer.Factory.Config(loopVideos = true)
-        ).apply {
-            listening = isPlayerRendering()
-                .onEach { isPlayerRendering -> viewStates.update { it.copy(showPlayer = isPlayerRendering) } }
-                .launchIn(viewModelScope)
-            viewStates.value.videoData?.let { setUpWith(it, handle.get()) }
-        }.also {
-            appPlayer = it
         }
     }
 
-    // Videos are a heavy resource, so tear player down when the app is not in the foreground.
-    fun tearDown() {
-        listening?.cancel()
-        listening = null
-        appPlayer?.run {
-            // Keep track of player state so that it can be restored across player recreations.
-            handle.set(currentPlayerState)
-            release()
-        }
-        appPlayer = null
+    private fun createPlayer(): Flow<ViewResult> {
+        val config = AppPlayer.Factory.Config(loopVideos = true)
+        val appPlayer = appPlayerFactory.create(config)
+        states.value.videoData?.let { videoData -> appPlayer.setUpWith(videoData, handle.get()) }
+        return merge(
+            flowOf(CreatePlayerResult(appPlayer)),
+            appPlayer.isPlayerRendering().map(::PlayerRenderingResult)
+        )
     }
 
-    // Inputs from the UI.
-    fun processEvent(viewEvent: ViewEvent) {
-        when (viewEvent) {
-            is TappedPlayer -> onPlayerTapped()
-            is SettledOnPage -> onPageSettled(viewEvent.page)
-        }
+    private fun tearDownPlayer(): Flow<ViewResult> {
+        val appPlayer = requireNotNull(states.value.appPlayer)
+        // Keep track of player state so that it can be restored across player recreations.
+        handle.set(appPlayer.currentPlayerState)
+        // Videos are a heavy resource, so tear player down when the app is not in the foreground.
+        appPlayer.release()
+        return flowOf(TearDownPlayerResult)
     }
 
-    private fun onPlayerTapped() {
-        val appPlayer = requireNotNull(appPlayer)
-        val viewEffect = if (appPlayer.currentPlayerState.isPlaying) {
-            appPlayer.pause()
-            ShowPauseAnimation
-        } else {
-            appPlayer.play()
-            ShowPlayAnimation
-        }
-        viewModelScope.launch {
-            viewEffects.emit(viewEffect)
-        }
+    private fun Flow<AttachPlayerToViewEvent>.toAttachPlayerToViewResults(): Flow<ViewResult> {
+        return mapLatest { event -> AttachPlayerToViewResult(event.doAttach) }
     }
 
-    private fun onPageSettled(page: Int) {
-        val didChangeMedia = playMediaAt(page)
-        viewModelScope.launch {
-            if (didChangeMedia) {
-                viewEffects.emit(ResetAnyPlayPauseAnimations)
+    private fun Flow<TappedPlayerEvent>.toTappedPlayerResults(): Flow<ViewResult> {
+        return mapLatest {
+            val appPlayer = requireNotNull(states.value.appPlayer)
+            val drawable = if (appPlayer.currentPlayerState.isPlaying) {
+                appPlayer.pause()
+                R.drawable.pause
+            } else {
+                appPlayer.play()
+                R.drawable.play
             }
-            viewEffects.emit(AttachPlayerViewToPage(page))
+
+            TappedPlayerResult(drawable)
         }
     }
 
-    /**
-     * @return Whether the media position was actually changed.
-     */
-    private fun playMediaAt(position: Int): Boolean {
-        val appPlayer = requireNotNull(appPlayer)
-        if (appPlayer.currentPlayerState.currentMediaIndex == position) {
-            /** Already playing the media at [position] */
-            return false
+    private fun Flow<OnPageSettledEvent>.toPageSettledResults(): Flow<ViewResult> {
+        return mapLatest { event ->
+            val appPlayer = requireNotNull(states.value.appPlayer)
+            val changeVideo = appPlayer.currentPlayerState.currentMediaIndex != event.page
+            if (changeVideo) {
+                appPlayer.playMediaAt(event.page)
+            }
+
+            OnPageSettledResult(
+                page = event.page,
+                didChangeVideo = changeVideo
+            )
         }
+    }
 
-        /** Tell UI to hide player while player is loading content at [position]. */
-        viewStates.update { it.copy(showPlayer = false) }
+    override fun ViewResult.reduce(state: ViewState): ViewState {
+        return when (this) {
+            is LoadVideoDataResult -> state.copy(videoData = videoData)
+            is CreatePlayerResult -> state.copy(appPlayer = appPlayer)
+            is TearDownPlayerResult -> state.copy(appPlayer = null)
+            is OnPageSettledResult -> state.copy(page = page, showPlayer = !didChangeVideo) // Hide the player if loading a new video
+            is PlayerRenderingResult -> state.copy(showPlayer = isPlayerRendering)
+            is AttachPlayerToViewResult -> state.copy(attachPlayer = doAttach)
+            else -> state
+        }
+    }
 
-        appPlayer.playMediaAt(position)
-        return true
+    override fun Flow<ViewResult>.toEffects(): Flow<ViewEffect> {
+        return merge(
+            filterIsInstance<TappedPlayerResult>().toTappedPlayerEffects(),
+            filterIsInstance<OnPageSettledResult>().toPageSettledEffects()
+        )
+    }
+
+    private fun Flow<TappedPlayerResult>.toTappedPlayerEffects(): Flow<ViewEffect> {
+        return mapLatest { result -> AnimationEffect(result.drawable) }
+    }
+
+    private fun Flow<OnPageSettledResult>.toPageSettledEffects(): Flow<ViewEffect> {
+        return filter { result -> result.didChangeVideo }
+            .mapLatest { ResetAnimationsEffect }
     }
 
     class Factory(
@@ -143,12 +174,16 @@ class MainViewModel(
             modelClass: Class<T>,
             handle: SavedStateHandle
         ): T {
+            val handle =  PlayerSavedStateHandle(handle)
             @Suppress("UNCHECKED_CAST")
             return MainViewModel(
                 repository = repository,
                 appPlayerFactory = appPlayerFactory,
-                handle = PlayerSavedStateHandle(handle)
+                handle = handle,
+                initialState = ViewState(handle)
             ) as T
         }
     }
 }
+
+
