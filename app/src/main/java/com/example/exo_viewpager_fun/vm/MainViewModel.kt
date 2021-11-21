@@ -79,13 +79,13 @@ class MainViewModel(
         return filterNot { event ->
             // Don't need to create a player when one already exists. This can happen
             // after a configuration change
-            states.value.appPlayer != null && event.type is PlayerLifecycleEvent.Type.Start
+            states.value.appPlayer != null && event is PlayerLifecycleEvent.Start
                 // Don't tear down the player across configuration changes
-                || event.type is PlayerLifecycleEvent.Type.Stop && event.type.isChangingConfigurations
+                || event is PlayerLifecycleEvent.Stop && event.isChangingConfigurations
         }.flatMapLatest { event ->
-            when (event.type) {
-                is PlayerLifecycleEvent.Type.Start -> createPlayer()
-                is PlayerLifecycleEvent.Type.Stop -> tearDownPlayer()
+            when (event) {
+                is PlayerLifecycleEvent.Start -> createPlayer()
+                is PlayerLifecycleEvent.Stop -> tearDownPlayer()
             }
         }
     }

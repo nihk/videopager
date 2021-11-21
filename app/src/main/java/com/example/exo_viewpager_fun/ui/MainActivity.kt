@@ -91,13 +91,13 @@ class MainActivity : AppCompatActivity() {
                 when (event) {
                     Lifecycle.Event.ON_START -> {
                         flowOf(
-                            PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Start),
+                            PlayerLifecycleEvent.Start,
                             AttachPlayerToViewEvent(doAttach = true)
                         )
                     }
                     Lifecycle.Event.ON_STOP -> {
                         flowOf(
-                            PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Stop(isChangingConfigurations)),
+                            PlayerLifecycleEvent.Stop(isChangingConfigurations),
                             AttachPlayerToViewEvent(doAttach = false)
                         )
                     }
