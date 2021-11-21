@@ -23,7 +23,7 @@ abstract class MviViewModel<Event, Result, State, Effect>(
         events.toResults()
             .shareIn( // Share emissions to states and effects
                 scope = viewModelScope,
-                replay = Int.MAX_VALUE, // Carry forward any events emitted before states/effects collection
+                replay = 1, // Carry forward any initial event emitted before states/effects collection
                 started = SharingStarted.Eagerly // Allow event processing immediately
             )
             .also { results ->
