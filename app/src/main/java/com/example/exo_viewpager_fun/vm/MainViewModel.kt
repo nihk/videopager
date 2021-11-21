@@ -49,6 +49,7 @@ class MainViewModel(
 ) : MviViewModel<ViewEvent, ViewResult, ViewState, ViewEffect>(initialState, LoadVideoDataEvent) {
 
     override fun Flow<ViewEvent>.toResults(): Flow<ViewResult> {
+        // MVI boilerplate
         return merge(
             filterIsInstance<LoadVideoDataEvent>().toLoadVideoDataResults(),
             filterIsInstance<PlayerLifecycleEvent>().toPlayerLifecycleResults(),
@@ -60,16 +61,22 @@ class MainViewModel(
 
     private fun Flow<LoadVideoDataEvent>.toLoadVideoDataResults(): Flow<ViewResult> {
         return flatMapLatest { repository.videoData() }
-            .onEach { videoData -> states.value.appPlayer?.setUpWith(videoData, handle.get()) }
+            .onEach { videoData ->
+                // If the player exists, it should be updated with the latest video data that came in
+                states.value.appPlayer?.setUpWith(videoData, handle.get())
+            }
             .map { videoData -> LoadVideoDataResult(videoData) }
     }
 
+    // This is a single flow instead of two distinct ones (e.g. one for starting, one for stopping)
+    // so that when the PlayerLifecycleEvent.Type changes from upstream, the flow initiated by the
+    // previous Type gets unsubscribed from (see: flatMapLatest).
     private fun Flow<PlayerLifecycleEvent>.toPlayerLifecycleResults(): Flow<ViewResult> {
         return filterNot { event ->
             // Don't need to create a player when one already exists. This can happen
             // after a configuration change
             states.value.appPlayer != null && event.type is PlayerLifecycleEvent.Type.Start
-                // Keep player in memory across configuration changes
+                // Don't tear down the player across configuration changes
                 || event.type is PlayerLifecycleEvent.Type.Stop && event.type.isChangingConfigurations
         }.flatMapLatest { event ->
             when (event.type) {
@@ -82,6 +89,8 @@ class MainViewModel(
     private fun createPlayer(): Flow<ViewResult> {
         val config = AppPlayer.Factory.Config(loopVideos = true)
         val appPlayer = appPlayerFactory.create(config)
+        // If video data already exists then it should have that video data set on it. This can
+        // happen because the player has a lifecycle tied to Activity starting/stopping.
         states.value.videoData?.let { videoData -> appPlayer.setUpWith(videoData, handle.get()) }
         return merge(
             flowOf(CreatePlayerResult(appPlayer)),
@@ -133,6 +142,7 @@ class MainViewModel(
     }
 
     override fun ViewResult.reduce(state: ViewState): ViewState {
+        // MVI reducer boilerplate
         return when (this) {
             is LoadVideoDataResult -> state.copy(videoData = videoData)
             is CreatePlayerResult -> state.copy(appPlayer = appPlayer)
