@@ -7,40 +7,36 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 abstract class MviViewModel<Event, Result, State, Effect>(
-    initialState: State
+    initialState: State,
+    vararg initialEvents: Event
 ) : ViewModel() {
     val states: StateFlow<State>
     val effects: Flow<Effect>
     private val events = MutableSharedFlow<Event>()
 
     init {
-        events.toResults()
+        events
+            .onSubscription { initialEvents.forEach { event -> emit(event) } }
+            .toResults()
             .shareIn( // Share emissions to states and effects
                 scope = viewModelScope,
-                replay = 1, // Carry forward any initial event emitted before states/effects collection
-                started = SharingStarted.Eagerly // Allow event processing immediately
+                started = SharingStarted.Lazily
             )
             .also { results ->
-                // Delay consuming results replay cache until the time of subscription
-                val started = SharingStarted.Lazily
-
                 states = results.toStates(initialState)
                     .stateIn(
                         scope = viewModelScope,
-                        started = started,
+                        started = SharingStarted.Lazily,
                         initialValue = initialState
                     )
                 effects = results.toEffects()
-                    .shareIn(
-                        scope = viewModelScope,
-                        started = started
-                    )
             }
     }
 

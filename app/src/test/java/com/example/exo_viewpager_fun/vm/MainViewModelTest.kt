@@ -11,13 +11,14 @@ import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.models.ViewState
 import com.example.exo_viewpager_fun.players.FakeAppPlayer
 import com.example.exo_viewpager_fun.utils.CoroutinesTestRule
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.takeWhile
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestCoroutineScope
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -169,19 +170,21 @@ class MainViewModelTest {
         initialPlayerState: PlayerState = PlayerState.INITIAL,
         videoData: List<VideoData> = TEST_VIDEO_DATA,
         isPlayerRendering: Flow<Boolean> = emptyFlow(),
-        block: suspend MainViewModelRobot.() -> Unit
-    ) = rule.testDispatcher.runBlockingTest {
+        block: MainViewModelRobot.() -> Unit
+    ) {
         MainViewModelRobot(
             initialPlayerState = initialPlayerState,
             videoData = videoData,
-            isPlayerRendering = isPlayerRendering
+            isPlayerRendering = isPlayerRendering,
+            scope = TestCoroutineScope(rule.testDispatcher)
         ).block()
     }
 
     class MainViewModelRobot(
         initialPlayerState: PlayerState,
         videoData: List<VideoData>,
-        isPlayerRendering: Flow<Boolean>
+        isPlayerRendering: Flow<Boolean>,
+        private val scope: CoroutineScope
     ) {
         private val appPlayer = FakeAppPlayer(isPlayerRendering).apply {
             currentPlayerState = initialPlayerState
@@ -198,16 +201,16 @@ class MainViewModelTest {
             initialState = ViewState(videoData = videoData)
         )
 
-        suspend fun startPlayer() {
-            viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Start))
+        fun startPlayer() {
             awaitState { state -> state.appPlayer != null }
+            viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Start))
         }
 
-        suspend fun tearDownPlayer(isChangingConfigurations: Boolean) {
-            viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Stop(isChangingConfigurations)))
+        fun tearDownPlayer(isChangingConfigurations: Boolean) {
             if (!isChangingConfigurations) {
                 awaitState { state -> state.appPlayer == null }
             }
+            viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Stop(isChangingConfigurations)))
         }
 
         fun setPlayerState(playerState: PlayerState) {
@@ -238,12 +241,12 @@ class MainViewModelTest {
             assertEquals(didRelease, appPlayer.didRelease)
         }
 
-        suspend fun assertStateOwnsPlayer() {
+        fun assertStateOwnsPlayer() {
             awaitState { state -> state.appPlayer != null }
             assertNotNull(viewModel.states.value.appPlayer)
         }
 
-        suspend fun assertStateDoesNotOwnPlayer() {
+        fun assertStateDoesNotOwnPlayer() {
             awaitState { state -> state.appPlayer == null }
             assertNull(viewModel.states.value.appPlayer)
         }
@@ -268,8 +271,8 @@ class MainViewModelTest {
             assertEquals(isPlaying, appPlayer.currentPlayerState.isPlaying)
         }
 
-        private suspend fun awaitState(predicate: (ViewState) -> Boolean) {
-            viewModel.states.takeWhile { state -> !predicate(state) }.collect()
+        private fun awaitState(predicate: (ViewState) -> Boolean) {
+            viewModel.states.takeWhile { state -> !predicate(state) }.launchIn(scope)
         }
     }
 }

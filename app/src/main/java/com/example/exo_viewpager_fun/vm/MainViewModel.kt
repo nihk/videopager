@@ -46,11 +46,7 @@ class MainViewModel(
     private val appPlayerFactory: AppPlayer.Factory,
     private val handle: PlayerSavedStateHandle,
     initialState: ViewState
-) : MviViewModel<ViewEvent, ViewResult, ViewState, ViewEffect>(initialState) {
-
-    init {
-        processEvent(LoadVideoDataEvent)
-    }
+) : MviViewModel<ViewEvent, ViewResult, ViewState, ViewEffect>(initialState, LoadVideoDataEvent) {
 
     override fun Flow<ViewEvent>.toResults(): Flow<ViewResult> {
         return merge(
