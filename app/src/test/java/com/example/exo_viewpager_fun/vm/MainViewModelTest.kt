@@ -13,7 +13,6 @@ import com.example.exo_viewpager_fun.models.ViewState
 import com.example.exo_viewpager_fun.players.FakeAppPlayer
 import com.example.exo_viewpager_fun.utils.CoroutinesTestRule
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -24,7 +23,6 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
-import java.io.Closeable
 
 class MainViewModelTest {
     @get:Rule
@@ -188,7 +186,7 @@ class MainViewModelTest {
         videoData: List<VideoData>,
         isPlayerRendering: Flow<Boolean>,
         scope: CoroutineScope
-    ) : Closeable {
+    ) {
         private val appPlayer = FakeAppPlayer(isPlayerRendering).apply {
             currentPlayerState = initialPlayerState
         }
@@ -205,9 +203,10 @@ class MainViewModelTest {
         )
         private val collectedStates = mutableListOf<ViewState>()
         private val collectedEffects = mutableListOf<ViewEffect>()
-        private val jobs = mutableListOf<Job>().apply {
-            add(viewModel.states.onEach(collectedStates::add).launchIn(scope))
-            add(viewModel.effects.onEach(collectedEffects::add).launchIn(scope))
+
+        init {
+            viewModel.states.onEach(collectedStates::add).launchIn(scope)
+            viewModel.effects.onEach(collectedEffects::add).launchIn(scope)
         }
 
         fun startPlayer() {
@@ -272,10 +271,6 @@ class MainViewModelTest {
 
         fun assertPlaying(isPlaying: Boolean) {
             assertEquals(isPlaying, appPlayer.currentPlayerState.isPlaying)
-        }
-
-        override fun close() {
-            jobs.forEach(Job::cancel)
         }
     }
 }
