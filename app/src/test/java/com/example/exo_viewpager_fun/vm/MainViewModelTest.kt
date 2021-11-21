@@ -167,6 +167,16 @@ class MainViewModelTest {
         assertPlaying(true)
     }
 
+    @Test
+    fun `should play player when tapped twice`() = mainViewModel {
+        startPlayer()
+
+        tapPlayer()
+        tapPlayer()
+
+        assertPlaying(true)
+    }
+
     fun mainViewModel(
         initialPlayerState: PlayerState = PlayerState.INITIAL,
         videoData: List<VideoData> = TEST_VIDEO_DATA,
