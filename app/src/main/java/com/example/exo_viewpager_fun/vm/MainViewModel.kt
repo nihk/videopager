@@ -68,9 +68,13 @@ class MainViewModel(
             .map { videoData -> LoadVideoDataResult(videoData) }
     }
 
-    // This is a single flow instead of two distinct ones (e.g. one for starting, one for stopping)
-    // so that when the PlayerLifecycleEvent.Type changes from upstream, the flow initiated by the
-    // previous Type gets unsubscribed from (see: flatMapLatest).
+    /**
+     * This is a single flow instead of two distinct ones (e.g. one for starting, one for stopping)
+     * so that when the PlayerLifecycleEvent.Type changes from upstream, the flow initiated by the
+     * previous Type gets unsubscribed from (see: [flatMapLatest]). This is necessary to cancel flows
+     * tied to the AppPlayer instance, e.g. [AppPlayer.isPlayerRendering], when the player is being
+     * torn down.
+     */
     private fun Flow<PlayerLifecycleEvent>.toPlayerLifecycleResults(): Flow<ViewResult> {
         return filterNot { event ->
             // Don't need to create a player when one already exists. This can happen
@@ -89,8 +93,8 @@ class MainViewModel(
     private fun createPlayer(): Flow<ViewResult> {
         val config = AppPlayer.Factory.Config(loopVideos = true)
         val appPlayer = appPlayerFactory.create(config)
-        // If video data already exists then it should have that video data set on it. This can
-        // happen because the player has a lifecycle tied to Activity starting/stopping.
+        // If video data already exists then the player should have that video data set on it. This
+        // can happen because the player has a lifecycle tied to Activity starting/stopping.
         states.value.videoData?.let { videoData -> appPlayer.setUpWith(videoData, handle.get()) }
         return merge(
             flowOf(CreatePlayerResult(appPlayer)),
