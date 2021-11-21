@@ -8,20 +8,23 @@ import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
 import com.example.exo_viewpager_fun.models.PlayerState
 import com.example.exo_viewpager_fun.models.TappedPlayerEvent
 import com.example.exo_viewpager_fun.models.VideoData
+import com.example.exo_viewpager_fun.models.ViewEffect
 import com.example.exo_viewpager_fun.models.ViewState
 import com.example.exo_viewpager_fun.players.FakeAppPlayer
 import com.example.exo_viewpager_fun.utils.CoroutinesTestRule
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.TestCoroutineScope
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
+import java.io.Closeable
 
 class MainViewModelTest {
     @get:Rule
@@ -184,8 +187,8 @@ class MainViewModelTest {
         initialPlayerState: PlayerState,
         videoData: List<VideoData>,
         isPlayerRendering: Flow<Boolean>,
-        private val scope: CoroutineScope
-    ) {
+        scope: CoroutineScope
+    ) : Closeable {
         private val appPlayer = FakeAppPlayer(isPlayerRendering).apply {
             currentPlayerState = initialPlayerState
         }
@@ -200,16 +203,18 @@ class MainViewModelTest {
             handle = handle,
             initialState = ViewState(videoData = videoData)
         )
+        private val collectedStates = mutableListOf<ViewState>()
+        private val collectedEffects = mutableListOf<ViewEffect>()
+        private val jobs = mutableListOf<Job>().apply {
+            add(viewModel.states.onEach(collectedStates::add).launchIn(scope))
+            add(viewModel.effects.onEach(collectedEffects::add).launchIn(scope))
+        }
 
         fun startPlayer() {
-            awaitState { state -> state.appPlayer != null }
             viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Start))
         }
 
         fun tearDownPlayer(isChangingConfigurations: Boolean) {
-            if (!isChangingConfigurations) {
-                awaitState { state -> state.appPlayer == null }
-            }
             viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Stop(isChangingConfigurations)))
         }
 
@@ -242,12 +247,10 @@ class MainViewModelTest {
         }
 
         fun assertStateOwnsPlayer() {
-            awaitState { state -> state.appPlayer != null }
             assertNotNull(viewModel.states.value.appPlayer)
         }
 
         fun assertStateDoesNotOwnPlayer() {
-            awaitState { state -> state.appPlayer == null }
             assertNull(viewModel.states.value.appPlayer)
         }
 
@@ -271,8 +274,8 @@ class MainViewModelTest {
             assertEquals(isPlaying, appPlayer.currentPlayerState.isPlaying)
         }
 
-        private fun awaitState(predicate: (ViewState) -> Boolean) {
-            viewModel.states.takeWhile { state -> !predicate(state) }.launchIn(scope)
+        override fun close() {
+            jobs.forEach(Job::cancel)
         }
     }
 }
