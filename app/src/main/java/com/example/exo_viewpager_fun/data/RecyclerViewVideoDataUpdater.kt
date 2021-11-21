@@ -2,7 +2,7 @@ package com.example.exo_viewpager_fun.data
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
-import com.example.exo_viewpager_fun.currentMediaItems
+import com.example.exo_viewpager_fun.players.currentMediaItems
 import com.example.exo_viewpager_fun.models.VideoData
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem

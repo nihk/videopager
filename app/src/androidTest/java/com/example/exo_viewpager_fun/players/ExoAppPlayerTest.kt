@@ -2,7 +2,6 @@ package com.example.exo_viewpager_fun.players
 
 import androidx.test.core.app.ApplicationProvider
 import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
-import com.example.exo_viewpager_fun.currentMediaItems
 import com.example.exo_viewpager_fun.data.RecyclerViewVideoDataUpdater
 import com.example.exo_viewpager_fun.models.PlayerState
 import com.example.exo_viewpager_fun.models.VideoData

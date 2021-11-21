@@ -1,4 +1,4 @@
-package com.example.exo_viewpager_fun
+package com.example.exo_viewpager_fun.players
 
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem

@@ -1,7 +1,7 @@
 package com.example.exo_viewpager_fun.data
 
 import androidx.test.core.app.ApplicationProvider
-import com.example.exo_viewpager_fun.currentMediaItems
+import com.example.exo_viewpager_fun.players.currentMediaItems
 import com.example.exo_viewpager_fun.models.VideoData
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
