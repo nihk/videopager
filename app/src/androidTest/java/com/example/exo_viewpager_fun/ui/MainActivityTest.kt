@@ -22,11 +22,11 @@ import com.example.exo_viewpager_fun.models.AnimationEffect
 import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.models.ViewEffect
 import com.example.exo_viewpager_fun.players.FakeAppPlayer
-import com.example.exo_viewpager_fun.utils.AtViewPager2Position
-import com.example.exo_viewpager_fun.utils.AwaitIdleScrollState
-import com.example.exo_viewpager_fun.utils.IsParentOf
 import com.example.exo_viewpager_fun.utils.TestImageLoader
-import com.example.exo_viewpager_fun.utils.ViewPager2Page
+import com.example.exo_viewpager_fun.utils.atPage
+import com.example.exo_viewpager_fun.utils.awaitIdleScrollState
+import com.example.exo_viewpager_fun.utils.withPage
+import com.example.exo_viewpager_fun.utils.hasParent
 import com.example.exo_viewpager_fun.vm.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -200,7 +200,7 @@ class MainActivityTest {
         fun swipeToNextPage() {
             onView(withId(R.id.view_pager))
                 .perform(swipeUp())
-                .perform(AwaitIdleScrollState())
+                .perform(awaitIdleScrollState())
         }
 
         fun recreate() {
@@ -230,7 +230,7 @@ class MainActivityTest {
 
         fun assertPage(page: Int) {
             onView(withId(R.id.view_pager))
-                .check(matches(ViewPager2Page(page)))
+                .check(matches(withPage(page)))
         }
 
         fun assertImagePreviewVisibility(isVisible: Boolean) {
@@ -250,7 +250,7 @@ class MainActivityTest {
 
         fun assertPlayerViewPosition(position: Int) {
             onView(withId(R.id.view_pager))
-                .check(matches(AtViewPager2Position(position, IsParentOf(appPlayerView.view))))
+                .check(matches(atPage(position, hasParent(appPlayerView.view))))
         }
 
         fun assertPlaying(isPlaying: Boolean) {

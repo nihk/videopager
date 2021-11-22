@@ -9,39 +9,40 @@ import androidx.viewpager2.widget.ViewPager2
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 
-class ViewPager2Page(
-    private val page: Int
-) : BoundedMatcher<View, ViewPager2>(ViewPager2::class.java) {
-    override fun describeTo(description: Description) {
-        description.appendText("matching currentItem to page: $page")
-    }
+fun withPage(page: Int): Matcher<View> {
+    return object : BoundedMatcher<View, ViewPager2>(ViewPager2::class.java) {
+        override fun describeTo(description: Description) {
+            description.appendText("matching currentItem to page: $page")
+        }
 
-    override fun matchesSafely(item: ViewPager2): Boolean {
-        return item.currentItem == page
-    }
-}
-
-class AtViewPager2Position(
-    private val position: Int,
-    private val matcher: Matcher<View>
-) : BoundedMatcher<View, ViewPager2>(ViewPager2::class.java) {
-    override fun describeTo(description: Description) {
-        description.appendText("matching at RecyclerView position: $position")
-    }
-
-    override fun matchesSafely(viewPager2: ViewPager2): Boolean {
-        val recyclerView = viewPager2.getChildAt(0) as RecyclerView
-        val viewHolder = recyclerView.findViewHolderForAdapterPosition(position)
-        return viewHolder != null && matcher.matches(viewHolder.itemView)
+        override fun matchesSafely(item: ViewPager2): Boolean {
+            return item.currentItem == page
+        }
     }
 }
 
-class IsParentOf(private val view: View) : BoundedMatcher<View, ViewGroup>(ViewGroup::class.java) {
-    override fun describeTo(description: Description) {
-        description.appendText("matching child $view")
-    }
+fun atPage(page: Int, matcher: Matcher<View>): Matcher<View> {
+    return object : BoundedMatcher<View, ViewPager2>(ViewPager2::class.java) {
+        override fun describeTo(description: Description) {
+            description.appendText("matching at ViewPager2 page: $page")
+        }
 
-    override fun matchesSafely(viewGroup: ViewGroup): Boolean {
-        return view in viewGroup.allViews
+        override fun matchesSafely(viewPager2: ViewPager2): Boolean {
+            val recyclerView = viewPager2.getChildAt(0) as RecyclerView
+            val viewHolder = recyclerView.findViewHolderForAdapterPosition(page)
+            return viewHolder != null && matcher.matches(viewHolder.itemView)
+        }
+    }
+}
+
+fun hasParent(view: View): Matcher<View> {
+    return object : BoundedMatcher<View, ViewGroup>(ViewGroup::class.java) {
+        override fun describeTo(description: Description) {
+            description.appendText("matching child $view")
+        }
+
+        override fun matchesSafely(viewGroup: ViewGroup): Boolean {
+            return view in viewGroup.allViews
+        }
     }
 }
