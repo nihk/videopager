@@ -10,7 +10,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.exo_viewpager_fun.App
 import com.example.exo_viewpager_fun.databinding.MainActivityBinding
 import com.example.exo_viewpager_fun.di.MainModule
-import com.example.exo_viewpager_fun.models.AttachPlayerToViewEvent
 import com.example.exo_viewpager_fun.models.OnPageSettledEvent
 import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
 import com.example.exo_viewpager_fun.models.PlayerViewEffect
@@ -21,8 +20,6 @@ import com.example.exo_viewpager_fun.ui.extensions.pageScrollStateChanges
 import com.example.exo_viewpager_fun.vm.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -87,20 +84,10 @@ class MainActivity : AppCompatActivity() {
     private fun Lifecycle.viewEvents(): Flow<ViewEvent> {
         return events()
             .filter { event -> event == Lifecycle.Event.ON_START || event == Lifecycle.Event.ON_STOP }
-            .flatMapConcat { event ->
+            .map { event ->
                 when (event) {
-                    Lifecycle.Event.ON_START -> {
-                        flowOf(
-                            PlayerLifecycleEvent.Start,
-                            AttachPlayerToViewEvent(doAttach = true)
-                        )
-                    }
-                    Lifecycle.Event.ON_STOP -> {
-                        flowOf(
-                            PlayerLifecycleEvent.Stop(isChangingConfigurations),
-                            AttachPlayerToViewEvent(doAttach = false)
-                        )
-                    }
+                    Lifecycle.Event.ON_START -> PlayerLifecycleEvent.Start
+                    Lifecycle.Event.ON_STOP -> PlayerLifecycleEvent.Stop(isChangingConfigurations)
                     else -> error("Unhandled event: $event")
                 }
             }

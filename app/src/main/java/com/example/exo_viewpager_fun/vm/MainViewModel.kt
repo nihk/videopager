@@ -7,7 +7,6 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.data.VideoDataRepository
 import com.example.exo_viewpager_fun.models.AnimationEffect
-import com.example.exo_viewpager_fun.models.AttachPlayerToViewEvent
 import com.example.exo_viewpager_fun.models.AttachPlayerToViewResult
 import com.example.exo_viewpager_fun.models.CreatePlayerResult
 import com.example.exo_viewpager_fun.models.LoadVideoDataEvent
@@ -57,7 +56,6 @@ class MainViewModel(
         return merge(
             filterIsInstance<LoadVideoDataEvent>().toLoadVideoDataResults(),
             filterIsInstance<PlayerLifecycleEvent>().toPlayerLifecycleResults(),
-            filterIsInstance<AttachPlayerToViewEvent>().toAttachPlayerToViewResults(),
             filterIsInstance<TappedPlayerEvent>().toTappedPlayerResults(),
             filterIsInstance<OnPageSettledEvent>().toPageSettledResults()
         )
@@ -80,7 +78,7 @@ class MainViewModel(
      * torn down.
      */
     private fun Flow<PlayerLifecycleEvent>.toPlayerLifecycleResults(): Flow<ViewResult> {
-        return filterNot { event ->
+        val managePlayerInstance = filterNot { event ->
             // Don't need to create a player when one already exists. This can happen
             // after a configuration change
             states.value.appPlayer != null && event is PlayerLifecycleEvent.Start
@@ -92,6 +90,11 @@ class MainViewModel(
                 is PlayerLifecycleEvent.Stop -> tearDownPlayer()
             }
         }
+
+        return merge(
+            mapLatest { event -> AttachPlayerToViewResult(doAttach = event is PlayerLifecycleEvent.Start) },
+            managePlayerInstance
+        )
     }
 
     private fun createPlayer(): Flow<ViewResult> {
@@ -114,10 +117,6 @@ class MainViewModel(
         // Videos are a heavy resource, so tear player down when the app is not in the foreground.
         appPlayer.release()
         return flowOf(TearDownPlayerResult)
-    }
-
-    private fun Flow<AttachPlayerToViewEvent>.toAttachPlayerToViewResults(): Flow<ViewResult> {
-        return mapLatest { event -> AttachPlayerToViewResult(event.doAttach) }
     }
 
     private fun Flow<TappedPlayerEvent>.toTappedPlayerResults(): Flow<ViewResult> {

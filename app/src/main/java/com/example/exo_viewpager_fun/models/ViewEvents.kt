@@ -6,6 +6,5 @@ sealed class PlayerLifecycleEvent : ViewEvent {
     object Start : PlayerLifecycleEvent()
     data class Stop(val isChangingConfigurations: Boolean) : PlayerLifecycleEvent()
 }
-data class AttachPlayerToViewEvent(val doAttach: Boolean) : ViewEvent
 object TappedPlayerEvent : ViewEvent
 data class OnPageSettledEvent(val page: Int) : ViewEvent
