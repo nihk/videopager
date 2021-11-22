@@ -26,7 +26,7 @@ abstract class MviViewModel<Event, Result, State, Effect>(initialState: State) :
             }
             .share() // Share emissions to individual Flows within toResults()
             .toResults()
-            .share(started = SubscriberCount(2)) // Share emissions to states and effects
+            .share() // Share emissions to states and effects
             .also { results ->
                 states = results.toStates(initialState)
                     .stateIn(
@@ -44,10 +44,10 @@ abstract class MviViewModel<Event, Result, State, Effect>(initialState: State) :
         }
     }
 
-    private fun <T> Flow<T>.share(started: SharingStarted = SharingStarted.Lazily): Flow<T> {
+    private fun <T> Flow<T>.share(): Flow<T> {
         return shareIn(
             scope = viewModelScope,
-            started = started
+            started = SharingStarted.Lazily
         )
     }
 
