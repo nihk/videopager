@@ -185,13 +185,13 @@ class MainViewModel(
             modelClass: Class<T>,
             handle: SavedStateHandle
         ): T {
-            val handle =  PlayerSavedStateHandle(handle)
+            val playerSavedStateHandle = PlayerSavedStateHandle(handle)
             @Suppress("UNCHECKED_CAST")
             return MainViewModel(
                 repository = repository,
                 appPlayerFactory = appPlayerFactory,
-                handle = handle,
-                initialState = ViewState(handle)
+                handle = playerSavedStateHandle,
+                initialState = ViewState(playerSavedStateHandle)
             ) as T
         }
     }
