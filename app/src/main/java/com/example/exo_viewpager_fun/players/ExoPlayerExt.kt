@@ -5,13 +5,7 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 
 val ExoPlayer.currentMediaItems: List<MediaItem> get() {
-    val mediaItems = mutableListOf<MediaItem>()
-
-    for (i in 0 until mediaItemCount) {
-        mediaItems += getMediaItemAt(i)
-    }
-
-    return mediaItems
+    return List(mediaItemCount, ::getMediaItemAt)
 }
 
 fun ExoPlayer.loopVideos() {
