@@ -38,8 +38,8 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 
 /**
- * Owns a stateful [ViewState.appPlayer] instance that will frequently get created and torn down in
- * parallel with Activity lifecycle state changes.
+ * Owns a stateful [ViewState.appPlayer] instance that will get created and torn down in parallel
+ * with Activity lifecycle state changes.
  */
 class MainViewModel(
     private val repository: VideoDataRepository,
