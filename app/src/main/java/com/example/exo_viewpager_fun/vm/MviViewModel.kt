@@ -13,17 +13,18 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-abstract class MviViewModel<Event, Result, State, Effect>(
-    initialState: State,
-    vararg initialEvents: Event
-) : ViewModel() {
+abstract class MviViewModel<Event, Result, State, Effect>(initialState: State) : ViewModel() {
     val states: StateFlow<State>
     val effects: Flow<Effect>
     private val events = MutableSharedFlow<Event>()
 
     init {
         events
-            .onSubscription { initialEvents.forEach { event -> emit(event) } }
+            .onSubscription {
+                if (events.subscriptionCount.value == 1) {
+                    onStart()
+                }
+            }
             .toResults()
             .shareIn( // Share emissions to states and effects
                 scope = viewModelScope,
@@ -46,6 +47,7 @@ abstract class MviViewModel<Event, Result, State, Effect>(
         }
     }
 
+    protected open fun onStart() = Unit
     protected abstract fun Flow<Event>.toResults(): Flow<Result>
     protected abstract fun Result.reduce(state: State): State
     protected open fun Flow<Result>.toEffects(): Flow<Effect> = emptyFlow()

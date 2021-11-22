@@ -46,7 +46,11 @@ class MainViewModel(
     private val appPlayerFactory: AppPlayer.Factory,
     private val handle: PlayerSavedStateHandle,
     initialState: ViewState
-) : MviViewModel<ViewEvent, ViewResult, ViewState, ViewEffect>(initialState, LoadVideoDataEvent) {
+) : MviViewModel<ViewEvent, ViewResult, ViewState, ViewEffect>(initialState) {
+
+    override fun onStart() {
+        processEvent(LoadVideoDataEvent)
+    }
 
     override fun Flow<ViewEvent>.toResults(): Flow<ViewResult> {
         // MVI boilerplate
