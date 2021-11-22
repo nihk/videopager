@@ -220,11 +220,11 @@ class MainViewModelTest {
         }
 
         fun startPlayer() {
-            viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Start))
+            viewModel.processEvent(PlayerLifecycleEvent.Start)
         }
 
         fun tearDownPlayer(isChangingConfigurations: Boolean) {
-            viewModel.processEvent(PlayerLifecycleEvent(PlayerLifecycleEvent.Type.Stop(isChangingConfigurations)))
+            viewModel.processEvent(PlayerLifecycleEvent.Stop(isChangingConfigurations))
         }
 
         fun setPlayerState(playerState: PlayerState) {
