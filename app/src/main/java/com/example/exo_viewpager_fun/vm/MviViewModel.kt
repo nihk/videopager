@@ -20,7 +20,10 @@ abstract class MviViewModel<Event, Result, State, Effect>(initialState: State) :
 
     init {
         events
-            .onSubscription { onStart() }
+            .onSubscription {
+                check(events.subscriptionCount.value == 1)
+                onStart()
+            }
             .share() // Share emissions to individual Flows within toResults()
             .toResults()
             .share() // Share emissions to states and effects
