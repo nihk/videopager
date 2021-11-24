@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
                     appPlayerView.detachPlayer()
                 }
 
-                if (adapter.canTurnToPage(state.page)) {
+                if (adapter.hasPage(state.page)) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
 
@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
         return taps().map { TappedPlayerEvent }
     }
 
-    private fun ListAdapter<*, *>.canTurnToPage(page: Int): Boolean {
+    private fun ListAdapter<*, *>.hasPage(page: Int): Boolean {
         return page < itemCount
     }
 }
