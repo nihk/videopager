@@ -10,7 +10,9 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withChild
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import coil.ImageLoader
 import com.example.exo_viewpager_fun.App
@@ -26,12 +28,12 @@ import com.example.exo_viewpager_fun.utils.TestImageLoader
 import com.example.exo_viewpager_fun.utils.atPage
 import com.example.exo_viewpager_fun.utils.awaitIdleScrollState
 import com.example.exo_viewpager_fun.utils.withPage
-import com.example.exo_viewpager_fun.utils.hasParent
 import com.example.exo_viewpager_fun.vm.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -250,7 +252,7 @@ class MainActivityTest {
 
         fun assertPlayerViewPosition(position: Int) {
             onView(withId(R.id.view_pager))
-                .check(matches(atPage(position, hasParent(appPlayerView.view))))
+                .check(matches(atPage(position, hasDescendant(withChild(`is`(appPlayerView.view))))))
         }
 
         fun assertPlaying(isPlaying: Boolean) {

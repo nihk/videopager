@@ -1,8 +1,6 @@
 package com.example.exo_viewpager_fun.utils
 
 import android.view.View
-import android.view.ViewGroup
-import androidx.core.view.allViews
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.viewpager2.widget.ViewPager2
@@ -31,18 +29,6 @@ fun atPage(page: Int, matcher: Matcher<View>): Matcher<View> {
             val recyclerView = viewPager2.getChildAt(0) as RecyclerView
             val viewHolder = recyclerView.findViewHolderForAdapterPosition(page)
             return viewHolder != null && matcher.matches(viewHolder.itemView)
-        }
-    }
-}
-
-fun hasParent(view: View): Matcher<View> {
-    return object : BoundedMatcher<View, ViewGroup>(ViewGroup::class.java) {
-        override fun describeTo(description: Description) {
-            description.appendText("matching child $view")
-        }
-
-        override fun matchesSafely(viewGroup: ViewGroup): Boolean {
-            return view in viewGroup.allViews
         }
     }
 }
