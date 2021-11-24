@@ -57,8 +57,8 @@ class MainActivity : AppCompatActivity() {
                 // Set the player view on the active page
                 adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
 
-                // If the player is ready to be shown (i.e. is rendering frames), then show it
-                if (state.showPlayer) {
+                // If the player media is not loading (i.e. is rendering frames), then show the player
+                if (!state.isLoading) {
                     adapter.showPlayerFor(binding.viewPager.currentItem)
                 }
             }

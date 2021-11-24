@@ -155,8 +155,8 @@ class MainViewModel(
             is LoadVideoDataResult -> state.copy(videoData = videoData)
             is CreatePlayerResult -> state.copy(appPlayer = appPlayer)
             is TearDownPlayerResult -> state.copy(appPlayer = null)
-            is OnPageSettledResult -> state.copy(page = page, showPlayer = !didChangeVideo) // Hide the player if loading a new video
-            is PlayerRenderingResult -> state.copy(showPlayer = isPlayerRendering)
+            is OnPageSettledResult -> state.copy(page = page, isLoading = didChangeVideo)
+            is PlayerRenderingResult -> state.copy(isLoading = !isPlayerRendering)
             is AttachPlayerToViewResult -> state.copy(attachPlayer = doAttach)
             else -> state
         }

@@ -6,6 +6,6 @@ data class ViewState(
     val appPlayer: AppPlayer? = null,
     val attachPlayer: Boolean = false,
     val page: Int = 0,
-    val showPlayer: Boolean = false,
+    val isLoading: Boolean = true,
     val videoData: List<VideoData>? = null
 )

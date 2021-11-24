@@ -95,7 +95,7 @@ class MainViewModelTest {
         setCurrentMediaIndex(7)
         changeMediaPosition(42)
 
-        assertShowPlayer(false)
+        assertIsLoading(true)
     }
 
     @Test
@@ -106,7 +106,7 @@ class MainViewModelTest {
         setCurrentMediaIndex(7)
         changeMediaPosition(7)
 
-        assertShowPlayer(true)
+        assertIsLoading(false)
     }
 
     @Test
@@ -116,7 +116,7 @@ class MainViewModelTest {
             startPlayer()
             isPlayerRendering.value = true
 
-            assertShowPlayer(true)
+            assertIsLoading(false)
         }
     }
 
@@ -267,8 +267,8 @@ class MainViewModelTest {
             assertEquals(playerState, handle.get())
         }
 
-        fun assertShowPlayer(value: Boolean) {
-            assertEquals(value, viewModel.states.value.showPlayer)
+        fun assertIsLoading(value: Boolean) {
+            assertEquals(value, viewModel.states.value.isLoading)
         }
 
         fun assertCachedVideoData(videoData: List<VideoData>) {
