@@ -10,6 +10,7 @@ interface AppPlayer {
 
     fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?)
     fun isPlayerRendering(): Flow<Boolean>
+    fun errors(): Flow<Throwable>
     fun playMediaAt(position: Int)
     fun play()
     fun pause()

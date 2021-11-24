@@ -14,6 +14,7 @@ import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withChild
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import coil.ImageLoader
 import com.example.exo_viewpager_fun.App
 import com.example.exo_viewpager_fun.R
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filterNotNull
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertEquals
@@ -149,22 +151,36 @@ class MainActivityTest {
         assertEffect(AnimationEffect(R.drawable.play))
     }
 
+    @Test
+    fun whenErrorIsEmitted_messageIsDisplayed() {
+        val errors = MutableStateFlow<Throwable?>(null)
+        mainActivity(errors = errors.filterNotNull()) {
+            val error = RuntimeException("Uh oh!")
+
+            errors.value = error
+
+            assertTextOnScreen("Uh oh!")
+        }
+    }
+
     fun mainActivity(
         videoData: List<VideoData>? = null,
         isPlayerRendering: Flow<Boolean> = emptyFlow(),
+        errors: Flow<Throwable> = emptyFlow(),
         block: MainActivityRobot.() -> Unit
     ) {
-        MainActivityRobot(videoData, isPlayerRendering).block()
+        MainActivityRobot(videoData, isPlayerRendering, errors).block()
     }
 
     class MainActivityRobot(
         videoData: List<VideoData>?,
-        isPlayerRendering: Flow<Boolean>
+        isPlayerRendering: Flow<Boolean>,
+        errors: Flow<Throwable>
     ) {
         private val app: App = ApplicationProvider.getApplicationContext()
         private val taps = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         private val videoDataFlow = MutableStateFlow(videoData)
-        private val appPlayer = FakeAppPlayer(isPlayerRendering)
+        private val appPlayer = FakeAppPlayer(isPlayerRendering, errors)
         private val appPlayerFactory = FakeAppPlayer.Factory(appPlayer)
         private val appPlayerView = FakeAppPlayerView(app, taps)
         private val scenario: ActivityScenario<MainActivity>
@@ -261,6 +277,11 @@ class MainActivityTest {
 
         fun assertEffect(viewEffect: ViewEffect) {
             assertEquals(viewEffect, appPlayerView.latestEffect)
+        }
+
+        fun assertTextOnScreen(text: String) {
+            onView(withText(text))
+                .check(matches(isDisplayed()))
         }
     }
 }

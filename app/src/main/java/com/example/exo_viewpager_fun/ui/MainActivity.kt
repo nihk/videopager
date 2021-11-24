@@ -11,6 +11,7 @@ import com.example.exo_viewpager_fun.App
 import com.example.exo_viewpager_fun.databinding.MainActivityBinding
 import com.example.exo_viewpager_fun.di.MainModule
 import com.example.exo_viewpager_fun.models.OnPageSettledEvent
+import com.example.exo_viewpager_fun.models.PlayerErrorEffect
 import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
 import com.example.exo_viewpager_fun.models.PlayerViewEffect
 import com.example.exo_viewpager_fun.models.TappedPlayerEvent
@@ -18,6 +19,7 @@ import com.example.exo_viewpager_fun.models.ViewEvent
 import com.example.exo_viewpager_fun.ui.extensions.events
 import com.example.exo_viewpager_fun.ui.extensions.pageScrollStateChanges
 import com.example.exo_viewpager_fun.vm.MainViewModel
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
@@ -68,6 +70,11 @@ class MainActivity : AppCompatActivity() {
             .onEach { effect ->
                 when (effect) {
                     is PlayerViewEffect -> appPlayerView.renderEffect(effect)
+                    is PlayerErrorEffect -> Snackbar.make(
+                        binding.root,
+                        effect.throwable.message ?: "Error",
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
             }
             .launchIn(lifecycleScope)

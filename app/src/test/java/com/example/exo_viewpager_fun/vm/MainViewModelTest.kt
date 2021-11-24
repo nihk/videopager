@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
 import com.example.exo_viewpager_fun.data.FakeVideoDataRepository
 import com.example.exo_viewpager_fun.models.OnPageSettledEvent
+import com.example.exo_viewpager_fun.models.PlayerErrorEffect
 import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
 import com.example.exo_viewpager_fun.models.PlayerState
 import com.example.exo_viewpager_fun.models.TappedPlayerEvent
@@ -16,11 +17,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.TestCoroutineScope
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 
@@ -177,16 +181,31 @@ class MainViewModelTest {
         assertPlaying(true)
     }
 
+    @Test
+    fun `should emit error effect when error happens`() {
+        val errors = MutableStateFlow<Throwable?>(null)
+        mainViewModel(errors = errors.filterNotNull()) {
+            startPlayer()
+
+            val error = RuntimeException("Uh oh!")
+            errors.value = error
+
+            assertErrorEffect(error)
+        }
+    }
+
     fun mainViewModel(
         initialPlayerState: PlayerState = PlayerState.INITIAL,
         videoData: List<VideoData> = TEST_VIDEO_DATA,
         isPlayerRendering: Flow<Boolean> = emptyFlow(),
+        errors: Flow<Throwable> = emptyFlow(),
         block: MainViewModelRobot.() -> Unit
     ) {
         MainViewModelRobot(
             initialPlayerState = initialPlayerState,
             videoData = videoData,
             isPlayerRendering = isPlayerRendering,
+            errors = errors,
             scope = TestCoroutineScope(rule.testDispatcher)
         ).block()
     }
@@ -195,9 +214,10 @@ class MainViewModelTest {
         initialPlayerState: PlayerState,
         videoData: List<VideoData>,
         isPlayerRendering: Flow<Boolean>,
+        errors: Flow<Throwable>,
         scope: CoroutineScope
     ) {
-        private val appPlayer = FakeAppPlayer(isPlayerRendering).apply {
+        private val appPlayer = FakeAppPlayer(isPlayerRendering, errors).apply {
             currentPlayerState = initialPlayerState
         }
         private val appPlayerFactory = FakeAppPlayer.Factory(appPlayer)
@@ -281,6 +301,10 @@ class MainViewModelTest {
 
         fun assertPlaying(isPlaying: Boolean) {
             assertEquals(isPlaying, appPlayer.currentPlayerState.isPlaying)
+        }
+
+        fun assertErrorEffect(throwable: Throwable) {
+            assertEquals(throwable, (collectedEffects.last() as PlayerErrorEffect).throwable)
         }
     }
 }

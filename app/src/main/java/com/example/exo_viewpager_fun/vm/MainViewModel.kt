@@ -13,6 +13,8 @@ import com.example.exo_viewpager_fun.models.LoadVideoDataEvent
 import com.example.exo_viewpager_fun.models.LoadVideoDataResult
 import com.example.exo_viewpager_fun.models.OnPageSettledEvent
 import com.example.exo_viewpager_fun.models.OnPageSettledResult
+import com.example.exo_viewpager_fun.models.PlayerErrorEffect
+import com.example.exo_viewpager_fun.models.PlayerErrorResult
 import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
 import com.example.exo_viewpager_fun.models.PlayerRenderingResult
 import com.example.exo_viewpager_fun.models.ResetAnimationsEffect
@@ -106,7 +108,8 @@ class MainViewModel(
         states.value.videoData?.let { videoData -> appPlayer.setUpWith(videoData, handle.get()) }
         return merge(
             flowOf(CreatePlayerResult(appPlayer)),
-            appPlayer.isPlayerRendering().map(::PlayerRenderingResult)
+            appPlayer.isPlayerRendering().map(::PlayerRenderingResult),
+            appPlayer.errors().map(::PlayerErrorResult)
         )
     }
 
@@ -165,7 +168,8 @@ class MainViewModel(
     override fun Flow<ViewResult>.toEffects(): Flow<ViewEffect> {
         return merge(
             filterIsInstance<TappedPlayerResult>().toTappedPlayerEffects(),
-            filterIsInstance<OnPageSettledResult>().toPageSettledEffects()
+            filterIsInstance<OnPageSettledResult>().toPageSettledEffects(),
+            filterIsInstance<PlayerErrorResult>().toPlayerErrorEffects()
         )
     }
 
@@ -176,6 +180,10 @@ class MainViewModel(
     private fun Flow<OnPageSettledResult>.toPageSettledEffects(): Flow<ViewEffect> {
         return filter { result -> result.didChangeVideo }
             .mapLatest { ResetAnimationsEffect }
+    }
+
+    private fun Flow<PlayerErrorResult>.toPlayerErrorEffects(): Flow<ViewEffect> {
+        return mapLatest { result -> PlayerErrorEffect(result.throwable) }
     }
 
     class Factory(

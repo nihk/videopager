@@ -5,6 +5,7 @@ import com.example.exo_viewpager_fun.data.VideoDataUpdater
 import com.example.exo_viewpager_fun.models.PlayerState
 import com.example.exo_viewpager_fun.models.VideoData
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.channels.awaitClose
@@ -59,6 +60,18 @@ class ExoAppPlayer(
         val listener = object : Player.Listener {
             override fun onRenderedFirstFrame() {
                 trySend(true)
+            }
+        }
+
+        exoPlayer.addListener(listener)
+
+        awaitClose { exoPlayer.removeListener(listener) }
+    }
+
+    override fun errors(): Flow<Throwable> = callbackFlow {
+        val listener = object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) {
+                trySend(error)
             }
         }
 
