@@ -92,6 +92,7 @@ class ExoAppPlayer(
     override fun playMediaAt(position: Int) {
         exoPlayer.seekToDefaultPosition(position)
         exoPlayer.playWhenReady = true
+        exoPlayer.prepare() // Recover from any errors that may have happened at previous media positions
     }
 
     override fun play() {
