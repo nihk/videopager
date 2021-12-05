@@ -159,7 +159,7 @@ class MainViewModel(
             is LoadVideoDataResult -> state.copy(videoData = videoData)
             is CreatePlayerResult -> state.copy(appPlayer = appPlayer)
             is TearDownPlayerResult -> state.copy(appPlayer = null)
-            is OnPageSettledResult -> state.copy(page = page, isLoading = didChangeVideo)
+            is OnPageSettledResult -> state.copy(page = page, isLoading = didChangeVideo || state.isLoading)
             is PlayerRenderingResult -> state.copy(isLoading = !isPlayerRendering)
             is AttachPlayerToViewResult -> state.copy(attachPlayer = doAttach)
             else -> state

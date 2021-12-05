@@ -114,6 +114,26 @@ class MainViewModelTest {
     }
 
     @Test
+    fun `should be isLoading when currently loading and page settling did not change video`() = mainViewModel {
+        assertIsLoading(true)
+        setCurrentMediaIndex(1)
+
+        changeMediaPosition(1)
+
+        assertIsLoading(true)
+    }
+
+    @Test
+    fun `should be isLoading when currently loading and page settling did change video`() = mainViewModel {
+        assertIsLoading(true)
+        setCurrentMediaIndex(1)
+
+        changeMediaPosition(2)
+
+        assertIsLoading(true)
+    }
+
+    @Test
     fun `should show player when player starts rendering`() {
         val isPlayerRendering = MutableStateFlow(false)
         mainViewModel(isPlayerRendering = isPlayerRendering) {
