@@ -1,5 +1,6 @@
 package com.example.exo_viewpager_fun.data.repositories
 
+import android.util.Log
 import com.example.exo_viewpager_fun.models.VideoData
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -19,34 +20,38 @@ class RedditVideoDataRepository : VideoDataRepository {
         .create(RedditService::class.java)
 
     override fun videoData(): Flow<List<VideoData>> = flow {
-        val response = api.tikTokCringe()
-        val videoData = response
-            .data
-            ?.posts
-            ?.map { post ->
-                val video = post.data?.secureMedia?.video
-                val width = video?.width
-                val height = video?.height
-                val aspectRatio = if (width != null && height != null) {
-                    width.toFloat() / height.toFloat()
-                } else {
-                    null
+        try {
+            val response = api.tikTokCringe()
+            val videoData = response
+                .data
+                ?.posts
+                ?.map { post ->
+                    val video = post.data?.secureMedia?.video
+                    val width = video?.width
+                    val height = video?.height
+                    val aspectRatio = if (width != null && height != null) {
+                        width.toFloat() / height.toFloat()
+                    } else {
+                        null
+                    }
+                    VideoData(
+                        id = post.data?.id.orEmpty(),
+                        mediaUri = video?.hlsUrl.orEmpty(),
+                        previewImageUri = post.data?.preview?.images?.firstOrNull()?.source?.url.orEmpty(),
+                        aspectRatio = aspectRatio
+                    )
                 }
-                VideoData(
-                    id = post.data?.id.orEmpty(),
-                    mediaUri = video?.hlsUrl.orEmpty(),
-                    previewImageUri = post.data?.preview?.images?.firstOrNull()?.source?.url.orEmpty(),
-                    aspectRatio = aspectRatio
-                )
-            }
-            ?.filter { videoData ->
-                videoData.id.isNotBlank()
-                    && videoData.mediaUri.isNotBlank()
-                    && videoData.previewImageUri.isNotBlank()
-            }
-            .orEmpty()
+                ?.filter { videoData ->
+                    videoData.id.isNotBlank()
+                        && videoData.mediaUri.isNotBlank()
+                        && videoData.previewImageUri.isNotBlank()
+                }
+                .orEmpty()
 
-        emit(videoData)
+            emit(videoData)
+        } catch (throwable: Throwable) {
+            Log.d("asdf", "Error", throwable)
+        }
     }
 
     private interface RedditService {
