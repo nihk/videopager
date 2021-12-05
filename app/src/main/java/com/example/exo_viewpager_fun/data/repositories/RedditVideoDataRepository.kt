@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 class RedditVideoDataRepository : VideoDataRepository {
     private val api = Retrofit.Builder()
@@ -22,10 +24,19 @@ class RedditVideoDataRepository : VideoDataRepository {
             .data
             ?.posts
             ?.map { post ->
+                val video = post.data?.secureMedia?.video
+                val width = video?.width
+                val height = video?.height
+                val aspectRatio = if (width != null && height != null) {
+                    width.toFloat() / height.toFloat()
+                } else {
+                    null
+                }
                 VideoData(
                     id = post.data?.id.orEmpty(),
-                    mediaUri = post.data?.secureMedia?.video?.hlsUrl.orEmpty(),
-                    previewImageUri = post.data?.preview?.images?.firstOrNull()?.source?.url.orEmpty()
+                    mediaUri = video?.hlsUrl.orEmpty(),
+                    previewImageUri = post.data?.preview?.images?.firstOrNull()?.source?.url.orEmpty(),
+                    aspectRatio = aspectRatio
                 )
             }
             ?.filter { videoData ->
@@ -39,8 +50,11 @@ class RedditVideoDataRepository : VideoDataRepository {
     }
 
     private interface RedditService {
-        @GET("/r/tiktokcringe/hot.json?raw_json=1")
-        suspend fun tikTokCringe(): RedditResponse
+        @GET("/r/tiktokcringe/{sort}.json?raw_json=1")
+        suspend fun tikTokCringe(
+            @Path("sort") sort: String = "top",
+            @Query("t") top: String = "all"
+        ): RedditResponse
     }
 
     @JsonClass(generateAdapter = true)

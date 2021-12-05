@@ -1,9 +1,11 @@
 package com.example.exo_viewpager_fun.ui
 
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
 import coil.load
+import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
 import com.example.exo_viewpager_fun.ui.extensions.detachFromParent
@@ -17,6 +19,14 @@ class PageViewHolder(
             uri = videoData.previewImageUri,
             imageLoader = imageLoader
         )
+
+        ConstraintSet().apply {
+            clone(binding.root)
+            // Optimize video container size if aspect ratio is available. This can avoid a flicker
+            // when ExoPlayer renders its first frame but hasn't yet adjusted the video size.
+            setDimensionRatio(R.id.player_container, videoData.aspectRatio?.let { "$it:1" })
+            applyTo(binding.root)
+        }
     }
 
     fun attach(appPlayerView: AppPlayerView) {
