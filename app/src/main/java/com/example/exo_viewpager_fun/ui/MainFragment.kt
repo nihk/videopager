@@ -18,6 +18,7 @@ import com.example.exo_viewpager_fun.models.PlayerViewEffect
 import com.example.exo_viewpager_fun.models.TappedPlayerEvent
 import com.example.exo_viewpager_fun.models.ViewEvent
 import com.example.exo_viewpager_fun.ui.extensions.events
+import com.example.exo_viewpager_fun.ui.extensions.isIdle
 import com.example.exo_viewpager_fun.ui.extensions.pageScrollStateChanges
 import com.example.exo_viewpager_fun.vm.MainViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -54,6 +55,7 @@ class MainFragment(
                     appPlayerView.detachPlayer()
                 }
 
+                // Restore any saved page state.
                 if (binding.viewPager.isIdle && adapter.hasPage(state.page)) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
@@ -108,8 +110,6 @@ class MainFragment(
             .filter { state -> state == ViewPager2.SCROLL_STATE_IDLE }
             .map { OnPageSettledEvent(currentItem) }
     }
-
-    private val ViewPager2.isIdle get() = scrollState == ViewPager2.SCROLL_STATE_IDLE
 
     private fun AppPlayerView.viewEvents(): Flow<ViewEvent> {
         // Taps on the player are signals to either play or pause the player, with animation side effects

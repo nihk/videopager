@@ -16,3 +16,5 @@ fun ViewPager2.pageScrollStateChanges(): Flow<Int> = callbackFlow {
 
     awaitClose { unregisterOnPageChangeCallback(callback) }
 }
+
+val ViewPager2.isIdle get() = scrollState == ViewPager2.SCROLL_STATE_IDLE
