@@ -23,6 +23,7 @@ class RedditVideoDataRepository : VideoDataRepository {
             .posts
             .map { post ->
                 VideoData(
+                    id = post.data.id,
                     mediaUri = post.data.secureMedia?.video?.hlsUrl.orEmpty(),
                     previewImageUri = post.data.preview.images.first().source.url
                 )
@@ -52,6 +53,7 @@ class RedditVideoDataRepository : VideoDataRepository {
             ) {
                 @JsonClass(generateAdapter = true)
                 data class Data2(
+                    val id: String,
                     @Json(name = "secure_media")
                     val secureMedia: SecureMedia?,
                     val preview: Preview

@@ -18,7 +18,7 @@ class ExoAppPlayerTest {
     @Test
     fun shouldRestorePlayerState_whenPlayerIsInitializing() = exoAppPlayer {
         val playerState = PlayerState(
-            currentMediaItemId = "2. mediaUri", // See TEST_VIDEO_DATA
+            currentMediaItemId = "2", // See TEST_VIDEO_DATA
             currentMediaIndex = 1,
             seekPositionMillis = 500L,
             isPlaying = true
@@ -28,7 +28,7 @@ class ExoAppPlayerTest {
 
         assertWindowIndex(1)
         assertSeekPosition(500L)
-        assertMediaItemIds(TEST_VIDEO_DATA.map(VideoData::mediaUri))
+        assertMediaItemIds(TEST_VIDEO_DATA.map(VideoData::id))
     }
 
     @Test
@@ -37,7 +37,7 @@ class ExoAppPlayerTest {
 
         assertWindowIndex(0)
         assertSeekPosition(0L)
-        assertMediaItemIds(TEST_VIDEO_DATA.map(VideoData::mediaUri))
+        assertMediaItemIds(TEST_VIDEO_DATA.map(VideoData::id))
     }
 
     @Test
@@ -53,7 +53,7 @@ class ExoAppPlayerTest {
 
         assertWindowIndex(0)
         assertSeekPosition(0L)
-        assertMediaItemIds(TEST_VIDEO_DATA.map(VideoData::mediaUri))
+        assertMediaItemIds(TEST_VIDEO_DATA.map(VideoData::id))
     }
 
     @Test
@@ -63,7 +63,7 @@ class ExoAppPlayerTest {
 
         val expected = PlayerState(
             currentMediaIndex = 0,
-            currentMediaItemId = "1. mediaUri", // See TEST_VIDEO_DATA
+            currentMediaItemId = "1", // See TEST_VIDEO_DATA
             seekPositionMillis = 100L,
             isPlaying = true
         )

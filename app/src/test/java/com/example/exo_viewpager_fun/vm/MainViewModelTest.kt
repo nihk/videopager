@@ -134,7 +134,7 @@ class MainViewModelTest {
     @Test
     fun `should setup app player when repository emits video data`() = mainViewModel {
         startPlayer()
-        val videoData = TEST_VIDEO_DATA + listOf(VideoData(mediaUri = "asdf", previewImageUri = "png"))
+        val videoData = TEST_VIDEO_DATA + listOf(VideoData(id = "1", mediaUri = "asdf", previewImageUri = "png"))
         emitVideoData(videoData)
 
         assertPlayerSetupWith(videoData)

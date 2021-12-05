@@ -17,6 +17,7 @@ class RecyclerViewVideoDataUpdaterTest {
     fun shouldAddMediaItem_whenExoPlayerIsEmpty() = updater {
         val videoData = listOf(
             VideoData(
+                id = "1",
                 mediaUri = "1",
                 previewImageUri = ""
             )
@@ -31,6 +32,7 @@ class RecyclerViewVideoDataUpdaterTest {
     fun shouldRemoveAllExoPlayerMediaItems_whenIncomingDataIsEmpty() = updater {
         val videoData = listOf(
             VideoData(
+                id = "1",
                 mediaUri = "1",
                 previewImageUri = ""
             )
@@ -46,10 +48,12 @@ class RecyclerViewVideoDataUpdaterTest {
     fun shouldInsertMediaItemInMiddle_whenIncomingDataAddsMiddleItem() = updater {
         val videoData = listOf(
             VideoData(
+                id = "1",
                 mediaUri = "1",
                 previewImageUri = ""
             ),
             VideoData(
+                id = "3",
                 mediaUri = "3",
                 previewImageUri = ""
             )
@@ -58,14 +62,17 @@ class RecyclerViewVideoDataUpdaterTest {
 
         val newList = listOf(
             VideoData(
+                id = "1",
                 mediaUri = "1",
                 previewImageUri = ""
             ),
             VideoData(
+                id = "2",
                 mediaUri = "2",
                 previewImageUri = ""
             ),
             VideoData(
+                id = "3",
                 mediaUri = "3",
                 previewImageUri = ""
             )

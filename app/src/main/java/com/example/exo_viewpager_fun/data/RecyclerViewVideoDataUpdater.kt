@@ -25,7 +25,7 @@ class RecyclerViewVideoDataUpdater : VideoDataUpdater {
     private fun List<VideoData>.toMediaItems(): List<MediaItem> {
         return map { videoData ->
             MediaItem.Builder()
-                .setMediaId(videoData.mediaUri)
+                .setMediaId(videoData.id)
                 .setUri(videoData.mediaUri)
                 .build()
         }
