@@ -252,7 +252,7 @@ class MainViewModelTest {
         }
 
         fun setCurrentMediaIndex(index: Int) {
-            appPlayer.currentPlayerState = appPlayer.currentPlayerState.copy(currentMediaIndex = index)
+            appPlayer.currentPlayerState = appPlayer.currentPlayerState.copy(currentMediaItemIndex = index)
         }
 
         fun changeMediaPosition(position: Int) {

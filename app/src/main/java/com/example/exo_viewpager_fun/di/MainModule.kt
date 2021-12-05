@@ -1,14 +1,33 @@
 package com.example.exo_viewpager_fun.di
 
-import android.view.LayoutInflater
-import androidx.savedstate.SavedStateRegistryOwner
-import coil.ImageLoader
-import com.example.exo_viewpager_fun.ui.AppPlayerView
+import androidx.activity.ComponentActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentFactory
+import coil.imageLoader
+import com.example.exo_viewpager_fun.data.RecyclerViewVideoDataUpdater
+import com.example.exo_viewpager_fun.data.repositories.OneShotAssetVideoDataRepository
+import com.example.exo_viewpager_fun.players.ExoAppPlayer
+import com.example.exo_viewpager_fun.ui.ExoAppPlayerView
+import com.example.exo_viewpager_fun.ui.MainFragment
 import com.example.exo_viewpager_fun.vm.MainViewModel
 
-// The app-scoped dependency injection graph needed for this project.
-interface MainModule {
-    fun viewModelFactory(savedStateRegistryOwner: SavedStateRegistryOwner): MainViewModel.Factory
-    fun appPlayerView(layoutInflater: LayoutInflater): AppPlayerView
-    fun imageLoader(): ImageLoader
+class MainModule(activity: ComponentActivity) {
+    val fragmentFactory: FragmentFactory = object : FragmentFactory() {
+        override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+            return when (loadFragmentClass(classLoader, className)) {
+                MainFragment::class.java -> MainFragment(
+                    viewModelFactory = MainViewModel.Factory(
+                        repository = OneShotAssetVideoDataRepository(),
+                        appPlayerFactory = ExoAppPlayer.Factory(
+                            context = activity.applicationContext,
+                            updater = RecyclerViewVideoDataUpdater()
+                        )
+                    ),
+                    appPlayerViewFactory = ExoAppPlayerView.Factory(),
+                    imageLoader = activity.imageLoader
+                )
+                else -> super.instantiate(classLoader, className)
+            }
+        }
+    }
 }

@@ -5,6 +5,6 @@ import com.example.exo_viewpager_fun.vm.PlayerSavedStateHandle
 
 fun ViewState(handle: PlayerSavedStateHandle): ViewState {
     return ViewState(
-        page = handle.get()?.currentMediaIndex ?: 0
+        page = handle.get()?.currentMediaItemIndex ?: 0
     )
 }

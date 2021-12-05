@@ -19,7 +19,7 @@ class ExoAppPlayerTest {
     fun shouldRestorePlayerState_whenPlayerIsInitializing() = exoAppPlayer {
         val playerState = PlayerState(
             currentMediaItemId = "2", // See TEST_VIDEO_DATA
-            currentMediaIndex = 1,
+            currentMediaItemIndex = 1,
             seekPositionMillis = 500L,
             isPlaying = true
         )
@@ -44,7 +44,7 @@ class ExoAppPlayerTest {
     fun shouldNotRestorePlayerStateCurrentMedia_whenMatchingMediaIsNotFound() = exoAppPlayer {
         val playerState = PlayerState(
             currentMediaItemId = "unknown",
-            currentMediaIndex = 5,
+            currentMediaItemIndex = 5,
             seekPositionMillis = 500L,
             isPlaying = true
         )
@@ -62,7 +62,7 @@ class ExoAppPlayerTest {
         seekTo(100L)
 
         val expected = PlayerState(
-            currentMediaIndex = 0,
+            currentMediaItemIndex = 0,
             currentMediaItemId = "1", // See TEST_VIDEO_DATA
             seekPositionMillis = 100L,
             isPlaying = true

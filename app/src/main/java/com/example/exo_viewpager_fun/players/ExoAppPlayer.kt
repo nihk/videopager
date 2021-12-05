@@ -7,7 +7,6 @@ import com.example.exo_viewpager_fun.models.VideoData
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -83,7 +82,7 @@ class ExoAppPlayer(
     private fun ExoPlayer.toPlayerState(): PlayerState {
         return PlayerState(
             currentMediaItemId = currentMediaItem?.mediaId,
-            currentMediaIndex = currentWindowIndex,
+            currentMediaItemIndex = currentMediaItemIndex,
             seekPositionMillis = currentPosition,
             isPlaying = playWhenReady
         )
@@ -115,7 +114,7 @@ class ExoAppPlayer(
         private val appContext = context.applicationContext
 
         override fun create(config: AppPlayer.Factory.Config): AppPlayer {
-            val exoPlayer = SimpleExoPlayer.Builder(appContext)
+            val exoPlayer = ExoPlayer.Builder(appContext)
                 .build()
                 .apply {
                     if (config.loopVideos) {

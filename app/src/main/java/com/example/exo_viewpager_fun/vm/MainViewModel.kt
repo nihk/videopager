@@ -3,6 +3,7 @@ package com.example.exo_viewpager_fun.vm
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.savedstate.SavedStateRegistryOwner
 import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.data.repositories.VideoDataRepository
@@ -140,7 +141,7 @@ class MainViewModel(
     private fun Flow<OnPageSettledEvent>.toPageSettledResults(): Flow<ViewResult> {
         return mapLatest { event ->
             val appPlayer = requireNotNull(states.value.appPlayer)
-            val changeVideo = appPlayer.currentPlayerState.currentMediaIndex != event.page
+            val changeVideo = appPlayer.currentPlayerState.currentMediaItemIndex != event.page
             if (changeVideo) {
                 appPlayer.playMediaAt(event.page)
             }
@@ -188,25 +189,26 @@ class MainViewModel(
 
     class Factory(
         private val repository: VideoDataRepository,
-        private val appPlayerFactory: AppPlayer.Factory,
-        savedStateRegistryOwner: SavedStateRegistryOwner
-    ) : AbstractSavedStateViewModelFactory(savedStateRegistryOwner, null) {
-        override fun <T : ViewModel?> create(
-            key: String,
-            modelClass: Class<T>,
-            handle: SavedStateHandle
-        ): T {
-            val playerSavedStateHandle = PlayerSavedStateHandle(handle)
+        private val appPlayerFactory: AppPlayer.Factory
+    ) {
+        fun create(owner: SavedStateRegistryOwner): ViewModelProvider.Factory {
+            return object : AbstractSavedStateViewModelFactory(owner, null) {
+                override fun <T : ViewModel?> create(
+                    key: String,
+                    modelClass: Class<T>,
+                    handle: SavedStateHandle
+                ): T {
+                    val playerSavedStateHandle = PlayerSavedStateHandle(handle)
 
-            @Suppress("UNCHECKED_CAST")
-            return MainViewModel(
-                repository = repository,
-                appPlayerFactory = appPlayerFactory,
-                handle = playerSavedStateHandle,
-                initialState = ViewState(playerSavedStateHandle)
-            ) as T
+                    @Suppress("UNCHECKED_CAST")
+                    return MainViewModel(
+                        repository = repository,
+                        appPlayerFactory = appPlayerFactory,
+                        handle = playerSavedStateHandle,
+                        initialState = ViewState(playerSavedStateHandle)
+                    ) as T
+                }
+            }
         }
     }
 }
-
-

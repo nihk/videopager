@@ -1,11 +1,10 @@
 package com.example.exo_viewpager_fun.ui
 
-import android.view.LayoutInflater
+import android.content.Context
+import androidx.fragment.app.testing.FragmentScenario
+import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.savedstate.SavedStateRegistryOwner
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.swipeUp
@@ -15,12 +14,9 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withChild
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import coil.ImageLoader
-import com.example.exo_viewpager_fun.App
 import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
 import com.example.exo_viewpager_fun.data.repositories.FakeVideoDataRepository
-import com.example.exo_viewpager_fun.di.MainModule
 import com.example.exo_viewpager_fun.models.AnimationEffect
 import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.models.ViewEffect
@@ -41,33 +37,33 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class MainActivityTest {
+class MainFragmentTest {
     @Test
-    fun whenActivityIsStarted_shouldCreatePlayer() = mainActivity {
+    fun whenScreenIsStarted_shouldCreatePlayer() = mainFragment {
         assertPlayerCreated()
     }
 
     @Test
-    fun whenActivityIsStarted_shouldStartPlayerView() = mainActivity {
+    fun whenScreenIsStarted_shouldStartPlayerView() = mainFragment {
         assertPlayerViewStarted()
     }
 
     @Test
-    fun whenActivityIsStopped_shouldStopPlayer() = mainActivity {
+    fun whenScreenIsStopped_shouldStopPlayer() = mainFragment {
         stop()
 
         assertPlayerStopped()
     }
 
     @Test
-    fun whenActivityIsStopped_shouldStopPlayerView() = mainActivity {
+    fun whenScreenIsStopped_shouldStopPlayerView() = mainFragment {
         stop()
 
         assertPlayerViewStopped()
     }
 
     @Test
-    fun whenPlayerHasNotYetRenderedFrames_shouldShowImagePreview() = mainActivity {
+    fun whenPlayerHasNotYetRenderedFrames_shouldShowImagePreview() = mainFragment {
         emit(TEST_VIDEO_DATA)
 
         assertImagePreviewVisibility(isVisible = true)
@@ -77,7 +73,7 @@ class MainActivityTest {
     fun whenPlayerIsRenderingFrames_shouldHideImagePreview() {
         val isPlayerRendering = MutableStateFlow(false)
 
-        mainActivity(isPlayerRendering = isPlayerRendering) {
+        mainFragment(isPlayerRendering = isPlayerRendering) {
             emit(TEST_VIDEO_DATA)
             isPlayerRendering.value = true
 
@@ -86,7 +82,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun whenSwipedToNextPage_shouldLoadNextPlayerItem() = mainActivity {
+    fun whenSwipedToNextPage_shouldLoadNextPlayerItem() = mainFragment {
         emit(TEST_VIDEO_DATA)
 
         swipeToNextPage()
@@ -95,14 +91,14 @@ class MainActivityTest {
     }
 
     @Test
-    fun whenActivityStartedWithVideoData_shouldAttachPlayerView() = mainActivity {
+    fun whenScreenStartedWithVideoData_shouldAttachPlayerView() = mainFragment {
         emit(TEST_VIDEO_DATA)
 
         assertPlayerViewPosition(0)
     }
 
     @Test
-    fun whenSwipedToNextPage_shouldAttachPlayerViewToNextPage() = mainActivity {
+    fun whenSwipedToNextPage_shouldAttachPlayerViewToNextPage() = mainFragment {
         emit(TEST_VIDEO_DATA)
 
         swipeToNextPage()
@@ -111,7 +107,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun whenActivityIsRecreated_shouldRestorePage() = mainActivity {
+    fun whenScreenIsRecreated_shouldRestorePage() = mainFragment {
         emit(TEST_VIDEO_DATA)
 
         recreate()
@@ -126,7 +122,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun whenScreenIsTapped_shouldPauseOrPlayPlayer() = mainActivity {
+    fun whenScreenIsTapped_shouldPauseOrPlayPlayer() = mainFragment {
         emit(TEST_VIDEO_DATA)
 
         tapScreen()
@@ -139,7 +135,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun whenScreenIsTapped_shouldRenderEffects() = mainActivity {
+    fun whenScreenIsTapped_shouldRenderEffects() = mainFragment {
         emit(TEST_VIDEO_DATA)
 
         tapScreen()
@@ -154,7 +150,7 @@ class MainActivityTest {
     @Test
     fun whenErrorIsEmitted_messageIsDisplayed() {
         val errors = MutableStateFlow<Throwable?>(null)
-        mainActivity(errors = errors.filterNotNull()) {
+        mainFragment(errors = errors.filterNotNull()) {
             val error = RuntimeException("Uh oh!")
 
             errors.value = error
@@ -163,48 +159,41 @@ class MainActivityTest {
         }
     }
 
-    fun mainActivity(
+    private fun mainFragment(
         videoData: List<VideoData>? = null,
         isPlayerRendering: Flow<Boolean> = emptyFlow(),
         errors: Flow<Throwable> = emptyFlow(),
-        block: MainActivityRobot.() -> Unit
+        block: MainFragmentRobot.() -> Unit
     ) {
-        MainActivityRobot(videoData, isPlayerRendering, errors).block()
+        MainFragmentRobot(videoData, isPlayerRendering, errors).block()
     }
 
-    class MainActivityRobot(
+    class MainFragmentRobot(
         videoData: List<VideoData>?,
         isPlayerRendering: Flow<Boolean>,
         errors: Flow<Throwable>
     ) {
-        private val app: App = ApplicationProvider.getApplicationContext()
         private val taps = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         private val videoDataFlow = MutableStateFlow(videoData)
         private val appPlayer = FakeAppPlayer(isPlayerRendering, errors)
         private val appPlayerFactory = FakeAppPlayer.Factory(appPlayer)
-        private val appPlayerView = FakeAppPlayerView(app, taps)
-        private val scenario: ActivityScenario<MainActivity>
+        private val appPlayerView = FakeAppPlayerView(ApplicationProvider.getApplicationContext(), taps)
 
-        init {
-            app.mainModule = object : MainModule {
-                override fun viewModelFactory(savedStateRegistryOwner: SavedStateRegistryOwner): MainViewModel.Factory {
-                    return MainViewModel.Factory(
-                        repository = FakeVideoDataRepository(videoDataFlow),
-                        appPlayerFactory = appPlayerFactory,
-                        savedStateRegistryOwner = savedStateRegistryOwner
-                    )
-                }
-
-                override fun appPlayerView(layoutInflater: LayoutInflater): AppPlayerView {
-                    return appPlayerView
-                }
-
-                override fun imageLoader(): ImageLoader {
-                    return TestImageLoader()
-                }
-            }
-
-            scenario = launchActivity()
+        private val scenario: FragmentScenario<MainFragment> = launchFragmentInContainer(
+            themeResId = R.style.Theme_MaterialComponents_DayNight_DarkActionBar
+        ) {
+            MainFragment(
+                viewModelFactory = MainViewModel.Factory(
+                    repository = FakeVideoDataRepository(videoDataFlow),
+                    appPlayerFactory = appPlayerFactory,
+                ),
+                appPlayerViewFactory = object : AppPlayerView.Factory {
+                    override fun create(context: Context): AppPlayerView {
+                        return appPlayerView
+                    }
+                },
+                imageLoader = TestImageLoader()
+            )
         }
 
         fun stop() {
