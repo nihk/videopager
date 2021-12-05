@@ -85,7 +85,7 @@ class MainFragment(
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         merge(
-            lifecycle.viewEvents(),
+            viewLifecycleOwner.lifecycle.viewEvents(),
             binding.viewPager.viewEvents(),
             adapter.viewEvents()
         )
