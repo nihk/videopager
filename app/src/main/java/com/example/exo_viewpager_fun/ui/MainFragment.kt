@@ -87,7 +87,7 @@ class MainFragment(
         merge(
             lifecycle.viewEvents(),
             binding.viewPager.viewEvents(),
-            appPlayerView.viewEvents()
+            adapter.viewEvents()
         )
             .onEach(viewModel::processEvent)
             .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -112,9 +112,8 @@ class MainFragment(
             .map { OnPageSettledEvent(currentItem) }
     }
 
-    private fun AppPlayerView.viewEvents(): Flow<ViewEvent> {
-        // Taps on the player are signals to either play or pause the player, with animation side effects
-        return taps().map { TappedPlayerEvent }
+    private fun PagerAdapter.viewEvents(): Flow<ViewEvent> {
+        return clicks().map { TappedPlayerEvent }
     }
 
     private fun ListAdapter<*, *>.hasPage(page: Int): Boolean {

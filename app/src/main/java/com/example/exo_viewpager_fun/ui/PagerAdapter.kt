@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
 import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * The two main functions of interest here are [attachPlayerView] and [showPlayerFor].
@@ -25,11 +27,16 @@ class PagerAdapter(
     private val imageLoader: ImageLoader
 ) : ListAdapter<VideoData, PageViewHolder>(VideoDataDiffCallback) {
     private var recyclerView: RecyclerView? = null
+    private val clicks = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    fun clicks() = clicks.asSharedFlow()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageViewHolder {
         return LayoutInflater.from(parent.context)
             .let { inflater -> PageItemBinding.inflate(inflater, parent, false) }
-            .let { binding -> PageViewHolder(binding, imageLoader) }
+            .let { binding ->
+                PageViewHolder(binding, imageLoader) { clicks.tryEmit(Unit) }
+            }
     }
 
     override fun onBindViewHolder(holder: PageViewHolder, position: Int) {

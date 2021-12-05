@@ -12,8 +12,13 @@ import com.example.exo_viewpager_fun.ui.extensions.detachFromParent
 
 class PageViewHolder(
     private val binding: PageItemBinding,
-    private val imageLoader: ImageLoader
+    private val imageLoader: ImageLoader,
+    private val click: () -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
+    init {
+        binding.root.setOnClickListener { click() }
+    }
+
     fun bind(videoData: VideoData) {
         binding.previewImage.load(
             uri = videoData.previewImageUri,

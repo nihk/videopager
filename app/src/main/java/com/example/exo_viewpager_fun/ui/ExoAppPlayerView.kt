@@ -11,8 +11,6 @@ import com.example.exo_viewpager_fun.models.ResetAnimationsEffect
 import com.example.exo_viewpager_fun.players.AppPlayer
 import com.example.exo_viewpager_fun.players.ExoAppPlayer
 import com.example.exo_viewpager_fun.ui.extensions.layoutInflater
-import com.example.exo_viewpager_fun.ui.extensions.taps
-import kotlinx.coroutines.flow.Flow
 
 /**
  * An implementation of AppPlayerView that uses ExoPlayer APIs,
@@ -42,8 +40,6 @@ class ExoAppPlayerView(layoutInflater: LayoutInflater) : AppPlayerView {
             }
         }
     }
-
-    override fun taps(): Flow<Unit> = view.taps()
 
     class Factory : AppPlayerView.Factory {
         override fun create(context: Context): AppPlayerView {

@@ -5,8 +5,8 @@ import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
@@ -27,7 +27,6 @@ import com.example.exo_viewpager_fun.utils.awaitIdleScrollState
 import com.example.exo_viewpager_fun.utils.withPage
 import com.example.exo_viewpager_fun.vm.MainViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -173,11 +172,10 @@ class MainFragmentTest {
         isPlayerRendering: Flow<Boolean>,
         errors: Flow<Throwable>
     ) {
-        private val taps = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         private val videoDataFlow = MutableStateFlow(videoData)
         private val appPlayer = FakeAppPlayer(isPlayerRendering, errors)
         private val appPlayerFactory = FakeAppPlayer.Factory(appPlayer)
-        private val appPlayerView = FakeAppPlayerView(ApplicationProvider.getApplicationContext(), taps)
+        private val appPlayerView = FakeAppPlayerView(ApplicationProvider.getApplicationContext())
 
         private val scenario: FragmentScenario<MainFragment> = launchFragmentInContainer(
             themeResId = R.style.Theme_MaterialComponents_DayNight_DarkActionBar
@@ -215,8 +213,8 @@ class MainFragmentTest {
         }
 
         fun tapScreen() {
-            taps.tryEmit(Unit)
-            Espresso.onIdle()
+            onView(withId(R.id.view_pager))
+                .perform(click())
         }
 
         fun assertPlayerCreated() {
