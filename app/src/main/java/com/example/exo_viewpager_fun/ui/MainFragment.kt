@@ -49,13 +49,14 @@ class MainFragment(
             .onEach { state ->
                 adapter.submitList(state.videoData)
 
+                // Attach the player to the View whenever it's ready
                 if (state.attachPlayer && state.appPlayer != null) {
                     appPlayerView.attach(state.appPlayer)
                 } else {
                     appPlayerView.detachPlayer()
                 }
 
-                // Restore any saved page state.
+                // Restore any saved page state
                 if (binding.viewPager.isIdle && adapter.hasPage(state.page)) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
