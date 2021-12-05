@@ -54,7 +54,7 @@ class MainFragment(
                     appPlayerView.detachPlayer()
                 }
 
-                if (adapter.hasPage(state.page)) {
+                if (binding.viewPager.isIdle && adapter.hasPage(state.page)) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
 
@@ -108,6 +108,8 @@ class MainFragment(
             .filter { state -> state == ViewPager2.SCROLL_STATE_IDLE }
             .map { OnPageSettledEvent(currentItem) }
     }
+
+    private val ViewPager2.isIdle get() = scrollState == ViewPager2.SCROLL_STATE_IDLE
 
     private fun AppPlayerView.viewEvents(): Flow<ViewEvent> {
         // Taps on the player are signals to either play or pause the player, with animation side effects
