@@ -47,43 +47,38 @@ class PagerAdapter(
     /**
      * Attach [appPlayerView] to the ViewHolder at [position]. The player won't actually be visible in
      * the UI until [showPlayerFor] is also called.
-     *
-     * For this function and [showPlayerFor], the ViewHolder at [position] isn't always immediately
-     * available. In those cases, simply wait for the RecyclerView to be laid out and re-query that
-     * ViewHolder.
      */
     fun attachPlayerView(appPlayerView: AppPlayerView, position: Int) {
-        val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
-            as? PageViewHolder
-
-        if (viewHolder == null) {
-            if (currentList.isNotEmpty()) {
-                recyclerView?.doOnLayout {
-                    attachPlayerView(appPlayerView, position)
-                }
-            } else {
-                // Nothing to do here.
-            }
-        } else {
+        onViewHolder(position) { viewHolder ->
             viewHolder.attach(appPlayerView)
         }
     }
 
     // Hides the video preview image when the player is ready to be shown.
     fun showPlayerFor(position: Int) {
+        onViewHolder(position) { viewHolder ->
+            viewHolder.setPreviewImage(isVisible = false)
+        }
+    }
+
+    /**
+     * The ViewHolder at [position] isn't always immediately available. In those cases, wait for
+     * the RecyclerView to be laid out and re-query that ViewHolder.
+     */
+    private fun onViewHolder(position: Int, block: (PageViewHolder) -> Unit) {
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder
 
         if (viewHolder == null) {
             if (currentList.isNotEmpty()) {
                 recyclerView?.doOnLayout {
-                    showPlayerFor(position)
+                    onViewHolder(position, block)
                 }
             } else {
-                // Nothing to do here.
+                // Nothing to do here
             }
         } else {
-            viewHolder.setPreviewImage(isVisible = false)
+            block(viewHolder)
         }
     }
 
