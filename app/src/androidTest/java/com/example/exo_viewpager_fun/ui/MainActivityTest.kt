@@ -19,7 +19,7 @@ import coil.ImageLoader
 import com.example.exo_viewpager_fun.App
 import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
-import com.example.exo_viewpager_fun.data.FakeVideoDataRepository
+import com.example.exo_viewpager_fun.data.repositories.FakeVideoDataRepository
 import com.example.exo_viewpager_fun.di.MainModule
 import com.example.exo_viewpager_fun.models.AnimationEffect
 import com.example.exo_viewpager_fun.models.VideoData

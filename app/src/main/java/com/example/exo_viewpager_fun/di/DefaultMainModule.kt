@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import androidx.savedstate.SavedStateRegistryOwner
 import coil.ImageLoader
 import coil.imageLoader
-import com.example.exo_viewpager_fun.data.OneShotAssetVideoDataRepository
+import com.example.exo_viewpager_fun.data.repositories.OneShotAssetVideoDataRepository
 import com.example.exo_viewpager_fun.data.RecyclerViewVideoDataUpdater
 import com.example.exo_viewpager_fun.players.ExoAppPlayer
 import com.example.exo_viewpager_fun.ui.AppPlayerView

@@ -5,7 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import com.example.exo_viewpager_fun.R
-import com.example.exo_viewpager_fun.data.VideoDataRepository
+import com.example.exo_viewpager_fun.data.repositories.VideoDataRepository
 import com.example.exo_viewpager_fun.models.AnimationEffect
 import com.example.exo_viewpager_fun.models.AttachPlayerToViewResult
 import com.example.exo_viewpager_fun.models.CreatePlayerResult

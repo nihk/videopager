@@ -2,7 +2,7 @@ package com.example.exo_viewpager_fun.vm
 
 import androidx.lifecycle.SavedStateHandle
 import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
-import com.example.exo_viewpager_fun.data.FakeVideoDataRepository
+import com.example.exo_viewpager_fun.data.repositories.FakeVideoDataRepository
 import com.example.exo_viewpager_fun.models.OnPageSettledEvent
 import com.example.exo_viewpager_fun.models.PlayerErrorEffect
 import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent

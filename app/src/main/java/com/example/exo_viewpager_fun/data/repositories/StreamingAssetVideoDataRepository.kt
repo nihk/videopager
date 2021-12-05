@@ -1,4 +1,4 @@
-package com.example.exo_viewpager_fun.data
+package com.example.exo_viewpager_fun.data.repositories
 
 import com.example.exo_viewpager_fun.models.VideoData
 import kotlinx.coroutines.delay
