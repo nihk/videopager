@@ -21,12 +21,16 @@ fun View.taps(): Flow<Unit> = callbackFlow {
             trySend(Unit)
             return true
         }
+
+        override fun onDown(e: MotionEvent?): Boolean {
+            // Up events won't get called without this returning true
+            return true
+        }
     }
     val gestureDetector = GestureDetector(context, gestureListener)
 
     setOnTouchListener { _, motionEvent ->
         gestureDetector.onTouchEvent(motionEvent)
-        true
     }
 
     awaitClose { setOnTouchListener(null) }
