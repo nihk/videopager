@@ -5,10 +5,11 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-fun ViewPager2.pageScrollStateChanges(): Flow<Int> = callbackFlow {
+fun ViewPager2.idleScrollStates(): Flow<Unit> = callbackFlow {
     val callback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageScrollStateChanged(state: Int) {
-            trySend(state)
+            if (state != ViewPager2.SCROLL_STATE_IDLE) return
+            trySend(Unit)
         }
     }
 
