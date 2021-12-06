@@ -14,7 +14,7 @@ import com.example.exo_viewpager_fun.databinding.MainFragmentBinding
 import com.example.exo_viewpager_fun.models.OnPageSettledEvent
 import com.example.exo_viewpager_fun.models.PlayerErrorEffect
 import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
-import com.example.exo_viewpager_fun.models.PlayerViewEffect
+import com.example.exo_viewpager_fun.models.PageEffect
 import com.example.exo_viewpager_fun.models.TappedPlayerEvent
 import com.example.exo_viewpager_fun.models.ViewEvent
 import com.example.exo_viewpager_fun.ui.extensions.events
@@ -76,7 +76,7 @@ class MainFragment(
         viewModel.effects
             .onEach { effect ->
                 when (effect) {
-                    is PlayerViewEffect -> appPlayerView.renderEffect(effect)
+                    is PageEffect -> adapter.renderEffect(binding.viewPager.currentItem, effect)
                     is PlayerErrorEffect -> Snackbar.make(
                         binding.root,
                         effect.throwable.message ?: "Error",

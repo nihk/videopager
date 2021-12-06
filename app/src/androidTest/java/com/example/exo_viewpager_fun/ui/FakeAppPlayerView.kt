@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Color
 import android.view.View
 import android.widget.FrameLayout
-import com.example.exo_viewpager_fun.models.PlayerViewEffect
 import com.example.exo_viewpager_fun.players.AppPlayer
 
 class FakeAppPlayerView(
@@ -17,7 +16,6 @@ class FakeAppPlayerView(
     }
     var didAttach: Boolean = false
     var didDetach: Boolean = false
-    var latestEffect: PlayerViewEffect? = null
 
     override fun attach(appPlayer: AppPlayer) {
         didAttach = true
@@ -25,9 +23,5 @@ class FakeAppPlayerView(
 
     override fun detachPlayer() {
         didDetach = true
-    }
-
-    override fun renderEffect(playerViewEffect: PlayerViewEffect) {
-        latestEffect = playerViewEffect
     }
 }

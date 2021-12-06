@@ -95,6 +95,7 @@ class ExoAppPlayer(
     }
 
     override fun play() {
+        exoPlayer.prepare() // Recover from any errors
         exoPlayer.play()
     }
 

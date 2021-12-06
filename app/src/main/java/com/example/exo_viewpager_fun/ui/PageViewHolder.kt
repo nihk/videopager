@@ -8,6 +8,9 @@ import coil.load
 import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
+import com.example.exo_viewpager_fun.models.AnimationEffect
+import com.example.exo_viewpager_fun.models.PageEffect
+import com.example.exo_viewpager_fun.models.ResetAnimationsEffect
 import com.example.exo_viewpager_fun.ui.extensions.detachFromParent
 
 class PageViewHolder(
@@ -15,6 +18,8 @@ class PageViewHolder(
     private val imageLoader: ImageLoader,
     private val click: () -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
+    private val animationEffect = FadeInThenOutAnimationEffect(binding.playPause)
+
     init {
         binding.root.setOnClickListener { click() }
     }
@@ -47,6 +52,16 @@ class PageViewHolder(
          */
         appPlayerView.view.detachFromParent()
         binding.playerContainer.addView(appPlayerView.view)
+    }
+
+    fun renderEffect(effect: PageEffect) {
+        when (effect) {
+            is ResetAnimationsEffect -> animationEffect.reset()
+            is AnimationEffect -> {
+                binding.playPause.setImageResource(effect.drawable)
+                animationEffect.go()
+            }
+        }
     }
 
     fun setPreviewImage(isVisible: Boolean) {

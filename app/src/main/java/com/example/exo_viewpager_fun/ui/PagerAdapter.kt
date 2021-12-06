@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
 import com.example.exo_viewpager_fun.models.VideoData
 import com.example.exo_viewpager_fun.databinding.PageItemBinding
+import com.example.exo_viewpager_fun.models.PageEffect
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
@@ -65,6 +66,12 @@ class PagerAdapter(
     fun showPlayerFor(position: Int) {
         onViewHolder(position) { viewHolder ->
             viewHolder.setPreviewImage(isVisible = false)
+        }
+    }
+
+    fun renderEffect(position: Int, effect: PageEffect) {
+        onViewHolder(position) { viewHolder ->
+            viewHolder.renderEffect(effect)
         }
     }
 

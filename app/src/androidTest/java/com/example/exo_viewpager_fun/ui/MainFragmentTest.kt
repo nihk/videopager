@@ -17,9 +17,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
 import com.example.exo_viewpager_fun.data.repositories.FakeVideoDataRepository
-import com.example.exo_viewpager_fun.models.AnimationEffect
 import com.example.exo_viewpager_fun.models.VideoData
-import com.example.exo_viewpager_fun.models.ViewEffect
 import com.example.exo_viewpager_fun.players.FakeAppPlayer
 import com.example.exo_viewpager_fun.utils.TestImageLoader
 import com.example.exo_viewpager_fun.utils.atPage
@@ -131,19 +129,6 @@ class MainFragmentTest {
         tapScreen()
 
         assertPlaying(true)
-    }
-
-    @Test
-    fun whenScreenIsTapped_shouldRenderEffects() = mainFragment {
-        emit(TEST_VIDEO_DATA)
-
-        tapScreen()
-
-        assertEffect(AnimationEffect(R.drawable.pause))
-
-        tapScreen()
-
-        assertEffect(AnimationEffect(R.drawable.play))
     }
 
     @Test
@@ -260,10 +245,6 @@ class MainFragmentTest {
 
         fun assertPlaying(isPlaying: Boolean) {
             assertEquals(isPlaying, appPlayer.currentPlayerState.isPlaying)
-        }
-
-        fun assertEffect(viewEffect: ViewEffect) {
-            assertEquals(viewEffect, appPlayerView.latestEffect)
         }
 
         fun assertTextOnScreen(text: String) {

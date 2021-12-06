@@ -214,7 +214,7 @@ class MainViewModelTest {
         }
     }
 
-    fun mainViewModel(
+    private fun mainViewModel(
         initialPlayerState: PlayerState = PlayerState.INITIAL,
         videoData: List<VideoData> = TEST_VIDEO_DATA,
         isPlayerRendering: Flow<Boolean> = emptyFlow(),
