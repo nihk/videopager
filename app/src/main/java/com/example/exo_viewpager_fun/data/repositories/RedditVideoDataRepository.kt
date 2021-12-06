@@ -57,8 +57,8 @@ class RedditVideoDataRepository : VideoDataRepository {
     private interface RedditService {
         @GET("/r/tiktokcringe/{sort}.json?raw_json=1")
         suspend fun tikTokCringe(
-            @Path("sort") sort: String = "top",
-            @Query("t") top: String = "all"
+            @Path("sort") sort: String? = "top",
+            @Query("t") top: String? = "all"
         ): RedditResponse
     }
 
