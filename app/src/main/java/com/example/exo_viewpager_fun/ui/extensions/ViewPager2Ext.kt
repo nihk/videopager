@@ -17,4 +17,17 @@ fun ViewPager2.pageScrollStateChanges(): Flow<Int> = callbackFlow {
     awaitClose { unregisterOnPageChangeCallback(callback) }
 }
 
+fun ViewPager2.pageChangesWhileScrolling(): Flow<Unit> = callbackFlow {
+    val callback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            if (scrollState == ViewPager2.SCROLL_STATE_IDLE) return
+            trySend(Unit)
+        }
+    }
+
+    registerOnPageChangeCallback(callback)
+
+    awaitClose { unregisterOnPageChangeCallback(callback) }
+}
+
 val ViewPager2.isIdle get() = scrollState == ViewPager2.SCROLL_STATE_IDLE

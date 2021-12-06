@@ -5,6 +5,8 @@ import com.example.exo_viewpager_fun.players.AppPlayer
 
 sealed class ViewResult
 
+object NoOpResult : ViewResult()
+
 data class LoadVideoDataResult(
     val videoData: List<VideoData>
 ) : ViewResult()

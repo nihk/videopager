@@ -12,3 +12,5 @@ sealed class PlayerLifecycleEvent : ViewEvent() {
 object TappedPlayerEvent : ViewEvent()
 
 data class OnPageSettledEvent(val page: Int) : ViewEvent()
+
+object OnPageChangedEvent : ViewEvent()

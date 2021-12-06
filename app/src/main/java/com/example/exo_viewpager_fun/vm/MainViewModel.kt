@@ -12,6 +12,8 @@ import com.example.exo_viewpager_fun.models.AttachPlayerToViewResult
 import com.example.exo_viewpager_fun.models.CreatePlayerResult
 import com.example.exo_viewpager_fun.models.LoadVideoDataEvent
 import com.example.exo_viewpager_fun.models.LoadVideoDataResult
+import com.example.exo_viewpager_fun.models.NoOpResult
+import com.example.exo_viewpager_fun.models.OnPageChangedEvent
 import com.example.exo_viewpager_fun.models.OnPageSettledEvent
 import com.example.exo_viewpager_fun.models.OnPageSettledResult
 import com.example.exo_viewpager_fun.models.PlayerErrorEffect
@@ -60,7 +62,8 @@ class MainViewModel(
             filterIsInstance<LoadVideoDataEvent>().toLoadVideoDataResults(),
             filterIsInstance<PlayerLifecycleEvent>().toPlayerLifecycleResults(),
             filterIsInstance<TappedPlayerEvent>().toTappedPlayerResults(),
-            filterIsInstance<OnPageSettledEvent>().toPageSettledResults()
+            filterIsInstance<OnPageSettledEvent>().toPageSettledResults(),
+            filterIsInstance<OnPageChangedEvent>().toOnPageChangedResults()
         )
     }
 
@@ -150,6 +153,14 @@ class MainViewModel(
                 page = event.page,
                 didChangeVideo = changeVideo
             )
+        }
+    }
+
+    private fun Flow<OnPageChangedEvent>.toOnPageChangedResults(): Flow<ViewResult> {
+        return mapLatest {
+            val appPlayer = requireNotNull(states.value.appPlayer)
+            appPlayer.pause()
+            NoOpResult
         }
     }
 

@@ -11,14 +11,16 @@ import androidx.viewpager2.widget.ViewPager2
 import coil.ImageLoader
 import com.example.exo_viewpager_fun.R
 import com.example.exo_viewpager_fun.databinding.MainFragmentBinding
+import com.example.exo_viewpager_fun.models.OnPageChangedEvent
 import com.example.exo_viewpager_fun.models.OnPageSettledEvent
+import com.example.exo_viewpager_fun.models.PageEffect
 import com.example.exo_viewpager_fun.models.PlayerErrorEffect
 import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
-import com.example.exo_viewpager_fun.models.PageEffect
 import com.example.exo_viewpager_fun.models.TappedPlayerEvent
 import com.example.exo_viewpager_fun.models.ViewEvent
 import com.example.exo_viewpager_fun.ui.extensions.events
 import com.example.exo_viewpager_fun.ui.extensions.isIdle
+import com.example.exo_viewpager_fun.ui.extensions.pageChangesWhileScrolling
 import com.example.exo_viewpager_fun.ui.extensions.pageScrollStateChanges
 import com.example.exo_viewpager_fun.vm.MainViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -108,10 +110,16 @@ class MainFragment(
     }
 
     private fun ViewPager2.viewEvents(): Flow<ViewEvent> {
-        // Idling on a page after a scroll is a signal to try and change player playlist positions
-        return pageScrollStateChanges()
-            .filter { state -> state == ViewPager2.SCROLL_STATE_IDLE }
-            .map { OnPageSettledEvent(currentItem) }
+        return merge(
+            // Idling on a page after a scroll is a signal to try and change player playlist positions
+            pageScrollStateChanges()
+                .filter { state -> state == ViewPager2.SCROLL_STATE_IDLE }
+                .map { OnPageSettledEvent(currentItem) },
+            // A page change (which can happen before a page is idled upon) is a signal to pause media. This
+            // is useful for when a user is quickly swiping thru pages and the idle state isn't getting reached.
+            pageChangesWhileScrolling()
+                .map { OnPageChangedEvent}
+        )
     }
 
     private fun PagerAdapter.viewEvents(): Flow<ViewEvent> {
