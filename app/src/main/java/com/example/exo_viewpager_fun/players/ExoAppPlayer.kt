@@ -23,12 +23,15 @@ class ExoAppPlayer(
         updater.update(exoPlayer = exoPlayer, incoming = videoData)
 
         // Player should only have saved state restored to it one time per instance of this class.
-        if (isPlayerSetUp) return
-        setUpPlayer(playerState)
-        isPlayerSetUp = true
+        if (!isPlayerSetUp) {
+            setUpPlayerState(playerState)
+            isPlayerSetUp = true
+        }
+
+        exoPlayer.prepare()
     }
 
-    private fun setUpPlayer(playerState: PlayerState?) {
+    private fun setUpPlayerState(playerState: PlayerState?) {
         val currentMediaItems = exoPlayer.currentMediaItems
 
          // When restoring saved state, the saved media item might be not be in the player's current
@@ -49,7 +52,6 @@ class ExoAppPlayer(
             exoPlayer.seekTo(windowIndex, reconciledPlayerState.seekPositionMillis)
         }
         exoPlayer.playWhenReady = reconciledPlayerState.isPlaying
-        exoPlayer.prepare()
     }
 
     // A signal that video content is immediately ready to play; any preview images
