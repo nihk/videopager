@@ -27,6 +27,7 @@ import com.example.exo_viewpager_fun.vm.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
@@ -70,7 +71,7 @@ class MainFragmentTest {
     fun whenPlayerIsRenderingFrames_shouldHideImagePreview() {
         val isPlayerRendering = MutableStateFlow(false)
 
-        mainFragment(isPlayerRendering = isPlayerRendering) {
+        mainFragment(isPlayerRendering = isPlayerRendering.filter { it }) {
             emit(TEST_VIDEO_DATA)
             isPlayerRendering.value = true
 

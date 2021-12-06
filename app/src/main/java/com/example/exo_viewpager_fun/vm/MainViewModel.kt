@@ -31,6 +31,7 @@ import com.example.exo_viewpager_fun.models.ViewState
 import com.example.exo_viewpager_fun.players.AppPlayer
 import com.example.exo_viewpager_fun.ui.extensions.ViewState
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNot
@@ -112,7 +113,9 @@ class MainViewModel(
         states.value.videoData?.let { videoData -> appPlayer.setUpWith(videoData, handle.get()) }
         return merge(
             flowOf(CreatePlayerResult(appPlayer)),
-            appPlayer.isPlayerRendering().map(::PlayerRenderingResult),
+            appPlayer.isPlayerRendering()
+                .distinctUntilChangedBy { states.value.page } // Only one rendered result per page
+                .map(::PlayerRenderingResult),
             appPlayer.errors().map(::PlayerErrorResult)
         )
     }

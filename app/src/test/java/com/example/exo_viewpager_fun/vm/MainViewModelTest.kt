@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
@@ -136,7 +137,7 @@ class MainViewModelTest {
     @Test
     fun `should show player when player starts rendering`() {
         val isPlayerRendering = MutableStateFlow(false)
-        mainViewModel(isPlayerRendering = isPlayerRendering) {
+        mainViewModel(isPlayerRendering = isPlayerRendering.filter { it }) {
             startPlayer()
             isPlayerRendering.value = true
 
