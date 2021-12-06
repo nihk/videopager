@@ -5,7 +5,7 @@ import com.example.exo_viewpager_fun.models.VideoData
 import kotlinx.coroutines.flow.Flow
 
 class FakeAppPlayer(
-    private val isPlayerRendering: Flow<Boolean>,
+    private val onPlayerRendering: Flow<Unit>,
     private val errors: Flow<Throwable>
 ) : AppPlayer {
     override var currentPlayerState: PlayerState = PlayerState.INITIAL
@@ -17,7 +17,7 @@ class FakeAppPlayer(
         setups += videoData
     }
 
-    override fun isPlayerRendering() = isPlayerRendering
+    override fun onPlayerRendering() = onPlayerRendering
 
     override fun errors(): Flow<Throwable> = errors
 

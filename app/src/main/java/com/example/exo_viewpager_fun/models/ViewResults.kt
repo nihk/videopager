@@ -22,7 +22,7 @@ data class OnPageSettledResult(
     val didChangeVideo: Boolean
 ) : ViewResult()
 
-data class PlayerRenderingResult(val isPlayerRendering: Boolean) : ViewResult()
+object OnPlayerRenderingResult : ViewResult()
 
 data class AttachPlayerToViewResult(val doAttach: Boolean) : ViewResult()
 

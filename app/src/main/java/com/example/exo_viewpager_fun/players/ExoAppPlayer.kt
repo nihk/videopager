@@ -55,10 +55,10 @@ class ExoAppPlayer(
 
     // A signal that video content is immediately ready to play; any preview images
     // on top of the video can be hidden to reveal actual video playback underneath.
-    override fun isPlayerRendering(): Flow<Boolean> = callbackFlow {
+    override fun onPlayerRendering(): Flow<Unit> = callbackFlow {
         val listener = object : Player.Listener {
             override fun onRenderedFirstFrame() {
-                trySend(true)
+                trySend(Unit)
             }
         }
 

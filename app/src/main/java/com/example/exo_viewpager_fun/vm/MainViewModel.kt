@@ -19,7 +19,7 @@ import com.example.exo_viewpager_fun.models.OnPageSettledResult
 import com.example.exo_viewpager_fun.models.PlayerErrorEffect
 import com.example.exo_viewpager_fun.models.PlayerErrorResult
 import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
-import com.example.exo_viewpager_fun.models.PlayerRenderingResult
+import com.example.exo_viewpager_fun.models.OnPlayerRenderingResult
 import com.example.exo_viewpager_fun.models.ResetAnimationsEffect
 import com.example.exo_viewpager_fun.models.TappedPlayerEvent
 import com.example.exo_viewpager_fun.models.TappedPlayerResult
@@ -81,7 +81,7 @@ class MainViewModel(
      * This is a single flow instead of two distinct ones (e.g. one for starting, one for stopping)
      * so that when the PlayerLifecycleEvent.Type changes from upstream, the flow initiated by the
      * previous Type gets unsubscribed from (see: [flatMapLatest]). This is necessary to cancel flows
-     * tied to the AppPlayer instance, e.g. [AppPlayer.isPlayerRendering], when the player is being
+     * tied to the AppPlayer instance, e.g. [AppPlayer.onPlayerRendering], when the player is being
      * torn down.
      */
     private fun Flow<PlayerLifecycleEvent>.toPlayerLifecycleResults(): Flow<ViewResult> {
@@ -113,9 +113,9 @@ class MainViewModel(
         states.value.videoData?.let { videoData -> appPlayer.setUpWith(videoData, handle.get()) }
         return merge(
             flowOf(CreatePlayerResult(appPlayer)),
-            appPlayer.isPlayerRendering()
+            appPlayer.onPlayerRendering()
                 .distinctUntilChangedBy { states.value.page } // Only one rendered result per page
-                .map(::PlayerRenderingResult),
+                .map { OnPlayerRenderingResult },
             appPlayer.errors().map(::PlayerErrorResult)
         )
     }
@@ -174,7 +174,7 @@ class MainViewModel(
             is CreatePlayerResult -> state.copy(appPlayer = appPlayer)
             is TearDownPlayerResult -> state.copy(appPlayer = null)
             is OnPageSettledResult -> state.copy(page = page, isLoading = didChangeVideo || state.isLoading)
-            is PlayerRenderingResult -> state.copy(isLoading = !isPlayerRendering)
+            is OnPlayerRenderingResult -> state.copy(isLoading = false)
             is AttachPlayerToViewResult -> state.copy(attachPlayer = doAttach)
             else -> state
         }

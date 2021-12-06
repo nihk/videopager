@@ -17,7 +17,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
@@ -94,7 +93,7 @@ class MainViewModelTest {
 
     @Test
     fun `should hide player when media position is changed`() = mainViewModel(
-        isPlayerRendering = flowOf(true)
+        onPlayerRendering = flowOf(Unit)
     ) {
         startPlayer()
         setCurrentMediaIndex(7)
@@ -105,7 +104,7 @@ class MainViewModelTest {
 
     @Test
     fun `should not hide player when media position change to same position is attempted`() = mainViewModel(
-        isPlayerRendering = flowOf(true)
+        onPlayerRendering = flowOf(Unit)
     ) {
         startPlayer()
         setCurrentMediaIndex(7)
@@ -136,10 +135,10 @@ class MainViewModelTest {
 
     @Test
     fun `should show player when player starts rendering`() {
-        val isPlayerRendering = MutableStateFlow(false)
-        mainViewModel(isPlayerRendering = isPlayerRendering.filter { it }) {
+        val isPlayerRendering = MutableStateFlow<Unit?>(null)
+        mainViewModel(onPlayerRendering = isPlayerRendering.filterNotNull()) {
             startPlayer()
-            isPlayerRendering.value = true
+            isPlayerRendering.value = Unit
 
             assertIsLoading(false)
         }
@@ -218,14 +217,14 @@ class MainViewModelTest {
     private fun mainViewModel(
         initialPlayerState: PlayerState = PlayerState.INITIAL,
         videoData: List<VideoData> = TEST_VIDEO_DATA,
-        isPlayerRendering: Flow<Boolean> = emptyFlow(),
+        onPlayerRendering: Flow<Unit> = emptyFlow(),
         errors: Flow<Throwable> = emptyFlow(),
         block: MainViewModelRobot.() -> Unit
     ) {
         MainViewModelRobot(
             initialPlayerState = initialPlayerState,
             videoData = videoData,
-            isPlayerRendering = isPlayerRendering,
+            onPlayerRendering = onPlayerRendering,
             errors = errors,
             scope = TestCoroutineScope(rule.testDispatcher)
         ).block()
@@ -234,11 +233,11 @@ class MainViewModelTest {
     class MainViewModelRobot(
         initialPlayerState: PlayerState,
         videoData: List<VideoData>,
-        isPlayerRendering: Flow<Boolean>,
+        onPlayerRendering: Flow<Unit>,
         errors: Flow<Throwable>,
         scope: CoroutineScope
     ) {
-        private val appPlayer = FakeAppPlayer(isPlayerRendering, errors).apply {
+        private val appPlayer = FakeAppPlayer(onPlayerRendering, errors).apply {
             currentPlayerState = initialPlayerState
         }
         private val appPlayerFactory = FakeAppPlayer.Factory(appPlayer)

@@ -27,7 +27,6 @@ import com.example.exo_viewpager_fun.vm.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
@@ -69,11 +68,11 @@ class MainFragmentTest {
 
     @Test
     fun whenPlayerIsRenderingFrames_shouldHideImagePreview() {
-        val isPlayerRendering = MutableStateFlow(false)
+        val isPlayerRendering = MutableStateFlow<Unit?>(null)
 
-        mainFragment(isPlayerRendering = isPlayerRendering.filter { it }) {
+        mainFragment(onPlayerRendering = isPlayerRendering.filterNotNull()) {
             emit(TEST_VIDEO_DATA)
-            isPlayerRendering.value = true
+            isPlayerRendering.value = Unit
 
             assertImagePreviewVisibility(isVisible = false)
         }
@@ -146,20 +145,20 @@ class MainFragmentTest {
 
     private fun mainFragment(
         videoData: List<VideoData>? = null,
-        isPlayerRendering: Flow<Boolean> = emptyFlow(),
+        onPlayerRendering: Flow<Unit> = emptyFlow(),
         errors: Flow<Throwable> = emptyFlow(),
         block: MainFragmentRobot.() -> Unit
     ) {
-        MainFragmentRobot(videoData, isPlayerRendering, errors).block()
+        MainFragmentRobot(videoData, onPlayerRendering, errors).block()
     }
 
     class MainFragmentRobot(
         videoData: List<VideoData>?,
-        isPlayerRendering: Flow<Boolean>,
+        onPlayerRendering: Flow<Unit>,
         errors: Flow<Throwable>
     ) {
         private val videoDataFlow = MutableStateFlow(videoData)
-        private val appPlayer = FakeAppPlayer(isPlayerRendering, errors)
+        private val appPlayer = FakeAppPlayer(onPlayerRendering, errors)
         private val appPlayerFactory = FakeAppPlayer.Factory(appPlayer)
         private val appPlayerView = FakeAppPlayerView(ApplicationProvider.getApplicationContext())
 

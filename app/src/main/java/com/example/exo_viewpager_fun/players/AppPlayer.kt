@@ -9,7 +9,7 @@ interface AppPlayer {
     val currentPlayerState: PlayerState
 
     fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?)
-    fun isPlayerRendering(): Flow<Boolean>
+    fun onPlayerRendering(): Flow<Unit>
     fun errors(): Flow<Throwable>
     fun playMediaAt(position: Int)
     fun play()
