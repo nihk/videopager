@@ -5,8 +5,8 @@ import com.example.exo_viewpager_fun.TEST_VIDEO_DATA
 import com.example.exo_viewpager_fun.data.RecyclerViewVideoDataUpdater
 import com.example.exo_viewpager_fun.models.PlayerState
 import com.example.exo_viewpager_fun.models.VideoData
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -79,7 +79,7 @@ class ExoAppPlayerTest {
 
     class ExoAppPlayerRobot : Closeable {
         private val exoAppPlayer = ExoAppPlayer(
-            exoPlayer = SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
+            exoPlayer = ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
             updater = RecyclerViewVideoDataUpdater()
         )
 
