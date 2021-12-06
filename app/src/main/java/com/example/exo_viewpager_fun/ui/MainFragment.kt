@@ -119,7 +119,7 @@ class MainFragment(
             // A page change (which can happen before a page is idled upon) is a signal to pause media. This
             // is useful for when a user is quickly swiping thru pages and the idle state isn't getting reached.
             pageChangesWhileScrolling()
-                .map { OnPageChangedEvent}
+                .map { OnPageChangedEvent }
         )
     }
 
