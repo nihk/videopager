@@ -22,8 +22,7 @@ class ExoAppPlayer(
         /** Delegate video insertion, removing, moving, etc. to this [updater] */
         updater.update(exoPlayer = exoPlayer, incoming = videoData)
 
-        // Player should only be prepared and have saved state restored to it one time per instance
-        // of this class.
+        // Player should only have saved state restored to it one time per instance of this class.
         if (isPlayerSetUp) return
         setUpPlayer(playerState)
         isPlayerSetUp = true
