@@ -48,7 +48,6 @@ class MainFragment(
         binding.viewPager.adapter = adapter
 
         viewModel.states
-            .filter { binding.viewPager.isIdle } // Coordinate view state only once a page is settled upon
             .onEach { state ->
                 adapter.submitList(state.videoData)
 
@@ -61,7 +60,7 @@ class MainFragment(
 
                 // Restore any saved page state. ViewPager2.setCurrentItem is ignored if the
                 // page being set is the same as the current one
-                if (adapter.hasPage(state.page)) {
+                if (binding.viewPager.isIdle && adapter.hasPage(state.page)) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
 
@@ -70,7 +69,8 @@ class MainFragment(
                 adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
 
                 // If the player media is not loading (i.e. is rendering frames), then show the player
-                if (!state.isLoading) {
+                // whenever the page is settled/idle (this is a good UX)
+                if (binding.viewPager.isIdle && !state.isLoading) {
                     adapter.showPlayerFor(binding.viewPager.currentItem)
                 }
             }
