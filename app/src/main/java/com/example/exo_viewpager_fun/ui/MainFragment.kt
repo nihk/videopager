@@ -48,6 +48,7 @@ class MainFragment(
         binding.viewPager.adapter = adapter
 
         viewModel.states
+            .filter { binding.viewPager.isIdle } // Coordinate view state only once a page is settled upon
             .onEach { state ->
                 adapter.submitList(state.videoData)
 
@@ -60,7 +61,7 @@ class MainFragment(
 
                 // Restore any saved page state. ViewPager2.setCurrentItem is ignored if the
                 // page being set is the same as the current one
-                if (binding.viewPager.isIdle && adapter.hasPage(state.page)) {
+                if (adapter.hasPage(state.page)) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
 
