@@ -56,12 +56,14 @@ class MainFragment(
                     appPlayerView.detachPlayer()
                 }
 
-                // Restore any saved page state
+                // Restore any saved page state. ViewPager2.setCurrentItem is ignored if the
+                // page being set is the same as the current one
                 if (binding.viewPager.isIdle && adapter.hasPage(state.page)) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
 
-                // Set the player view on the active page
+                // Set the player view on the active page. Note that ExoPlayer won't render
+                // any frames until the output view (here, appPlayerView) is on-screen
                 adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
 
                 // If the player media is not loading (i.e. is rendering frames), then show the player
