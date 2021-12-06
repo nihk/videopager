@@ -44,6 +44,9 @@ android {
             java.srcDir sharedTestDir
         }
     }
+    testOptions {
+        animationsDisabled = true
+    }
 }
 
 dependencies {
