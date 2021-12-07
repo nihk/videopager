@@ -18,7 +18,7 @@ class ExoAppPlayer(
     override val currentPlayerState: PlayerState get() = exoPlayer.toPlayerState()
     private var isPlayerSetUp = false
 
-    override fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?) {
+    override suspend fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?) {
         /** Delegate video insertion, removing, moving, etc. to this [updater] */
         updater.update(exoPlayer = exoPlayer, incoming = videoData)
 

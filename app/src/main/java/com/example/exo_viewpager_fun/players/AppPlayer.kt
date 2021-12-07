@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface AppPlayer {
     val currentPlayerState: PlayerState
 
-    fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?)
+    suspend fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?)
     fun onPlayerRendering(): Flow<Unit>
     fun errors(): Flow<Throwable>
     fun playMediaAt(position: Int)

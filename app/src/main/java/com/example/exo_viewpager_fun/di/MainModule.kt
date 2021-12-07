@@ -10,6 +10,7 @@ import com.example.exo_viewpager_fun.players.ExoAppPlayer
 import com.example.exo_viewpager_fun.ui.ExoAppPlayerView
 import com.example.exo_viewpager_fun.ui.MainFragment
 import com.example.exo_viewpager_fun.vm.MainViewModel
+import kotlinx.coroutines.Dispatchers
 
 class MainModule(activity: ComponentActivity) {
     val fragmentFactory: FragmentFactory = object : FragmentFactory() {
@@ -20,7 +21,7 @@ class MainModule(activity: ComponentActivity) {
                         repository = RedditVideoDataRepository(),
                         appPlayerFactory = ExoAppPlayer.Factory(
                             context = activity.applicationContext,
-                            updater = RecyclerViewVideoDataUpdater()
+                            updater = RecyclerViewVideoDataUpdater(diffingContext = Dispatchers.Default)
                         )
                     ),
                     appPlayerViewFactory = ExoAppPlayerView.Factory(),

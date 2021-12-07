@@ -13,7 +13,7 @@ class FakeAppPlayer(
     var playingMediaAt: Int = -1
     var didRelease: Boolean = false
 
-    override fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?) {
+    override suspend fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?) {
         setups += videoData
     }
 

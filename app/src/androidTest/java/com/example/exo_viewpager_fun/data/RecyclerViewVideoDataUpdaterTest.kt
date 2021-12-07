@@ -82,7 +82,7 @@ class RecyclerViewVideoDataUpdaterTest {
         assertMediaItemIdOrder(listOf("1", "2", "3"))
     }
 
-    fun updater(block: suspend UpdaterRobot.() -> Unit) = runBlocking {
+    private fun updater(block: suspend UpdaterRobot.() -> Unit) = runBlocking {
         withContext(Dispatchers.Main) {
             UpdaterRobot().use { it.block() }
         }
@@ -91,9 +91,9 @@ class RecyclerViewVideoDataUpdaterTest {
     class UpdaterRobot : Closeable {
         private val exoPlayer = ExoPlayer.Builder(ApplicationProvider.getApplicationContext())
             .build()
-        private val updater = RecyclerViewVideoDataUpdater()
+        private val updater = RecyclerViewVideoDataUpdater(diffingContext = Dispatchers.Main)
 
-        fun update(videoData: List<VideoData>) {
+        suspend fun update(videoData: List<VideoData>) {
             updater.update(exoPlayer, videoData)
         }
 

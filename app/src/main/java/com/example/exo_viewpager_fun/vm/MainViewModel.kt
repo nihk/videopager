@@ -103,7 +103,7 @@ class MainViewModel(
         )
     }
 
-    private fun createPlayer(): Flow<ViewResult> {
+    private suspend fun createPlayer(): Flow<ViewResult> {
         check(states.value.appPlayer == null) { "Tried to create a player when one already exists" }
         val config = AppPlayer.Factory.Config(loopVideos = true)
         val appPlayer = appPlayerFactory.create(config)

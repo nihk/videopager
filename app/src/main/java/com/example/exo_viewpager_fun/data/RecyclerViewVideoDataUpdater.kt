@@ -6,6 +6,8 @@ import com.example.exo_viewpager_fun.players.currentMediaItems
 import com.example.exo_viewpager_fun.models.VideoData
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * [androidx.recyclerview.widget] has out-of-the-box diffing algorithms that are useful for
@@ -13,12 +15,16 @@ import com.google.android.exoplayer2.MediaItem
  * actually have anything to do with RecyclerView or UI, it just uses RecyclerView APIs for
  * convenience.
  */
-class RecyclerViewVideoDataUpdater : VideoDataUpdater {
-    override fun update(exoPlayer: ExoPlayer, incoming: List<VideoData>) {
+class RecyclerViewVideoDataUpdater(
+    private val diffingContext: CoroutineContext
+) : VideoDataUpdater {
+    override suspend fun update(exoPlayer: ExoPlayer, incoming: List<VideoData>) {
         val newMediaItems = incoming.toMediaItems()
         val diffCallback = MediaItemDiffCallback(exoPlayer.currentMediaItems, newMediaItems)
         val updateCallback = ExoPlayerUpdateCallback(exoPlayer, newMediaItems)
-        val result = DiffUtil.calculateDiff(diffCallback)
+        val result = withContext(diffingContext) {
+            DiffUtil.calculateDiff(diffCallback)
+        }
         result.dispatchUpdatesTo(updateCallback)
     }
 

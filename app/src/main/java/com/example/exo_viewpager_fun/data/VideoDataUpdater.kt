@@ -4,5 +4,5 @@ import com.example.exo_viewpager_fun.models.VideoData
 import com.google.android.exoplayer2.ExoPlayer
 
 interface VideoDataUpdater {
-    fun update(exoPlayer: ExoPlayer, incoming: List<VideoData>)
+    suspend fun update(exoPlayer: ExoPlayer, incoming: List<VideoData>)
 }
