@@ -53,7 +53,8 @@ class MainFragment(
 
                 // Attach the player to the View whenever it's ready. Note that attachPlayer can
                 // be false while appPlayer is non-null during configuration changes and, conversely,
-                // attachPlayer can be true while appPlayer is null. That is why both are checked here.
+                // attachPlayer can be true while appPlayer is null when the appPlayer hasn't been
+                // set up but the view is ready for it. That is why both are checked here.
                 if (state.attachPlayer && state.appPlayer != null) {
                     appPlayerView.attach(state.appPlayer)
                 } else {
