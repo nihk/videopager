@@ -7,9 +7,7 @@ sealed class ViewResult
 
 object NoOpResult : ViewResult()
 
-data class LoadVideoDataResult(
-    val videoData: List<VideoData>
-) : ViewResult()
+data class LoadVideoDataResult(val videoData: List<VideoData>) : ViewResult()
 
 data class CreatePlayerResult(val appPlayer: AppPlayer) : ViewResult()
 
@@ -17,10 +15,7 @@ object TearDownPlayerResult : ViewResult()
 
 data class TappedPlayerResult(@DrawableRes val drawable: Int) : ViewResult()
 
-data class OnPageSettledResult(
-    val page: Int,
-    val didChangeVideo: Boolean
-) : ViewResult()
+data class OnPageSettledResult(val page: Int, val didChangeVideo: Boolean) : ViewResult()
 
 object OnPlayerRenderingResult : ViewResult()
 

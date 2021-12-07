@@ -51,7 +51,9 @@ class MainFragment(
             .onEach { state ->
                 adapter.submitList(state.videoData)
 
-                // Attach the player to the View whenever it's ready
+                // Attach the player to the View whenever it's ready. Note that attachPlayer can
+                // be false while appPlayer is non-null during configuration changes and, conversely,
+                // attachPlayer can be true while appPlayer is null. That is why both are checked here.
                 if (state.attachPlayer && state.appPlayer != null) {
                     appPlayerView.attach(state.appPlayer)
                 } else {
@@ -59,7 +61,8 @@ class MainFragment(
                 }
 
                 // Restore any saved page state. ViewPager2.setCurrentItem is ignored if the
-                // page being set is the same as the current one
+                // page being set is the same as the current one, so multiple calls to it are OK
+                // as long as it happens while the ViewPager2 is idle (hence the check)
                 if (binding.viewPager.isIdle && adapter.hasPage(state.page)) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 // Remote videos that worked at the time of this commit, but might not by the time you try them!
-// Note that the video previews are local assets. In a real app, they should be served by your backend.
+// Note that the video previews are local assets. In a real app, preview images should be served by your backend.
 class RemoteVideoDataRepository : VideoDataRepository {
     override fun videoData(): Flow<List<VideoData>> {
         val videoData = listOf(
