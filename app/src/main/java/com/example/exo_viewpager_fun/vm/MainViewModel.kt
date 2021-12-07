@@ -114,7 +114,9 @@ class MainViewModel(
         return merge(
             flowOf(CreatePlayerResult(appPlayer)),
             appPlayer.onPlayerRendering()
-                .distinctUntilChangedBy { states.value.page } // Only one rendered result per page
+                // Only one rendered result per page. ExoPlayer can emit multiple 'onRenderedFirstFrame's
+                // for the same video, unfortunately. This is a workaround to that.
+                .distinctUntilChangedBy { states.value.page }
                 .map { OnPlayerRenderingResult },
             appPlayer.errors().map(::PlayerErrorResult)
         )
