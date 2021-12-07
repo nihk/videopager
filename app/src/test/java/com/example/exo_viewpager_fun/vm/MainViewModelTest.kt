@@ -15,6 +15,7 @@ import com.example.exo_viewpager_fun.players.FakeAppPlayer
 import com.example.exo_viewpager_fun.utils.CoroutinesTestRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -214,10 +215,28 @@ class MainViewModelTest {
         }
     }
 
+    @Test
+    fun `should cancel player rendering listening when player lifecycle is stopped without config changes`() = mainViewModel {
+        startPlayer()
+
+        tearDownPlayer(isChangingConfigurations = false)
+
+        assertOnPlayerRendering(isCancelled = true)
+    }
+
+    @Test
+    fun `should not cancel player rendering listening when player lifecycle is stopped with config changes`() = mainViewModel {
+        startPlayer()
+
+        tearDownPlayer(isChangingConfigurations = true)
+
+        assertOnPlayerRendering(isCancelled = false)
+    }
+
     private fun mainViewModel(
         initialPlayerState: PlayerState = PlayerState.INITIAL,
         videoData: List<VideoData> = TEST_VIDEO_DATA,
-        onPlayerRendering: Flow<Unit> = emptyFlow(),
+        onPlayerRendering: Flow<Unit> = MutableSharedFlow(), // Defaults to never-ending
         errors: Flow<Throwable> = emptyFlow(),
         block: MainViewModelRobot.() -> Unit
     ) {
@@ -325,6 +344,10 @@ class MainViewModelTest {
 
         fun assertErrorEffect(throwable: Throwable) {
             assertEquals(throwable, (collectedEffects.last() as PlayerErrorEffect).throwable)
+        }
+
+        fun assertOnPlayerRendering(isCancelled: Boolean) {
+            assertEquals(isCancelled, appPlayer.didCancelOnPlayerRenderingFlow)
         }
     }
 }

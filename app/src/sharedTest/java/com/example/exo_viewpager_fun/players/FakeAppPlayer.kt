@@ -2,7 +2,10 @@ package com.example.exo_viewpager_fun.players
 
 import com.example.exo_viewpager_fun.models.PlayerState
 import com.example.exo_viewpager_fun.models.VideoData
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 
 class FakeAppPlayer(
     private val onPlayerRendering: Flow<Unit>,
@@ -12,12 +15,19 @@ class FakeAppPlayer(
     val setups = mutableListOf<List<VideoData>>()
     var playingMediaAt: Int = -1
     var didRelease: Boolean = false
+    var didCancelOnPlayerRenderingFlow = false
 
     override suspend fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?) {
         setups += videoData
     }
 
-    override fun onPlayerRendering() = onPlayerRendering
+    override fun onPlayerRendering() = flow {
+        try {
+            emitAll(onPlayerRendering)
+        } catch (ce: CancellationException) {
+            didCancelOnPlayerRenderingFlow = true
+        }
+    }
 
     override fun errors(): Flow<Throwable> = errors
 
