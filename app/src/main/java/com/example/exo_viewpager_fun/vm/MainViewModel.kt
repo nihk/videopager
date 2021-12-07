@@ -16,10 +16,10 @@ import com.example.exo_viewpager_fun.models.NoOpResult
 import com.example.exo_viewpager_fun.models.OnPageChangedEvent
 import com.example.exo_viewpager_fun.models.OnPageSettledEvent
 import com.example.exo_viewpager_fun.models.OnPageSettledResult
+import com.example.exo_viewpager_fun.models.OnPlayerRenderingResult
 import com.example.exo_viewpager_fun.models.PlayerErrorEffect
 import com.example.exo_viewpager_fun.models.PlayerErrorResult
 import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
-import com.example.exo_viewpager_fun.models.OnPlayerRenderingResult
 import com.example.exo_viewpager_fun.models.ResetAnimationsEffect
 import com.example.exo_viewpager_fun.models.TappedPlayerEvent
 import com.example.exo_viewpager_fun.models.TappedPlayerResult
@@ -31,7 +31,6 @@ import com.example.exo_viewpager_fun.models.ViewState
 import com.example.exo_viewpager_fun.players.AppPlayer
 import com.example.exo_viewpager_fun.ui.extensions.ViewState
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNot
@@ -113,11 +112,7 @@ class MainViewModel(
         states.value.videoData?.let { videoData -> appPlayer.setUpWith(videoData, handle.get()) }
         return merge(
             flowOf(CreatePlayerResult(appPlayer)),
-            appPlayer.onPlayerRendering()
-                // Only one rendered result per page. ExoPlayer can emit multiple 'onRenderedFirstFrame's
-                // for the same video, unfortunately. This is a workaround to that.
-                .distinctUntilChangedBy { states.value.page }
-                .map { OnPlayerRenderingResult },
+            appPlayer.onPlayerRendering().map { OnPlayerRenderingResult },
             appPlayer.errors().map(::PlayerErrorResult)
         )
     }
