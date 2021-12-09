@@ -21,7 +21,7 @@ import com.example.videopager.models.ViewEvent
 import com.example.videopager.ui.extensions.events
 import com.example.videopager.ui.extensions.idleScrollStates
 import com.example.videopager.ui.extensions.pageChangesWhileScrolling
-import com.example.videopager.ui.extensions.elementsReferentiallyEqual
+import com.example.videopager.data.extensions.elementsReferentiallyEqual
 import com.example.videopager.ui.extensions.isIdle
 import com.example.videopager.vm.MainViewModel
 import com.google.android.material.snackbar.Snackbar

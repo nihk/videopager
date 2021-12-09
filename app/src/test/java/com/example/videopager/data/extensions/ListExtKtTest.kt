@@ -1,4 +1,4 @@
-package com.example.videopager.ui.extensions
+package com.example.videopager.data.extensions
 
 import com.example.videopager.TEST_VIDEO_DATA
 import com.example.videopager.models.VideoData

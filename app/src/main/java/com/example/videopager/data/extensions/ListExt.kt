@@ -1,4 +1,4 @@
-package com.example.videopager.ui.extensions
+package com.example.videopager.data.extensions
 
 infix fun <T> List<T>?.elementsReferentiallyEqual(other: List<T>?): Boolean {
     if (this == null || other == null || size != other.size) return false
