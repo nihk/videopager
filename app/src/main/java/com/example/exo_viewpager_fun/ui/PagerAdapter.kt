@@ -80,7 +80,7 @@ class PagerAdapter(
      * the RecyclerView to be laid out and re-query that ViewHolder.
      */
     private fun onViewHolder(position: Int, block: (PageViewHolder) -> Unit) {
-        if (currentList.isEmpty()) return // Nothing to do here
+        if (currentList.isEmpty()) error("Tried to get ViewHolder at position $position, but the list was empty")
 
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder

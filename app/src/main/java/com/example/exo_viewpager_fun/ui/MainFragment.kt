@@ -19,9 +19,10 @@ import com.example.exo_viewpager_fun.models.PlayerLifecycleEvent
 import com.example.exo_viewpager_fun.models.TappedPlayerEvent
 import com.example.exo_viewpager_fun.models.ViewEvent
 import com.example.exo_viewpager_fun.ui.extensions.events
+import com.example.exo_viewpager_fun.ui.extensions.idleScrollStates
 import com.example.exo_viewpager_fun.ui.extensions.isIdle
 import com.example.exo_viewpager_fun.ui.extensions.pageChangesWhileScrolling
-import com.example.exo_viewpager_fun.ui.extensions.idleScrollStates
+import com.example.exo_viewpager_fun.ui.extensions.elementsReferentiallyEqual
 import com.example.exo_viewpager_fun.vm.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.Flow
@@ -68,14 +69,18 @@ class MainFragment(
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
 
-                // Set the player view on the active page. Note that ExoPlayer won't render
-                // any frames until the output view (here, appPlayerView) is on-screen
-                adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
+                // Wait for the ViewPager's adapter to have the same items as the state before
+                // querying the current ViewHolder
+                if (adapter.currentList elementsReferentiallyEqual state.videoData) {
+                    // Set the player view on the active page. Note that ExoPlayer won't render
+                    // any frames until the output view (here, appPlayerView) is on-screen
+                    adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
 
-                // If the player media is not loading (i.e. is rendering frames), then show the player
-                // whenever the page is settled/idle (this is a good UX)
-                if (binding.viewPager.isIdle && !state.isLoading) {
-                    adapter.showPlayerFor(binding.viewPager.currentItem)
+                    // If the player media is not loading (i.e. is rendering frames), then show the player
+                    // whenever the page is settled/idle (this is a good UX)
+                    if (binding.viewPager.isIdle && !state.isLoading) {
+                        adapter.showPlayerFor(binding.viewPager.currentItem)
+                    }
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
