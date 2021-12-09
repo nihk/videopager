@@ -10,7 +10,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.example.exo_viewpager_fun"
+        applicationId "com.example.video_pager"
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 1

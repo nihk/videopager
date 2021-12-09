@@ -1,2 +1,2 @@
-rootProject.name = "exo-viewpager-fun"
+rootProject.name = "video-pager"
 include ':app'
