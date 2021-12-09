@@ -6,7 +6,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ListExtKtTest {
+class ListExtTest {
     @Test
     fun `should return true when all child elements are the same by reference`() {
         assertTrue(TEST_VIDEO_DATA elementsReferentiallyEqual TEST_VIDEO_DATA)
