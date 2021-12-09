@@ -1,6 +1,6 @@
 package com.example.videopager.data.extensions
 
-import com.example.videopager.TEST_VIDEO_DATA
+import com.example.videopager.utils.TEST_VIDEO_DATA
 import com.example.videopager.models.VideoData
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

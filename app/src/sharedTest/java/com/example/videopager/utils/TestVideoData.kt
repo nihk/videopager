@@ -1,4 +1,4 @@
-package com.example.videopager
+package com.example.videopager.utils
 
 import com.example.videopager.models.VideoData
 

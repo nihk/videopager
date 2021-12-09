@@ -1,7 +1,7 @@
 package com.example.videopager.players
 
 import androidx.test.core.app.ApplicationProvider
-import com.example.videopager.TEST_VIDEO_DATA
+import com.example.videopager.utils.TEST_VIDEO_DATA
 import com.example.videopager.data.RecyclerViewVideoDataUpdater
 import com.example.videopager.models.PlayerState
 import com.example.videopager.models.VideoData

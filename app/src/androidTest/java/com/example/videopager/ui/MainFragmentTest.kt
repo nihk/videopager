@@ -15,7 +15,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withChild
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.example.videopager.R
-import com.example.videopager.TEST_VIDEO_DATA
+import com.example.videopager.utils.TEST_VIDEO_DATA
 import com.example.videopager.data.repositories.FakeVideoDataRepository
 import com.example.videopager.models.VideoData
 import com.example.videopager.players.FakeAppPlayer

@@ -1,7 +1,7 @@
 package com.example.videopager.vm
 
 import androidx.lifecycle.SavedStateHandle
-import com.example.videopager.TEST_VIDEO_DATA
+import com.example.videopager.utils.TEST_VIDEO_DATA
 import com.example.videopager.data.repositories.FakeVideoDataRepository
 import com.example.videopager.models.OnPageSettledEvent
 import com.example.videopager.models.PlayerErrorEffect
