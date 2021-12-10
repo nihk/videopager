@@ -3,7 +3,6 @@ package com.example.videopager.ui
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import com.example.videopager.R
 import com.example.videopager.databinding.PlayerViewBinding
 import com.example.videopager.players.AppPlayer
 import com.example.videopager.players.ExoAppPlayer
@@ -14,8 +13,10 @@ import com.example.videopager.ui.extensions.layoutInflater
  * namely [com.google.android.exoplayer2.ui.PlayerView]
  */
 class ExoAppPlayerView(layoutInflater: LayoutInflater) : AppPlayerView {
-    override val view: View = layoutInflater.inflate(R.layout.player_view, null)
-    private val binding = PlayerViewBinding.bind(view)
+    private val binding: PlayerViewBinding
+    override val view: View = PlayerViewBinding.inflate(layoutInflater, null, false)
+        .also { binding = it }
+        .root
 
     override fun attach(appPlayer: AppPlayer) {
         binding.playerView.player = (appPlayer as ExoAppPlayer).exoPlayer
