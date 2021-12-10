@@ -8,4 +8,4 @@ The approach I took is to reuse the same `ExoPlayer` and `PlayerView` instance f
 
 I've been a bit more verbose with comments than I typically would in this repository, for the purposes of clarity. For testability I've added abstractions that wrap a few ExoPlayer APIs. I've also used an MVI architecture; this increases boilerplate but greatly minimizes state management.
 
-This repository includes examples of streaming videos over the network (from Reddit /r/tiktokcringe) and local assets. It can be modified to handle video data coming from any data source.
+This repository includes examples of streaming videos over the network (from Reddit /r/tiktokcringe) and local assets. It can be modified to handle video data coming from **any** data source.
