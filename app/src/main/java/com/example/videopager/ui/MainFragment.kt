@@ -76,9 +76,9 @@ class MainFragment(
                     // any frames until the output view (here, appPlayerView) is on-screen
                     adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
 
-                    // If the player media is not loading (i.e. is rendering frames), then show the player
-                    // whenever the page is settled/idle (this is a good UX)
-                    if (binding.viewPager.isIdle && !state.isLoading) {
+                    // If the player media is rendering frames, then show the player whenever
+                    // the page is settled/idle (this is a good UX)
+                    if (binding.viewPager.isIdle && state.showPlayer) {
                         adapter.showPlayerFor(binding.viewPager.currentItem)
                     }
                 }

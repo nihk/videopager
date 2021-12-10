@@ -100,38 +100,40 @@ class MainViewModelTest {
         setCurrentMediaIndex(7)
         changeMediaPosition(42)
 
-        assertIsLoading(true)
+        assertShowPlayer(false)
     }
 
     @Test
-    fun `should not hide player when media position change to same position is attempted`() = mainViewModel(
+    fun `should show player when media position change to same position is attempted`() = mainViewModel(
         onPlayerRendering = flowOf(Unit)
     ) {
         startPlayer()
+        assertShowPlayer(true)
         setCurrentMediaIndex(7)
         changeMediaPosition(7)
 
-        assertIsLoading(false)
+        assertShowPlayer(true)
     }
 
     @Test
-    fun `should be isLoading when currently loading and page settling did not change video`() = mainViewModel {
-        assertIsLoading(true)
+    fun `should not show player when currently not showing player and page settling did not change video`() = mainViewModel {
+        assertShowPlayer(false)
         setCurrentMediaIndex(1)
 
         changeMediaPosition(1)
 
-        assertIsLoading(true)
+        assertShowPlayer(false)
     }
 
     @Test
-    fun `should be isLoading when currently loading and page settling did change video`() = mainViewModel {
-        assertIsLoading(true)
+    fun `should not show player when currently showing player and page settling did change video`() = mainViewModel(onPlayerRendering = flowOf(Unit)) {
+        startPlayer()
+        assertShowPlayer(true)
         setCurrentMediaIndex(1)
 
         changeMediaPosition(2)
 
-        assertIsLoading(true)
+        assertShowPlayer(false)
     }
 
     @Test
@@ -141,7 +143,7 @@ class MainViewModelTest {
             startPlayer()
             isPlayerRendering.value = Unit
 
-            assertIsLoading(false)
+            assertShowPlayer(true)
         }
     }
 
@@ -326,8 +328,8 @@ class MainViewModelTest {
             assertEquals(playerState, handle.get())
         }
 
-        fun assertIsLoading(value: Boolean) {
-            assertEquals(value, viewModel.states.value.isLoading)
+        fun assertShowPlayer(value: Boolean) {
+            assertEquals(value, viewModel.states.value.showPlayer)
         }
 
         fun assertCachedVideoData(videoData: List<VideoData>) {
