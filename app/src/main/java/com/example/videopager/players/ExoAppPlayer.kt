@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 class ExoAppPlayer(
-    val exoPlayer: ExoPlayer,
+    internal val exoPlayer: ExoPlayer,
     private val updater: VideoDataUpdater
 ) : AppPlayer {
     override val currentPlayerState: PlayerState get() = exoPlayer.toPlayerState()
