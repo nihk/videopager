@@ -13,10 +13,8 @@ import com.example.videopager.ui.extensions.layoutInflater
  * namely [com.google.android.exoplayer2.ui.PlayerView]
  */
 class ExoAppPlayerView(layoutInflater: LayoutInflater) : AppPlayerView {
-    private val binding: PlayerViewBinding
-    override val view: View = PlayerViewBinding.inflate(layoutInflater, null, false)
-        .also { binding = it }
-        .root
+    private val binding = PlayerViewBinding.inflate(layoutInflater)
+    override val view: View = binding.root
 
     override fun attach(appPlayer: AppPlayer) {
         binding.playerView.player = (appPlayer as ExoAppPlayer).exoPlayer
