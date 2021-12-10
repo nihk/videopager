@@ -70,7 +70,7 @@ class MainFragment(
                 }
 
                 // Wait for the ViewPager's adapter to have the same items as the state before
-                // querying the current ViewHolder
+                // querying the current ViewHolder (ListAdapter list submission is asynchronous)
                 if (adapter.currentList elementsReferentiallyEqual state.videoData) {
                     // Set the player view on the active page. Note that ExoPlayer won't render
                     // any frames until the output view (here, appPlayerView) is on-screen
