@@ -5,12 +5,11 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
 import coil.load
-import com.example.videopager.R
-import com.example.videopager.models.VideoData
 import com.example.videopager.databinding.PageItemBinding
 import com.example.videopager.models.AnimationEffect
 import com.example.videopager.models.PageEffect
 import com.example.videopager.models.ResetAnimationsEffect
+import com.example.videopager.models.VideoData
 import com.example.videopager.ui.extensions.detachFromParent
 
 class PageViewHolder(
@@ -32,9 +31,11 @@ class PageViewHolder(
 
         ConstraintSet().apply {
             clone(binding.root)
-            // Optimize video container size if aspect ratio is available. This can avoid a flicker
-            // when ExoPlayer renders its first frame but hasn't yet adjusted the video size.
-            setDimensionRatio(R.id.player_container, videoData.aspectRatio?.let { "$it:1" })
+            // Optimize video preview / container size if aspect ratio is available. This can avoid
+            // a flicker when ExoPlayer renders its first frame but hasn't yet adjusted the video size.
+            val ratio = videoData.aspectRatio?.let { "$it:1" }
+            setDimensionRatio(binding.playerContainer.id, ratio)
+            setDimensionRatio(binding.previewImage.id, ratio)
             applyTo(binding.root)
         }
     }
