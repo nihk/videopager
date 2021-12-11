@@ -223,7 +223,7 @@ class MainViewModelTest {
 
         tearDownPlayer(isChangingConfigurations = false)
 
-        assertOnPlayerRendering(isCancelled = true)
+        assertOnPlayerRenderingListening(isCancelled = true)
     }
 
     @Test
@@ -232,7 +232,7 @@ class MainViewModelTest {
 
         tearDownPlayer(isChangingConfigurations = true)
 
-        assertOnPlayerRendering(isCancelled = false)
+        assertOnPlayerRenderingListening(isCancelled = false)
     }
 
     private fun mainViewModel(
@@ -348,7 +348,7 @@ class MainViewModelTest {
             assertEquals(throwable, (collectedEffects.last() as PlayerErrorEffect).throwable)
         }
 
-        fun assertOnPlayerRendering(isCancelled: Boolean) {
+        fun assertOnPlayerRenderingListening(isCancelled: Boolean) {
             assertEquals(isCancelled, appPlayer.didCancelOnPlayerRenderingFlow)
         }
     }
