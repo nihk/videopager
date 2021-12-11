@@ -1,8 +1,10 @@
 package com.example.videopager.vm
 
 import androidx.lifecycle.SavedStateHandle
+import com.example.videopager.R
 import com.example.videopager.utils.TEST_VIDEO_DATA
 import com.example.videopager.data.repositories.FakeVideoDataRepository
+import com.example.videopager.models.AnimationEffect
 import com.example.videopager.models.OnPageSettledEvent
 import com.example.videopager.models.PlayerErrorEffect
 import com.example.videopager.models.PlayerLifecycleEvent
@@ -205,6 +207,25 @@ class MainViewModelTest {
     }
 
     @Test
+    fun `should emit animation effect when tapped while playing`() = mainViewModel {
+        startPlayer()
+
+        tapPlayer()
+
+        assertAnimationEffect(isPlayAnimation = false)
+    }
+
+    @Test
+    fun `should emit animation effect when tapped while paused`() = mainViewModel {
+        startPlayer()
+
+        tapPlayer()
+        tapPlayer()
+
+        assertAnimationEffect(isPlayAnimation = true)
+    }
+
+    @Test
     fun `should emit error effect when error happens`() {
         val errors = MutableStateFlow<Throwable?>(null)
         mainViewModel(errors = errors.filterNotNull()) {
@@ -350,6 +371,12 @@ class MainViewModelTest {
 
         fun assertOnPlayerRenderingListening(isCancelled: Boolean) {
             assertEquals(isCancelled, appPlayer.didCancelOnPlayerRenderingFlow)
+        }
+
+        fun assertAnimationEffect(isPlayAnimation: Boolean) {
+            val effect = collectedEffects.last() as AnimationEffect
+            val drawable = if (isPlayAnimation) R.drawable.play else R.drawable.pause
+            assertEquals(drawable, effect.drawable)
         }
     }
 }
