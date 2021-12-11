@@ -18,11 +18,11 @@ import com.example.videopager.models.PlayerErrorEffect
 import com.example.videopager.models.PlayerLifecycleEvent
 import com.example.videopager.models.TappedPlayerEvent
 import com.example.videopager.models.ViewEvent
+import com.example.videopager.ui.extensions.awaitList
 import com.example.videopager.ui.extensions.events
 import com.example.videopager.ui.extensions.idleScrollStates
-import com.example.videopager.ui.extensions.pageChangesWhileScrolling
-import com.example.videopager.data.extensions.elementsReferentiallyEqual
 import com.example.videopager.ui.extensions.isIdle
+import com.example.videopager.ui.extensions.pageChangesWhileScrolling
 import com.example.videopager.vm.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.Flow
@@ -50,7 +50,8 @@ class MainFragment(
 
         viewModel.states
             .onEach { state ->
-                adapter.submitList(state.videoData)
+                // Await the list submission so that the adapter list is in sync with state.videoData
+                adapter.awaitList(state.videoData)
 
                 // Attach the player to the View whenever it's ready. Note that attachPlayer can
                 // be false while appPlayer is non-null during configuration changes and, conversely,
@@ -69,9 +70,8 @@ class MainFragment(
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
 
-                // Wait for the ViewPager's adapter to have the same items as the state before
-                // querying the current ViewHolder (ListAdapter list submission is asynchronous)
-                if (adapter.currentList elementsReferentiallyEqual state.videoData) {
+                // Can't query any ViewHolders if the adapter has no pages
+                if (adapter.currentList.isNotEmpty()) {
                     // Set the player view on the active page. Note that ExoPlayer won't render
                     // any frames until the output view (here, appPlayerView) is on-screen
                     adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
