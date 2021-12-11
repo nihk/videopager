@@ -48,7 +48,7 @@ class MainFragment(
         val adapter = PagerAdapter(imageLoader)
         binding.viewPager.adapter = adapter
 
-        viewModel.states
+        val states = viewModel.states
             .onEach { state ->
                 // Await the list submission so that the adapter list is in sync with state.videoData
                 adapter.awaitList(state.videoData)
@@ -83,9 +83,8 @@ class MainFragment(
                     }
                 }
             }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        viewModel.effects
+        val effects = viewModel.effects
             .onEach { effect ->
                 when (effect) {
                     is PageEffect -> adapter.renderEffect(binding.viewPager.currentItem, effect)
@@ -96,14 +95,15 @@ class MainFragment(
                     ).show()
                 }
             }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        merge(
+        val events = merge(
             viewLifecycleOwner.lifecycle.viewEvents(),
             binding.viewPager.viewEvents(),
             adapter.viewEvents()
         )
             .onEach(viewModel::processEvent)
+
+        merge(states, effects, events)
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
