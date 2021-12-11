@@ -111,6 +111,8 @@ class MainFragment(
         return events()
             .filter { event -> event == Lifecycle.Event.ON_START || event == Lifecycle.Event.ON_STOP }
             .map { event ->
+                // Fragment starting or stopping is a signal to create or tear down the player, respectively.
+                // The player should not be torn down across config changes, however.
                 when (event) {
                     Lifecycle.Event.ON_START -> PlayerLifecycleEvent.Start
                     Lifecycle.Event.ON_STOP -> PlayerLifecycleEvent.Stop(requireActivity().isChangingConfigurations)
