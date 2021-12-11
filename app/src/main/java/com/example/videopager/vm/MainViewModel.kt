@@ -15,7 +15,7 @@ import com.example.videopager.models.LoadVideoDataResult
 import com.example.videopager.models.NoOpResult
 import com.example.videopager.models.OnPageChangedEvent
 import com.example.videopager.models.OnPageSettledEvent
-import com.example.videopager.models.OnPageSettledResult
+import com.example.videopager.models.OnNewPageSettledResult
 import com.example.videopager.models.OnPlayerRenderingResult
 import com.example.videopager.models.PlayerErrorEffect
 import com.example.videopager.models.PlayerErrorResult
@@ -31,7 +31,7 @@ import com.example.videopager.models.ViewState
 import com.example.videopager.players.AppPlayer
 import com.example.videopager.ui.extensions.ViewState
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.flatMapLatest
@@ -142,18 +142,13 @@ class MainViewModel(
     }
 
     private fun Flow<OnPageSettledEvent>.toPageSettledResults(): Flow<ViewResult> {
-        return mapLatest { event ->
-            val appPlayer = requireNotNull(states.value.appPlayer)
-            val changeVideo = appPlayer.currentPlayerState.currentMediaItemIndex != event.page
-            if (changeVideo) {
+        return distinctUntilChangedBy(OnPageSettledEvent::page)
+            .mapLatest { event ->
+                val appPlayer = requireNotNull(states.value.appPlayer)
                 appPlayer.playMediaAt(event.page)
-            }
 
-            OnPageSettledResult(
-                page = event.page,
-                didChangeVideo = changeVideo
-            )
-        }
+                OnNewPageSettledResult(page = event.page)
+            }
     }
 
     private fun Flow<OnPageChangedEvent>.toOnPageChangedResults(): Flow<ViewResult> {
@@ -170,7 +165,7 @@ class MainViewModel(
             is LoadVideoDataResult -> state.copy(videoData = videoData)
             is CreatePlayerResult -> state.copy(appPlayer = appPlayer)
             is TearDownPlayerResult -> state.copy(appPlayer = null)
-            is OnPageSettledResult -> state.copy(page = page, showPlayer = !didChangeVideo && state.showPlayer)
+            is OnNewPageSettledResult -> state.copy(page = page, showPlayer = false)
             is OnPlayerRenderingResult -> state.copy(showPlayer = true)
             is AttachPlayerToViewResult -> state.copy(attachPlayer = doAttach)
             else -> state
@@ -180,7 +175,7 @@ class MainViewModel(
     override fun Flow<ViewResult>.toEffects(): Flow<ViewEffect> {
         return merge(
             filterIsInstance<TappedPlayerResult>().toTappedPlayerEffects(),
-            filterIsInstance<OnPageSettledResult>().toPageSettledEffects(),
+            filterIsInstance<OnNewPageSettledResult>().toNewPageSettledEffects(),
             filterIsInstance<PlayerErrorResult>().toPlayerErrorEffects()
         )
     }
@@ -189,9 +184,8 @@ class MainViewModel(
         return mapLatest { result -> AnimationEffect(result.drawable) }
     }
 
-    private fun Flow<OnPageSettledResult>.toPageSettledEffects(): Flow<ViewEffect> {
-        return filter { result -> result.didChangeVideo }
-            .mapLatest { ResetAnimationsEffect }
+    private fun Flow<OnNewPageSettledResult>.toNewPageSettledEffects(): Flow<ViewEffect> {
+        return mapLatest { ResetAnimationsEffect }
     }
 
     private fun Flow<PlayerErrorResult>.toPlayerErrorEffects(): Flow<ViewEffect> {

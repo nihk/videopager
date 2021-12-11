@@ -2,7 +2,6 @@ package com.example.videopager.vm
 
 import androidx.lifecycle.SavedStateHandle
 import com.example.videopager.R
-import com.example.videopager.utils.TEST_VIDEO_DATA
 import com.example.videopager.data.repositories.FakeVideoDataRepository
 import com.example.videopager.models.AnimationEffect
 import com.example.videopager.models.OnPageSettledEvent
@@ -15,6 +14,7 @@ import com.example.videopager.models.ViewEffect
 import com.example.videopager.models.ViewState
 import com.example.videopager.players.FakeAppPlayer
 import com.example.videopager.utils.CoroutinesTestRule
+import com.example.videopager.utils.TEST_VIDEO_DATA
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -106,15 +106,18 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `should show player when media position change to same position is attempted`() = mainViewModel(
-        onPlayerRendering = flowOf(Unit)
-    ) {
-        startPlayer()
-        assertShowPlayer(true)
-        setCurrentMediaIndex(7)
-        changeMediaPosition(7)
+    fun `should show player when media position change to same position is attempted`() {
+        val isPlayerRendering = MutableStateFlow<Unit?>(null)
+        mainViewModel(onPlayerRendering = isPlayerRendering.filterNotNull()) {
+            startPlayer()
+            changeMediaPosition(7)
+            assertShowPlayer(false)
+            isPlayerRendering.value = Unit
+            assertShowPlayer(true)
+            setCurrentMediaIndex(7)
 
-        assertShowPlayer(true)
+            assertShowPlayer(true)
+        }
     }
 
     @Test

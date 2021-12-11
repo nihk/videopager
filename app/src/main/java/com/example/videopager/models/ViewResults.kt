@@ -15,7 +15,7 @@ object TearDownPlayerResult : ViewResult()
 
 data class TappedPlayerResult(@DrawableRes val drawable: Int) : ViewResult()
 
-data class OnPageSettledResult(val page: Int, val didChangeVideo: Boolean) : ViewResult()
+data class OnNewPageSettledResult(val page: Int) : ViewResult()
 
 object OnPlayerRenderingResult : ViewResult()
 
