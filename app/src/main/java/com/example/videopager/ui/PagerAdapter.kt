@@ -2,7 +2,6 @@ package com.example.videopager.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -10,6 +9,7 @@ import coil.ImageLoader
 import com.example.videopager.models.VideoData
 import com.example.videopager.databinding.PageItemBinding
 import com.example.videopager.models.PageEffect
+import com.example.videopager.ui.extensions.awaitLayout
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
@@ -56,41 +56,32 @@ class PagerAdapter(
      * Attach [appPlayerView] to the ViewHolder at [position]. The player won't actually be visible in
      * the UI until [showPlayerFor] is also called.
      */
-    fun attachPlayerView(appPlayerView: AppPlayerView, position: Int) {
-        onViewHolder(position) { viewHolder ->
-            viewHolder.attach(appPlayerView)
-        }
+    suspend fun attachPlayerView(appPlayerView: AppPlayerView, position: Int) {
+        awaitViewHolder(position).attach(appPlayerView)
     }
 
     // Hides the video preview image when the player is ready to be shown.
-    fun showPlayerFor(position: Int) {
-        onViewHolder(position) { viewHolder ->
-            viewHolder.setPreviewImage(isVisible = false)
-        }
+    suspend fun showPlayerFor(position: Int) {
+        awaitViewHolder(position).setPreviewImage(isVisible = false)
     }
 
-    fun renderEffect(position: Int, effect: PageEffect) {
-        onViewHolder(position) { viewHolder ->
-            viewHolder.renderEffect(effect)
-        }
+    suspend fun renderEffect(position: Int, effect: PageEffect) {
+        awaitViewHolder(position).renderEffect(effect)
     }
 
     /**
      * The ViewHolder at [position] isn't always immediately available. In those cases, wait for
      * the RecyclerView to be laid out and re-query that ViewHolder.
      */
-    private fun onViewHolder(position: Int, block: (PageViewHolder) -> Unit) {
+    private suspend fun awaitViewHolder(position: Int): PageViewHolder {
         if (currentList.isEmpty()) error("Tried to get ViewHolder at position $position, but the list was empty")
 
         val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
             as? PageViewHolder
 
-        if (viewHolder == null) {
-            recyclerView?.doOnLayout {
-                onViewHolder(position, block)
-            }
-        } else {
-            block(viewHolder)
+        return viewHolder ?: run {
+            recyclerView?.awaitLayout()
+            awaitViewHolder(position)
         }
     }
 
