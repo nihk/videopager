@@ -125,6 +125,8 @@ class MainFragment(
             idleScrollStates().map { OnPageSettledEvent(currentItem) },
             // A page change (which can happen before a page is idled upon) is a signal to pause media. This
             // is useful for when a user is quickly swiping thru pages and the idle state isn't getting reached.
+            // It doesn't make sense for a video on a previous page to continue playing while the user is
+            // swiping quickly thru pages.
             pageChangesWhileScrolling().map { OnPageChangedEvent }
         )
     }
