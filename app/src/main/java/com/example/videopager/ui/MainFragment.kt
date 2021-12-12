@@ -62,9 +62,9 @@ class MainFragment(
                     appPlayerView.detachPlayer()
                 }
 
-                // Restore any saved page state. ViewPager2.setCurrentItem is ignored if the
-                // page being set is the same as the current one, so multiple calls to it are OK
-                // as long as it happens while the ViewPager2 is idle (hence the check)
+                // Restore any saved page state from process recreation and configuration changes.
+                // Guarded by an isIdle check so that state emissions mid-swipe or during page change
+                // animations are ignored. There would have a jarring page-change effect without that.
                 if (binding.viewPager.isIdle) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
@@ -73,12 +73,11 @@ class MainFragment(
                 if (adapter.currentList.isNotEmpty()) {
                     // Set the player view on the active page. Note that ExoPlayer won't render
                     // any frames until the output view (here, appPlayerView) is on-screen
-                    adapter.attachPlayerView(appPlayerView, binding.viewPager.currentItem)
+                    adapter.attachPlayerView(appPlayerView, state.page)
 
-                    // If the player media is rendering frames, then show the player whenever
-                    // the page is settled/idle (this is a good UX)
-                    if (binding.viewPager.isIdle && state.showPlayer) {
-                        adapter.showPlayerFor(binding.viewPager.currentItem)
+                    // If the player media is rendering frames, then show the player
+                    if (state.showPlayer) {
+                        adapter.showPlayerFor(state.page)
                     }
                 }
             }
