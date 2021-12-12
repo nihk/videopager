@@ -19,7 +19,6 @@ import com.example.videopager.models.TappedPlayerEvent
 import com.example.videopager.models.ViewEvent
 import com.example.videopager.ui.extensions.awaitList
 import com.example.videopager.ui.extensions.events
-import com.example.videopager.ui.extensions.hasPage
 import com.example.videopager.ui.extensions.idleScrollStates
 import com.example.videopager.ui.extensions.isIdle
 import com.example.videopager.ui.extensions.pageChangesWhileScrolling
@@ -66,7 +65,7 @@ class MainFragment(
                 // Restore any saved page state. ViewPager2.setCurrentItem is ignored if the
                 // page being set is the same as the current one, so multiple calls to it are OK
                 // as long as it happens while the ViewPager2 is idle (hence the check)
-                if (binding.viewPager.isIdle && adapter.hasPage(state.page)) {
+                if (binding.viewPager.isIdle) {
                     binding.viewPager.setCurrentItem(state.page, false)
                 }
 

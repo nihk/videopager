@@ -12,7 +12,3 @@ suspend fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.awaitList(list:
         cont.resume(Unit)
     }
 }
-
-fun ListAdapter<*, *>.hasPage(page: Int): Boolean {
-    return page < itemCount
-}
