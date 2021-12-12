@@ -9,9 +9,11 @@ import coil.ImageLoader
 import com.example.videopager.models.VideoData
 import com.example.videopager.databinding.PageItemBinding
 import com.example.videopager.models.PageEffect
-import com.example.videopager.ui.extensions.awaitLayout
+import com.example.videopager.ui.extensions.awaitNextLayout
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.isActive
 
 /**
  * The two main functions of interest here are [attachPlayerView] and [showPlayerFor].
@@ -76,13 +78,19 @@ class PagerAdapter(
     private suspend fun awaitViewHolder(position: Int): PageViewHolder {
         if (currentList.isEmpty()) error("Tried to get ViewHolder at position $position, but the list was empty")
 
-        val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
-            as? PageViewHolder
+        var viewHolder: PageViewHolder? = getViewHolder(position)
 
-        return viewHolder ?: run {
-            recyclerView?.awaitLayout()
-            awaitViewHolder(position)
+        while (currentCoroutineContext().isActive && viewHolder == null) {
+            recyclerView?.awaitNextLayout()
+            viewHolder = getViewHolder(position)
         }
+
+        return requireNotNull(viewHolder)
+    }
+
+    private fun getViewHolder(position: Int): PageViewHolder? {
+        return recyclerView?.findViewHolderForAdapterPosition(position)
+            as? PageViewHolder
     }
 
     override fun onViewDetachedFromWindow(holder: PageViewHolder) {

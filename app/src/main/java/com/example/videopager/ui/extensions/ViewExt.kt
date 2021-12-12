@@ -2,7 +2,7 @@ package com.example.videopager.ui.extensions
 
 import android.view.View
 import android.view.ViewManager
-import androidx.core.view.doOnLayout
+import androidx.core.view.doOnNextLayout
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -11,8 +11,8 @@ fun View.detachFromParent() {
     parent.removeView(this)
 }
 
-suspend fun View.awaitLayout() = suspendCoroutine<Unit> { cont ->
-    doOnLayout {
+suspend fun View.awaitNextLayout() = suspendCoroutine<Unit> { cont ->
+    doOnNextLayout {
         cont.resume(Unit)
     }
 }
