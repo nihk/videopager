@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ListAdapter
 import androidx.viewpager2.widget.ViewPager2
 import coil.ImageLoader
 import com.example.videopager.R
@@ -20,6 +19,7 @@ import com.example.videopager.models.TappedPlayerEvent
 import com.example.videopager.models.ViewEvent
 import com.example.videopager.ui.extensions.awaitList
 import com.example.videopager.ui.extensions.events
+import com.example.videopager.ui.extensions.hasPage
 import com.example.videopager.ui.extensions.idleScrollStates
 import com.example.videopager.ui.extensions.isIdle
 import com.example.videopager.ui.extensions.pageChangesWhileScrolling
@@ -135,9 +135,5 @@ class MainFragment(
 
     private fun PagerAdapter.viewEvents(): Flow<ViewEvent> {
         return clicks().map { TappedPlayerEvent }
-    }
-
-    private fun ListAdapter<*, *>.hasPage(page: Int): Boolean {
-        return page < itemCount
     }
 }
