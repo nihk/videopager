@@ -30,6 +30,7 @@ class PagerAdapter(
     private val imageLoader: ImageLoader
 ) : ListAdapter<VideoData, PageViewHolder>(VideoDataDiffCallback) {
     private var recyclerView: RecyclerView? = null
+    // Extra buffer capacity so that emissions can be sent outside a coroutine
     private val clicks = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     fun clicks() = clicks.asSharedFlow()
