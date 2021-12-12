@@ -78,8 +78,8 @@ class MainViewModel(
 
     /**
      * This is a single flow instead of two distinct ones (e.g. one for starting, one for stopping)
-     * so that when the PlayerLifecycleEvent.Type changes from upstream, the flow initiated by the
-     * previous Type gets unsubscribed from (see: [flatMapLatest]). This is necessary to cancel flows
+     * so that when the PlayerLifecycleEvent type changes from upstream, the flow initiated by the
+     * previous type gets unsubscribed from (see: [flatMapLatest]). This is necessary to cancel flows
      * tied to the AppPlayer instance, e.g. [AppPlayer.onPlayerRendering], when the player is being
      * torn down.
      */
