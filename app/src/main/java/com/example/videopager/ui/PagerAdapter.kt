@@ -92,7 +92,7 @@ class PagerAdapter(
 
     private object VideoDataDiffCallback : DiffUtil.ItemCallback<VideoData>() {
         override fun areItemsTheSame(oldItem: VideoData, newItem: VideoData): Boolean {
-            return oldItem.mediaUri == newItem.mediaUri
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: VideoData, newItem: VideoData): Boolean {
