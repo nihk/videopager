@@ -6,9 +6,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
-import com.example.videopager.models.VideoData
 import com.example.videopager.databinding.PageItemBinding
 import com.example.videopager.models.PageEffect
+import com.example.videopager.models.VideoData
 import com.example.videopager.ui.extensions.awaitNextLayout
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -78,19 +78,13 @@ class PagerAdapter(
     private suspend fun awaitViewHolder(position: Int): PageViewHolder {
         if (currentList.isEmpty()) error("Tried to get ViewHolder at position $position, but the list was empty")
 
-        var viewHolder: PageViewHolder? = getViewHolder(position)
+        var viewHolder: PageViewHolder?
 
-        while (currentCoroutineContext().isActive && viewHolder == null) {
-            recyclerView?.awaitNextLayout()
-            viewHolder = getViewHolder(position)
-        }
+        do {
+            viewHolder = recyclerView?.findViewHolderForAdapterPosition(position) as? PageViewHolder
+        } while (currentCoroutineContext().isActive && viewHolder == null && recyclerView?.awaitNextLayout() == Unit)
 
         return requireNotNull(viewHolder)
-    }
-
-    private fun getViewHolder(position: Int): PageViewHolder? {
-        return recyclerView?.findViewHolderForAdapterPosition(position)
-            as? PageViewHolder
     }
 
     override fun onViewDetachedFromWindow(holder: PageViewHolder) {
