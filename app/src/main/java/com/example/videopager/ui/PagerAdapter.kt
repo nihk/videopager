@@ -18,13 +18,11 @@ import kotlinx.coroutines.isActive
 /**
  * The two main functions of interest here are [attachPlayerView] and [showPlayerFor].
  *
- * [attachPlayerView] attaches a [AppPlayerView] instance to a ViewGroup owned by a ViewHolder.
+ * [attachPlayerView] attaches a [AppPlayerView] instance to a page's View hierarchy. Once it
+ * is on-screen, its ExoPlayer instance will be eligible to start rendering frames.
  *
  * [showPlayerFor] hides the video image preview of a given ViewHolder so that video playback can
- * be visible.
- *
- * These are two distinct functions because a PlayerView has to first be attached to a View hierarchy
- * before an ExoPlayer instance will notify listeners that it has started rendering frames.
+ * be visible. It's called when the ExoPlayer instance has started rendering its first frame.
  */
 class PagerAdapter(
     private val imageLoader: ImageLoader
