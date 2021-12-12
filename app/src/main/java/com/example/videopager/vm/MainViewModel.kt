@@ -142,6 +142,7 @@ class MainViewModel(
     }
 
     private fun Flow<OnPageSettledEvent>.toPageSettledResults(): Flow<ViewResult> {
+        // A page can be swiped partially and settle back on the same page -- ignore events from those
         return distinctUntilChangedBy(OnPageSettledEvent::page)
             .mapLatest { event ->
                 val appPlayer = requireNotNull(states.value.appPlayer)
