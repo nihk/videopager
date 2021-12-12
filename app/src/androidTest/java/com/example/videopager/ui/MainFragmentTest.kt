@@ -1,6 +1,7 @@
 package com.example.videopager.ui
 
 import android.content.Context
+import android.content.pm.ActivityInfo
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
@@ -15,10 +16,10 @@ import androidx.test.espresso.matcher.ViewMatchers.withChild
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.example.videopager.R
-import com.example.videopager.utils.TEST_VIDEO_DATA
 import com.example.videopager.data.repositories.FakeVideoDataRepository
 import com.example.videopager.models.VideoData
 import com.example.videopager.players.FakeAppPlayer
+import com.example.videopager.utils.TEST_VIDEO_DATA
 import com.example.videopager.utils.TestImageLoader
 import com.example.videopager.utils.atPage
 import com.example.videopager.utils.awaitIdleScrollState
@@ -37,7 +38,7 @@ import org.junit.Test
 class MainFragmentTest {
     @Test
     fun whenScreenIsStarted_shouldCreatePlayer() = mainFragment {
-        assertPlayerCreated()
+        assertPlayerCreated(count = 1)
     }
 
     @Test
@@ -46,17 +47,25 @@ class MainFragmentTest {
     }
 
     @Test
-    fun whenScreenIsStopped_shouldStopPlayer() = mainFragment {
-        stop()
+    fun whenScreenIsDestroyed_shouldReleasePlayer() = mainFragment {
+        destroy()
 
-        assertPlayerStopped()
+        assertPlayerReleased()
     }
 
     @Test
-    fun whenScreenIsStopped_shouldStopPlayerView() = mainFragment {
-        stop()
+    fun whenScreenIsDestroyed_shouldDetachPlayerView() = mainFragment {
+        destroy()
 
-        assertPlayerViewStopped()
+        assertPlayerViewDetached()
+    }
+
+    @Test
+    fun whenScreenIsStoppedThenStarted_shouldRecreatePlayer() = mainFragment {
+        stop()
+        start()
+
+        assertPlayerCreated(count = 2)
     }
 
     @Test
@@ -132,6 +141,28 @@ class MainFragmentTest {
     }
 
     @Test
+    fun whenScreenIsRotated_shouldRestorePage() = mainFragment {
+        emit(TEST_VIDEO_DATA)
+
+        swipeToNextPage()
+
+        rotateLandscape()
+
+        assertPage(1)
+    }
+
+    @Test
+    fun whenScreenIsRotated_shouldNotRecreatePlayer() = mainFragment {
+        emit(TEST_VIDEO_DATA)
+
+        swipeToNextPage()
+
+        rotateLandscape()
+
+        assertPlayerCreated(count = 1)
+    }
+
+    @Test
     fun whenErrorIsEmitted_messageIsDisplayed() {
         val errors = MutableStateFlow<Throwable?>(null)
         mainFragment(errors = errors.filterNotNull()) {
@@ -179,7 +210,15 @@ class MainFragmentTest {
             )
         }
 
+        fun start() {
+            scenario.moveToState(Lifecycle.State.STARTED)
+        }
+
         fun stop() {
+            scenario.moveToState(Lifecycle.State.CREATED)
+        }
+
+        fun destroy() {
             scenario.moveToState(Lifecycle.State.DESTROYED)
         }
 
@@ -202,11 +241,17 @@ class MainFragmentTest {
                 .perform(click())
         }
 
-        fun assertPlayerCreated() {
-            assertEquals(1, appPlayerFactory.createCount)
+        fun rotateLandscape() {
+            scenario.onFragment { fragment ->
+                fragment.requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
         }
 
-        fun assertPlayerStopped() {
+        fun assertPlayerCreated(count: Int = 1) {
+            assertEquals(count, appPlayerFactory.createCount)
+        }
+
+        fun assertPlayerReleased() {
             assertTrue(appPlayer.didRelease)
         }
 
@@ -214,7 +259,7 @@ class MainFragmentTest {
             assertTrue(appPlayerView.didAttach)
         }
 
-        fun assertPlayerViewStopped() {
+        fun assertPlayerViewDetached() {
             assertTrue(appPlayerView.didDetach)
         }
 
