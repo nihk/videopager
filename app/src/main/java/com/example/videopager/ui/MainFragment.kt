@@ -19,9 +19,9 @@ import com.example.videopager.models.TappedPlayerEvent
 import com.example.videopager.models.ViewEvent
 import com.example.videopager.ui.extensions.awaitList
 import com.example.videopager.ui.extensions.events
-import com.example.videopager.ui.extensions.idleScrollStates
+import com.example.videopager.ui.extensions.pageIdlings
 import com.example.videopager.ui.extensions.isIdle
-import com.example.videopager.ui.extensions.pageChangesWhileScrolling
+import com.example.videopager.ui.extensions.pageChanges
 import com.example.videopager.vm.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.Flow
@@ -122,12 +122,12 @@ class MainFragment(
     private fun ViewPager2.viewEvents(): Flow<ViewEvent> {
         return merge(
             // Idling on a page after a scroll is a signal to try and change player playlist positions
-            idleScrollStates().map { OnPageSettledEvent(currentItem) },
+            pageIdlings().map { OnPageSettledEvent(currentItem) },
             // A page change (which can happen before a page is idled upon) is a signal to pause media. This
             // is useful for when a user is quickly swiping thru pages and the idle state isn't getting reached.
             // It doesn't make sense for a video on a previous page to continue playing while the user is
             // swiping quickly thru pages.
-            pageChangesWhileScrolling().map { PauseVideoEvent }
+            pageChanges().map { PauseVideoEvent }
         )
     }
 
