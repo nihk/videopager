@@ -21,7 +21,6 @@ fun ViewPager2.idleScrollStates(): Flow<Unit> = callbackFlow {
 fun ViewPager2.pageChangesWhileScrolling(): Flow<Unit> = callbackFlow {
     val callback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            if (scrollState == ViewPager2.SCROLL_STATE_IDLE) return
             trySend(Unit)
         }
     }
