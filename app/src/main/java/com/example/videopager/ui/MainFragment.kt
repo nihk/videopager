@@ -10,7 +10,7 @@ import androidx.viewpager2.widget.ViewPager2
 import coil.ImageLoader
 import com.example.videopager.R
 import com.example.videopager.databinding.MainFragmentBinding
-import com.example.videopager.models.OnPageChangedEvent
+import com.example.videopager.models.PauseVideoEvent
 import com.example.videopager.models.OnPageSettledEvent
 import com.example.videopager.models.PageEffect
 import com.example.videopager.models.PlayerErrorEffect
@@ -127,7 +127,7 @@ class MainFragment(
             // is useful for when a user is quickly swiping thru pages and the idle state isn't getting reached.
             // It doesn't make sense for a video on a previous page to continue playing while the user is
             // swiping quickly thru pages.
-            pageChangesWhileScrolling().map { OnPageChangedEvent }
+            pageChangesWhileScrolling().map { PauseVideoEvent }
         )
     }
 

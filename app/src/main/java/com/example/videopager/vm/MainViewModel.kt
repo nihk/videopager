@@ -13,7 +13,7 @@ import com.example.videopager.models.CreatePlayerResult
 import com.example.videopager.models.LoadVideoDataEvent
 import com.example.videopager.models.LoadVideoDataResult
 import com.example.videopager.models.NoOpResult
-import com.example.videopager.models.OnPageChangedEvent
+import com.example.videopager.models.PauseVideoEvent
 import com.example.videopager.models.OnPageSettledEvent
 import com.example.videopager.models.OnNewPageSettledResult
 import com.example.videopager.models.OnPlayerRenderingResult
@@ -63,7 +63,7 @@ class MainViewModel(
             filterIsInstance<PlayerLifecycleEvent>().toPlayerLifecycleResults(),
             filterIsInstance<TappedPlayerEvent>().toTappedPlayerResults(),
             filterIsInstance<OnPageSettledEvent>().toPageSettledResults(),
-            filterIsInstance<OnPageChangedEvent>().toOnPageChangedResults()
+            filterIsInstance<PauseVideoEvent>().toPauseVideoResults()
         )
     }
 
@@ -152,7 +152,7 @@ class MainViewModel(
             }
     }
 
-    private fun Flow<OnPageChangedEvent>.toOnPageChangedResults(): Flow<ViewResult> {
+    private fun Flow<PauseVideoEvent>.toPauseVideoResults(): Flow<ViewResult> {
         return mapLatest {
             val appPlayer = requireNotNull(states.value.appPlayer)
             appPlayer.pause()

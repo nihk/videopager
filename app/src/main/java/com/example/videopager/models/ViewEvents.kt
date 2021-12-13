@@ -13,4 +13,4 @@ object TappedPlayerEvent : ViewEvent()
 
 data class OnPageSettledEvent(val page: Int) : ViewEvent()
 
-object OnPageChangedEvent : ViewEvent()
+object PauseVideoEvent : ViewEvent()
