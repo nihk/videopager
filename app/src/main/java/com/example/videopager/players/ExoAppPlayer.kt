@@ -90,6 +90,9 @@ class ExoAppPlayer(
     }
 
     override fun playMediaAt(position: Int) {
+        // Already playing media at this position; nothing to do
+        if (exoPlayer.currentMediaItemIndex == position && exoPlayer.isPlaying) return
+
         exoPlayer.seekToDefaultPosition(position)
         exoPlayer.playWhenReady = true
         exoPlayer.prepare() // Recover from any errors that may have happened at previous media positions

@@ -142,14 +142,12 @@ class MainViewModel(
     }
 
     private fun Flow<OnPageSettledEvent>.toPageSettledResults(): Flow<ViewResult> {
-        // A page can be swiped partially and settle back on the same page -- ignore events from those
-        return distinctUntilChangedBy(OnPageSettledEvent::page)
-            .mapLatest { event ->
-                val appPlayer = requireNotNull(states.value.appPlayer)
-                appPlayer.playMediaAt(event.page)
+        return mapLatest { event ->
+            val appPlayer = requireNotNull(states.value.appPlayer)
+            appPlayer.playMediaAt(event.page)
 
-                OnNewPageSettledResult(page = event.page)
-            }
+            OnNewPageSettledResult(page = event.page)
+        }
     }
 
     private fun Flow<PauseVideoEvent>.toPauseVideoResults(): Flow<ViewResult> {
