@@ -23,8 +23,9 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.TestScope
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -271,7 +272,7 @@ class MainViewModelTest {
             videoData = videoData,
             onPlayerRendering = onPlayerRendering,
             errors = errors,
-            scope = TestCoroutineScope(rule.testDispatcher)
+            scope = TestScope(rule.testDispatcher)
         ).block()
     }
 
@@ -300,8 +301,10 @@ class MainViewModelTest {
         private val collectedEffects = mutableListOf<ViewEffect>()
 
         init {
-            viewModel.states.onEach(collectedStates::add).launchIn(scope)
-            viewModel.effects.onEach(collectedEffects::add).launchIn(scope)
+            merge(
+                viewModel.states.onEach(collectedStates::add),
+                viewModel.effects.onEach(collectedEffects::add)
+            ).launchIn(scope)
         }
 
         fun startPlayer() {
