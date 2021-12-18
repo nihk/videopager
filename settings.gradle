@@ -1,2 +1,3 @@
-rootProject.name = "video-pager"
+rootProject.name = "videopager"
 include ':app'
+include ':videopager'

@@ -6,6 +6,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.example.videopager.databinding.MainActivityBinding
 import com.example.videopager.di.MainModule
+import com.videopager.ui.VideoPagerFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
-                replace<MainFragment>(binding.fragmentContainer.id)
+                replace<VideoPagerFragment>(binding.fragmentContainer.id)
             }
         }
     }

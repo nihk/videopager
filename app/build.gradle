@@ -35,34 +35,20 @@ android {
     buildFeatures {
         viewBinding true
     }
-    sourceSets {
-        String sharedTestDir = 'src/sharedTest/java'
-        test {
-            java.srcDir sharedTestDir
-        }
-        androidTest {
-            java.srcDir sharedTestDir
-        }
-    }
-    testOptions {
-        animationsDisabled = true
-    }
 }
 
 dependencies {
+    implementation project(":videopager")
+
     implementation "androidx.core:core-ktx:1.7.0"
     implementation "androidx.appcompat:appcompat:1.4.0"
     implementation "com.google.android.material:material:1.4.0"
     implementation "androidx.constraintlayout:constraintlayout:2.1.2"
 
-    implementation "com.google.android.exoplayer:exoplayer:2.16.1"
-    implementation "androidx.viewpager2:viewpager2:1.1.0-beta01"
-    implementation "androidx.recyclerview:recyclerview:1.2.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-RC3"
     implementation "androidx.activity:activity-ktx:1.4.0"
     implementation "io.coil-kt:coil:1.2.2"
     implementation "androidx.fragment:fragment-ktx:1.4.0"
-    debugImplementation "androidx.fragment:fragment-testing:1.4.0"
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.7"
 
     // Only needed for RedditVideoDataRepository
@@ -70,11 +56,4 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
     implementation "com.squareup.moshi:moshi:1.13.0"
     ksp "com.squareup.moshi:moshi-kotlin-codegen:1.13.0"
-
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0-RC3"
-
-    androidTestImplementation "androidx.test:core-ktx:1.4.0"
-    androidTestImplementation "androidx.test.ext:junit-ktx:1.1.3"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
 }
