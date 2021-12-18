@@ -58,7 +58,7 @@ class RedditVideoDataRepository : VideoDataRepository {
         @GET("/r/tiktokcringe/{sort}.json?raw_json=1")
         suspend fun tikTokCringe(
             @Path("sort") sort: String? = "top",
-            @Query("t") top: String? = "all"
+            @Query("t") top: String? = "today"
         ): RedditResponse
     }
 

@@ -1,6 +1,7 @@
 package com.example.videopager.utils
 
 import android.view.View
+import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.viewpager2.widget.ViewPager2
@@ -19,16 +20,26 @@ fun withPage(page: Int): Matcher<View> {
     }
 }
 
-fun atPage(page: Int, matcher: Matcher<View>): Matcher<View> {
+fun atPage(
+    page: Int,
+    matcher: Matcher<View>,
+    @IdRes targetViewId: Int? = null
+): Matcher<View> {
     return object : BoundedMatcher<View, ViewPager2>(ViewPager2::class.java) {
         override fun describeTo(description: Description) {
-            description.appendText("matching at ViewPager2 page: $page")
+            val targetViewMsg = targetViewId?.toString() ?: "root"
+            description.appendText("matching at ViewPager2 page: $page for target view $targetViewMsg")
         }
 
         override fun matchesSafely(viewPager2: ViewPager2): Boolean {
             val recyclerView = viewPager2.getChildAt(0) as RecyclerView
             val viewHolder = recyclerView.findViewHolderForAdapterPosition(page)
-            return viewHolder != null && matcher.matches(viewHolder.itemView)
+            val view = if (targetViewId != null) {
+                viewHolder?.itemView?.findViewById(targetViewId)
+            } else {
+                viewHolder?.itemView
+            }
+            return view != null && matcher.matches(view)
         }
     }
 }

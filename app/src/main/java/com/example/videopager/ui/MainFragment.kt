@@ -46,6 +46,7 @@ class MainFragment(
 
         val adapter = PagerAdapter(imageLoader)
         binding.viewPager.adapter = adapter
+        binding.viewPager.offscreenPageLimit = 1 // Preload neighbouring page image previews
 
         val states = viewModel.states
             .onEach { state ->

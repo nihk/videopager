@@ -1,5 +1,6 @@
 package com.example.videopager.ui
 
+import android.view.View
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -10,7 +11,6 @@ import com.example.videopager.models.AnimationEffect
 import com.example.videopager.models.PageEffect
 import com.example.videopager.models.ResetAnimationsEffect
 import com.example.videopager.models.VideoData
-import com.example.videopager.ui.extensions.detachFromParent
 
 class PageViewHolder(
     private val binding: PageItemBinding,
@@ -49,9 +49,14 @@ class PageViewHolder(
         /**
          * Since effectively only one [AppPlayerView] instance is used in the app, it might currently
          * be attached to a View from a previous page. In that case, remove it from that parent
-         * before adding it to this ViewHolder's View.
+         * before adding it to this ViewHolder's View, and cleanup state from the previous ViewHolder.
          */
-        appPlayerView.view.detachFromParent()
+        (appPlayerView.view.parent?.parent as? View)
+            ?.let(PageItemBinding::bind)
+            ?.apply {
+                playerContainer.removeView(appPlayerView.view)
+                previewImage.isVisible = true
+            }
         binding.playerContainer.addView(appPlayerView.view)
     }
 

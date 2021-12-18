@@ -275,8 +275,8 @@ class MainFragmentTest {
                 not(isDisplayed())
             }
 
-            onView(withId(R.id.preview_image))
-                .check(matches(matcher))
+            onView(withId(R.id.view_pager))
+                .check(matches(atPage(0, matcher, R.id.preview_image)))
         }
 
         fun assertPlaylistChangedTo(position: Int) {

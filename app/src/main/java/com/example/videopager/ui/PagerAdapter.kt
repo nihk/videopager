@@ -86,11 +86,6 @@ class PagerAdapter(
         return requireNotNull(viewHolder)
     }
 
-    override fun onViewDetachedFromWindow(holder: PageViewHolder) {
-        // Reset state
-        holder.setPreviewImage(isVisible = true)
-    }
-
     private object VideoDataDiffCallback : DiffUtil.ItemCallback<VideoData>() {
         override fun areItemsTheSame(oldItem: VideoData, newItem: VideoData): Boolean {
             return oldItem.id == newItem.id
