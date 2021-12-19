@@ -30,15 +30,23 @@ class DiffingVideoDataUpdater(
         patch.deltas.forEach { delta: AbstractDelta<MediaItem> ->
             when (delta.type) {
                 DeltaType.CHANGE -> {
-                    exoPlayer.removeMediaItems(delta.target.position, delta.target.position + delta.source.lines.size)
-                    exoPlayer.addMediaItems(delta.target.position, delta.target.lines)
+                    delta.delete(exoPlayer)
+                    delta.insert(exoPlayer)
                 }
-                DeltaType.DELETE -> exoPlayer.removeMediaItems(delta.target.position, delta.target.position + delta.source.lines.size)
-                DeltaType.INSERT -> exoPlayer.addMediaItems(delta.target.position, delta.target.lines)
+                DeltaType.DELETE -> delta.delete(exoPlayer)
+                DeltaType.INSERT -> delta.insert(exoPlayer)
                 DeltaType.EQUAL -> {} // Nothing to do here
                 null -> error("Delta type was null")
             }
         }
+    }
+
+    private fun AbstractDelta<MediaItem>.delete(exoPlayer: ExoPlayer) {
+        exoPlayer.removeMediaItems(target.position, target.position + source.lines.size)
+    }
+
+    private fun AbstractDelta<MediaItem>.insert(exoPlayer: ExoPlayer) {
+        exoPlayer.addMediaItems(target.position, target.lines)
     }
 
     private fun List<VideoData>.toMediaItems(): List<MediaItem> {
