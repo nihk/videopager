@@ -499,8 +499,7 @@ class DiffingVideoDataUpdaterTest {
     class UpdaterRobot : Closeable {
         private val exoPlayer = ExoPlayer.Builder(ApplicationProvider.getApplicationContext())
             .build()
-        private val updater =
-            DiffingVideoDataUpdater(diffingContext = Dispatchers.Main)
+        private val updater = DiffingVideoDataUpdater(diffingContext = Dispatchers.Main)
 
         suspend fun update(videoData: List<VideoData>) {
             updater.update(exoPlayer, videoData)
