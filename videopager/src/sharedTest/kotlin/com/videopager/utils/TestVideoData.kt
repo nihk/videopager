@@ -2,7 +2,7 @@ package com.videopager.utils
 
 import com.videopager.models.VideoData
 
-val TEST_VIDEO_DATA = listOf(
+internal val TEST_VIDEO_DATA = listOf(
     VideoData(
         id = "1",
         mediaUri = "1. mediaUri",

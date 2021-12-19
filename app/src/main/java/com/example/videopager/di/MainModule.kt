@@ -5,8 +5,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import coil.imageLoader
 import com.example.videopager.data.RedditVideoDataRepository
-import com.exo.players.ExoAppPlayer
-import com.exo.ui.ExoAppPlayerView
+import com.exo.players.ExoAppPlayerFactory
+import com.exo.ui.ExoAppPlayerViewFactory
 import com.videopager.ui.VideoPagerFragment
 import com.videopager.vm.VideoPagerViewModel
 
@@ -17,11 +17,11 @@ class MainModule(activity: ComponentActivity) {
                 VideoPagerFragment::class.java -> VideoPagerFragment(
                     viewModelFactory = VideoPagerViewModel.Factory(
                         repository = RedditVideoDataRepository(),
-                        appPlayerFactory = ExoAppPlayer.Factory(
+                        appPlayerFactory = ExoAppPlayerFactory(
                             context = activity.applicationContext
                         )
                     ),
-                    appPlayerViewFactory = ExoAppPlayerView.Factory(),
+                    appPlayerViewFactory = ExoAppPlayerViewFactory(),
                     imageLoader = activity.imageLoader
                 )
                 else -> super.instantiate(classLoader, className)

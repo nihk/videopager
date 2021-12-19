@@ -2,7 +2,7 @@ package com.exo.players
 
 import androidx.test.core.app.ApplicationProvider
 import com.exo.data.RecyclerViewVideoDataUpdater
-import com.videopager.utils.TEST_VIDEO_DATA
+import com.exo.data.TEST_VIDEO_DATA
 import com.videopager.models.PlayerState
 import com.videopager.models.VideoData
 import com.google.android.exoplayer2.ExoPlayer
