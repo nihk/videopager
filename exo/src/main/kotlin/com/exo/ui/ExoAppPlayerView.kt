@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import com.exo.databinding.PlayerViewBinding
 import com.exo.players.ExoAppPlayer
-import com.exo.ui.extensions.layoutInflater
 import com.videopager.players.AppPlayer
 import com.videopager.ui.AppPlayerView
 

@@ -1,4 +1,4 @@
-package com.exo.ui.extensions
+package com.exo.ui
 
 import android.content.Context
 import android.view.LayoutInflater
