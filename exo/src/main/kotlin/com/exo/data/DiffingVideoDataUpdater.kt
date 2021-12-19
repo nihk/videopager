@@ -11,6 +11,12 @@ import com.videopager.models.VideoData
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * When new videos come in from VideoDataRepository or the UI's state has been updated without a
+ * change to video data, there can't simply be a clearing of all current videos on ExoPlayer and then
+ * adding the latest list of videos. That would disrupt the active video and be a janky UX. Instead,
+ * use diffing to figure out what changed and only insert/delete/update those difference.
+ */
 class DiffingVideoDataUpdater(
     private val diffingContext: CoroutineContext
 ) : VideoDataUpdater {
