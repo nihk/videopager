@@ -7,7 +7,7 @@ internal sealed class ViewResult
 
 internal object NoOpResult : ViewResult()
 
-internal data class LoadVideoDataResult(val videoData: List<VideoData>) : ViewResult()
+internal data class LoadVideoDataResult(val videoData: List<VideoData>, val currentMediaItemIndex: Int) : ViewResult()
 
 internal data class CreatePlayerResult(val appPlayer: AppPlayer) : ViewResult()
 

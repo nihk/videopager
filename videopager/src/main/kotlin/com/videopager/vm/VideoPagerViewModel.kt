@@ -1,10 +1,5 @@
 package com.videopager.vm
 
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.savedstate.SavedStateRegistryOwner
 import com.videopager.R
 import com.videopager.data.VideoDataRepository
 import com.videopager.models.AnimationEffect
@@ -38,7 +33,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onEach
 
 /**
  * Owns a stateful [ViewState.appPlayer] instance that will get created and torn down in parallel
@@ -68,11 +62,16 @@ internal class VideoPagerViewModel(
 
     private fun Flow<LoadVideoDataEvent>.toLoadVideoDataResults(): Flow<ViewResult> {
         return flatMapLatest { repository.videoData() }
-            .onEach { videoData ->
+            .map { videoData ->
+                val appPlayer = states.value.appPlayer
                 // If the player exists, it should be updated with the latest video data that came in
-                states.value.appPlayer?.setUpWith(videoData, handle.get())
+                appPlayer?.setUpWith(videoData, handle.get())
+                // Capture any updated index so UI page state can stay in sync. For example, a video
+                // may have been added to the page before the currently active one. That means the
+                // the current video/page index will have changed
+                val index = appPlayer?.currentPlayerState?.currentMediaItemIndex ?: 0
+                LoadVideoDataResult(videoData, index)
             }
-            .map { videoData -> LoadVideoDataResult(videoData) }
     }
 
     /**
@@ -160,7 +159,7 @@ internal class VideoPagerViewModel(
     override fun ViewResult.reduce(state: ViewState): ViewState {
         // MVI reducer boilerplate
         return when (this) {
-            is LoadVideoDataResult -> state.copy(videoData = videoData)
+            is LoadVideoDataResult -> state.copy(videoData = videoData, page = currentMediaItemIndex)
             is CreatePlayerResult -> state.copy(appPlayer = appPlayer)
             is TearDownPlayerResult -> state.copy(appPlayer = null)
             is OnNewPageSettledResult -> state.copy(page = page, showPlayer = false)
