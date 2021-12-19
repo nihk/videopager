@@ -79,7 +79,7 @@ class ExoAppPlayerTest {
 
     class ExoAppPlayerRobot : Closeable {
         private val exoAppPlayer = ExoAppPlayer(
-            exoPlayer = ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
+            player = ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
             updater = DiffingVideoDataUpdater(diffingContext = Dispatchers.Main)
         )
 
@@ -88,7 +88,7 @@ class ExoAppPlayerTest {
         }
 
         fun seekTo(position: Long) {
-            exoAppPlayer.exoPlayer.seekTo(position)
+            exoAppPlayer.player.seekTo(position)
         }
 
         override fun close() {
@@ -96,11 +96,11 @@ class ExoAppPlayerTest {
         }
 
         fun assertWindowIndex(index: Int) {
-            assertEquals(index, exoAppPlayer.exoPlayer.currentMediaItemIndex)
+            assertEquals(index, exoAppPlayer.player.currentMediaItemIndex)
         }
 
         fun assertSeekPosition(position: Long) {
-            assertEquals(position, exoAppPlayer.exoPlayer.currentPosition)
+            assertEquals(position, exoAppPlayer.player.currentPosition)
         }
 
         fun assertPlayerState(playerState: PlayerState?) {
@@ -108,7 +108,7 @@ class ExoAppPlayerTest {
         }
 
         fun assertMediaItemIds(ids: List<String>) {
-            assertEquals(ids, exoAppPlayer.exoPlayer.currentMediaItems.map(MediaItem::mediaId))
+            assertEquals(ids, exoAppPlayer.player.currentMediaItems.map(MediaItem::mediaId))
         }
     }
 }

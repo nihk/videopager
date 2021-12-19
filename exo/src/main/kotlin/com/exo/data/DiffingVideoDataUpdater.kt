@@ -5,8 +5,8 @@ import com.github.difflib.DiffUtils
 import com.github.difflib.patch.AbstractDelta
 import com.github.difflib.patch.DeltaType
 import com.github.difflib.patch.Patch
-import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
 import com.videopager.models.VideoData
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
@@ -20,8 +20,8 @@ import kotlin.coroutines.CoroutineContext
 internal class DiffingVideoDataUpdater(
     private val diffingContext: CoroutineContext
 ) : VideoDataUpdater {
-    override suspend fun update(exoPlayer: ExoPlayer, incoming: List<VideoData>) {
-        val oldMediaItems = exoPlayer.currentMediaItems
+    override suspend fun update(player: Player, incoming: List<VideoData>) {
+        val oldMediaItems = player.currentMediaItems
         val newMediaItems = incoming.toMediaItems()
 
         val patch: Patch<MediaItem> = withContext(diffingContext) {
@@ -31,22 +31,22 @@ internal class DiffingVideoDataUpdater(
             @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
             when (delta.type) {
                 DeltaType.CHANGE -> {
-                    delta.delete(exoPlayer)
-                    delta.insert(exoPlayer)
+                    delta.delete(player)
+                    delta.insert(player)
                 }
-                DeltaType.DELETE -> delta.delete(exoPlayer)
-                DeltaType.INSERT -> delta.insert(exoPlayer)
+                DeltaType.DELETE -> delta.delete(player)
+                DeltaType.INSERT -> delta.insert(player)
                 DeltaType.EQUAL -> {} // Nothing to do here
             }
         }
     }
 
-    private fun AbstractDelta<MediaItem>.delete(exoPlayer: ExoPlayer) {
-        exoPlayer.removeMediaItems(target.position, target.position + source.lines.size)
+    private fun AbstractDelta<MediaItem>.delete(player: Player) {
+        player.removeMediaItems(target.position, target.position + source.lines.size)
     }
 
-    private fun AbstractDelta<MediaItem>.insert(exoPlayer: ExoPlayer) {
-        exoPlayer.addMediaItems(target.position, target.lines)
+    private fun AbstractDelta<MediaItem>.insert(player: Player) {
+        player.addMediaItems(target.position, target.lines)
     }
 
     private fun List<VideoData>.toMediaItems(): List<MediaItem> {

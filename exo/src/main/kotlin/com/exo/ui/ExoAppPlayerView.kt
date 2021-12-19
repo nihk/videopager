@@ -16,7 +16,7 @@ internal class ExoAppPlayerView(layoutInflater: LayoutInflater) : AppPlayerView 
     override val view: View = binding.root
 
     override fun attach(appPlayer: AppPlayer) {
-        binding.playerView.player = (appPlayer as ExoAppPlayer).exoPlayer
+        binding.playerView.player = (appPlayer as ExoAppPlayer).player
     }
 
     // ExoPlayer and PlayerView hold circular ref's to each other, so avoid leaking

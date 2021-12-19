@@ -1,7 +1,6 @@
 package com.exo.players
 
 import com.exo.data.VideoDataUpdater
-import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.videopager.models.PlayerState
@@ -12,15 +11,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 internal class ExoAppPlayer(
-    internal val exoPlayer: ExoPlayer,
+    internal val player: Player,
     private val updater: VideoDataUpdater
 ) : AppPlayer {
-    override val currentPlayerState: PlayerState get() = exoPlayer.toPlayerState()
+    override val currentPlayerState: PlayerState get() = player.toPlayerState()
     private var isPlayerSetUp = false
 
     override suspend fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?) {
         /** Delegate video insertion, removing, moving, etc. to this [updater] */
-        updater.update(exoPlayer = exoPlayer, incoming = videoData)
+        updater.update(player = player, incoming = videoData)
 
         // Player should only have saved state restored to it one time per instance of this class.
         if (!isPlayerSetUp) {
@@ -28,11 +27,11 @@ internal class ExoAppPlayer(
             isPlayerSetUp = true
         }
 
-        exoPlayer.prepare()
+        player.prepare()
     }
 
     private fun setUpPlayerState(playerState: PlayerState?) {
-        val currentMediaItems = exoPlayer.currentMediaItems
+        val currentMediaItems = player.currentMediaItems
 
          // When restoring saved state, the saved media item might be not be in the player's current
          // collection of media items. In that case, the saved media item cannot be restored.
@@ -49,9 +48,9 @@ internal class ExoAppPlayer(
             mediaItem.mediaId == reconciledPlayerState.currentMediaItemId
         }
         if (windowIndex != -1) {
-            exoPlayer.seekTo(windowIndex, reconciledPlayerState.seekPositionMillis)
+            player.seekTo(windowIndex, reconciledPlayerState.seekPositionMillis)
         }
-        exoPlayer.playWhenReady = reconciledPlayerState.isPlaying
+        player.playWhenReady = reconciledPlayerState.isPlaying
     }
 
     // A signal that video content is immediately ready to play; any preview images
@@ -63,9 +62,9 @@ internal class ExoAppPlayer(
             }
         }
 
-        exoPlayer.addListener(listener)
+        player.addListener(listener)
 
-        awaitClose { exoPlayer.removeListener(listener) }
+        awaitClose { player.removeListener(listener) }
     }
 
     override fun errors(): Flow<Throwable> = callbackFlow {
@@ -75,12 +74,12 @@ internal class ExoAppPlayer(
             }
         }
 
-        exoPlayer.addListener(listener)
+        player.addListener(listener)
 
-        awaitClose { exoPlayer.removeListener(listener) }
+        awaitClose { player.removeListener(listener) }
     }
 
-    private fun ExoPlayer.toPlayerState(): PlayerState {
+    private fun Player.toPlayerState(): PlayerState {
         return PlayerState(
             currentMediaItemId = currentMediaItem?.mediaId,
             currentMediaItemIndex = currentMediaItemIndex,
@@ -91,23 +90,23 @@ internal class ExoAppPlayer(
 
     override fun playMediaAt(position: Int) {
         // Already playing media at this position; nothing to do
-        if (exoPlayer.currentMediaItemIndex == position && exoPlayer.isPlaying) return
+        if (player.currentMediaItemIndex == position && player.isPlaying) return
 
-        exoPlayer.seekToDefaultPosition(position)
-        exoPlayer.playWhenReady = true
-        exoPlayer.prepare() // Recover from any errors that may have happened at previous media positions
+        player.seekToDefaultPosition(position)
+        player.playWhenReady = true
+        player.prepare() // Recover from any errors that may have happened at previous media positions
     }
 
     override fun play() {
-        exoPlayer.prepare() // Recover from any errors
-        exoPlayer.play()
+        player.prepare() // Recover from any errors
+        player.play()
     }
 
     override fun pause() {
-        exoPlayer.pause()
+        player.pause()
     }
 
     override fun release() {
-        exoPlayer.release()
+        player.release()
     }
 }
