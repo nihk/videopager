@@ -15,368 +15,90 @@ import java.io.Closeable
 class DiffingVideoDataUpdaterTest {
     @Test
     fun shouldAddMediaItem_whenExoPlayerIsEmpty() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            )
-        )
+        update(videoData(1))
 
-        update(videoData)
-
-        assertMediaItemIdOrder(listOf("1"))
+        assertMediaItemIdOrder(1)
     }
 
     @Test
     fun shouldRemoveAllExoPlayerMediaItems_whenIncomingDataIsEmpty() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "1",
-                previewImageUri = ""
-            )
-        )
-        update(videoData)
+        update(videoData(1, 2))
 
         update(emptyList())
 
-        assertMediaItemIdOrder(emptyList())
+        assertMediaItemIdOrder()
     }
 
     @Test
     fun shouldDeleteExoPlayerMediaItems() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "4",
-                mediaUri = "4",
-                previewImageUri = ""
-            )
-        )
-        update(videoData)
+        update(videoData(1, 2, 3, 4))
 
+        update(videoData(3))
 
-        val newList = listOf(
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            )
-        )
-        update(newList)
-
-        assertMediaItemIdOrder(listOf("3"))
+        assertMediaItemIdOrder(3)
     }
 
     @Test
     fun shouldInsertMediaItemInMiddle_whenIncomingDataAddsMiddleItem() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            )
-        )
-        update(videoData)
+        update(videoData(1, 3))
 
-        val newList = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            )
-        )
-        update(newList)
+        update(videoData(1, 2, 3))
 
-        assertMediaItemIdOrder(listOf("1", "2", "3"))
+        assertMediaItemIdOrder(1, 2, 3)
     }
 
     @Test
     fun shouldInsertAllExoPlayerMediaItems_whenIncomingDataMeansInsertingBeforeAndAfterCurrentItem() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            )
-        )
-        update(videoData)
+        update(videoData(1))
 
-        val newList = listOf(
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            )
-        )
-        update(newList)
+        update(videoData(3, 1, 2))
 
-        assertMediaItemIdOrder(listOf("3", "1", "2"))
+        assertMediaItemIdOrder(3, 1, 2)
     }
 
     @Test
     fun shouldInsertAllExoPlayerMediaItems_whenIncomingDataDovetails() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-        )
-        update(videoData)
+        update(videoData(1, 3))
 
-        val newList = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "4",
-                mediaUri = "4",
-                previewImageUri = ""
-            )
-        )
-        update(newList)
+        update(videoData(1, 2, 3, 4))
 
-        assertMediaItemIdOrder(listOf("1", "2", "3", "4"))
+        assertMediaItemIdOrder(1, 2, 3, 4)
     }
 
     @Test
     fun shouldRemoveExoPlayerMediaItem_whenMiddleItemIsRemoved() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-        )
-        update(videoData)
+        update(videoData(1, 2, 3))
 
-        val newList = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-        )
-        update(newList)
+        update(videoData(1, 3))
 
-        assertMediaItemIdOrder(listOf("1", "3"))
+        assertMediaItemIdOrder(1, 3)
     }
 
     @Test
     fun shouldSwapPositions() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            ),
-        )
-        update(videoData)
+        update(videoData(1, 2))
 
-        val newList = listOf(
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            )
-        )
-        update(newList)
+        update(videoData(2, 1))
 
-        assertMediaItemIdOrder(listOf("2", "1"))
+        assertMediaItemIdOrder(2, 1)
     }
 
     @Test
     fun shouldReverse() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "4",
-                mediaUri = "4",
-                previewImageUri = ""
-            )
-        )
-        update(videoData)
+        update(videoData(1, 2, 3, 4))
 
-        val newList = listOf(
-            VideoData(
-                id = "4",
-                mediaUri = "4",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            )
-        )
-        update(newList)
+        update(videoData(4, 3, 2, 1))
 
-        assertMediaItemIdOrder(listOf("4", "3", "2", "1"))
+        assertMediaItemIdOrder(4, 3, 2, 1)
     }
 
     @Test
     fun shouldSwapInner() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "4",
-                mediaUri = "4",
-                previewImageUri = ""
-            )
-        )
-        update(videoData)
+        update(videoData(1, 2, 3, 4))
 
-        val newList = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "3",
-                mediaUri = "3",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "2",
-                mediaUri = "2",
-                previewImageUri = ""
-            ),
-            VideoData(
-                id = "4",
-                mediaUri = "4",
-                previewImageUri = ""
-            )
-        )
-        update(newList)
+        update(videoData(1, 3, 2, 4))
 
-        assertMediaItemIdOrder(listOf("1", "3", "2", "4"))
+        assertMediaItemIdOrder(1, 3, 2, 4)
     }
 
     @Test
@@ -409,7 +131,7 @@ class DiffingVideoDataUpdaterTest {
         )
         update(newList)
 
-        assertMediaItemIdOrder(listOf("1", "2"))
+        assertMediaItemIdOrder(1, 2)
         assertMediaItemUriOrder(listOf("xyz.net", "tuv.net"))
     }
 
@@ -463,36 +185,32 @@ class DiffingVideoDataUpdaterTest {
         )
         update(newList)
 
-        assertMediaItemIdOrder(listOf("1", "3", "2", "4"))
+        assertMediaItemIdOrder(1, 3, 2, 4)
         assertMediaItemUriOrder(listOf("1x", "3", "2", "4x"))
     }
 
     @Test
     fun shouldKeepListWhenEqual() = updater {
-        val videoData = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            )
-        )
-        update(videoData)
+        update(videoData(1, 2, 3, 4))
 
-        val newList = listOf(
-            VideoData(
-                id = "1",
-                mediaUri = "1",
-                previewImageUri = ""
-            )
-        )
-        update(newList)
+        update(videoData(1, 2, 3, 4))
 
-        assertMediaItemIdOrder(listOf("1"))
+        assertMediaItemIdOrder(1, 2, 3, 4)
     }
 
     private fun updater(block: suspend UpdaterRobot.() -> Unit) = runBlocking {
         withContext(Dispatchers.Main) {
             UpdaterRobot().use { it.block() }
+        }
+    }
+
+    private fun videoData(vararg ids: Int): List<VideoData> {
+        return ids.map { id ->
+            VideoData(
+                id = id.toString(),
+                mediaUri = id.toString(),
+                previewImageUri = ""
+            )
         }
     }
 
@@ -505,8 +223,8 @@ class DiffingVideoDataUpdaterTest {
             updater.update(exoPlayer, videoData)
         }
 
-        fun assertMediaItemIdOrder(ids: List<String>) {
-            assertEquals(ids, exoPlayer.currentMediaItems.map(MediaItem::mediaId))
+        fun assertMediaItemIdOrder(vararg ids: Int) {
+            assertEquals(ids.map(Int::toString), exoPlayer.currentMediaItems.map(MediaItem::mediaId))
         }
 
         fun assertMediaItemUriOrder(uris: List<String>) {
