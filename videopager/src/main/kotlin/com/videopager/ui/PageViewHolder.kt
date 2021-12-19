@@ -70,7 +70,7 @@ internal class PageViewHolder(
         }
     }
 
-    fun setPreviewImage(isVisible: Boolean) {
-        binding.previewImage.isVisible = isVisible
+    fun hidePreviewImage() {
+        binding.previewImage.isVisible = false
     }
 }

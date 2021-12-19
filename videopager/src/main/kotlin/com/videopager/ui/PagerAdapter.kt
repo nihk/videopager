@@ -63,7 +63,7 @@ internal class PagerAdapter(
 
     // Hides the video preview image when the player is ready to be shown.
     suspend fun showPlayerFor(position: Int) {
-        awaitViewHolder(position).setPreviewImage(isVisible = false)
+        awaitViewHolder(position).hidePreviewImage()
     }
 
     suspend fun renderEffect(position: Int, effect: PageEffect) {
