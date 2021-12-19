@@ -198,6 +198,15 @@ class DiffingVideoDataUpdaterTest {
         assertMediaItemIdOrder(1, 2, 3, 4)
     }
 
+    @Test
+    fun shouldReplaceWithEntirelyNewList() = updater {
+        update(videoData(1, 2, 3, 4))
+
+        update(videoData(5, 6, 7))
+
+        assertMediaItemIdOrder(5, 6, 7)
+    }
+
     private fun updater(block: suspend UpdaterRobot.() -> Unit) = runBlocking {
         withContext(Dispatchers.Main) {
             UpdaterRobot().use { it.block() }
