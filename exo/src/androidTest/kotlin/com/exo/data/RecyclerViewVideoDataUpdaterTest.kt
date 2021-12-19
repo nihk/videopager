@@ -92,7 +92,7 @@ class RecyclerViewVideoDataUpdaterTest {
         private val exoPlayer = ExoPlayer.Builder(ApplicationProvider.getApplicationContext())
             .build()
         private val updater =
-            com.exo.data.RecyclerViewVideoDataUpdater(diffingContext = Dispatchers.Main)
+            RecyclerViewVideoDataUpdater(diffingContext = Dispatchers.Main)
 
         suspend fun update(videoData: List<VideoData>) {
             updater.update(exoPlayer, videoData)

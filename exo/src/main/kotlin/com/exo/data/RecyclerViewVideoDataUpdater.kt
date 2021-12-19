@@ -15,7 +15,7 @@ import kotlin.coroutines.CoroutineContext
  * actually have anything to do with RecyclerView or UI, it just uses RecyclerView APIs for
  * convenience.
  */
-class RecyclerViewVideoDataUpdater(
+internal class RecyclerViewVideoDataUpdater(
     private val diffingContext: CoroutineContext
 ) : VideoDataUpdater {
     override suspend fun update(exoPlayer: ExoPlayer, incoming: List<VideoData>) {
