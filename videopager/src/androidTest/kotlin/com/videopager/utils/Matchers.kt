@@ -1,4 +1,4 @@
-package com.example.videopager.utils
+package com.videopager.utils
 
 import android.view.View
 import androidx.annotation.IdRes

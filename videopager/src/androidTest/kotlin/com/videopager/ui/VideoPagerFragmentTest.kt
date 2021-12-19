@@ -7,6 +7,9 @@ import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.GeneralSwipeAction
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -15,15 +18,15 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withChild
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.example.videopager.utils.atPage
-import com.example.videopager.utils.awaitIdleScrollState
-import com.example.videopager.utils.withPage
 import com.videopager.R
 import com.videopager.data.FakeVideoDataRepository
 import com.videopager.models.VideoData
 import com.videopager.players.FakeAppPlayer
 import com.videopager.utils.TEST_VIDEO_DATA
 import com.videopager.utils.TestImageLoader
+import com.videopager.utils.atPage
+import com.videopager.utils.awaitIdleScrollState
+import com.videopager.utils.withPage
 import com.videopager.vm.VideoPagerViewModelFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -174,6 +177,33 @@ class VideoPagerFragmentTest {
         }
     }
 
+    @Test
+    fun whenPartiallySwiped_shouldMaintainCurrentVideo() = videoPagerFragment {
+        emit(TEST_VIDEO_DATA)
+
+        partialSwipe()
+
+        assertPage(0)
+        assertPlayerViewPosition(0)
+        assertPlaying(isPlaying = true)
+    }
+
+    @Test
+    fun whenListDiffed_shouldMaintainCurrentVideo() = videoPagerFragment {
+        emit(TEST_VIDEO_DATA.takeLast(1))
+
+        assertPage(0)
+        assertPlayerViewPosition(0)
+        assertPlaying(isPlaying = true)
+
+        emit(TEST_VIDEO_DATA.takeLast(2))
+        setMediaItemIndex(1)
+
+        assertPage(1)
+        assertPlayerViewPosition(1)
+        assertPlaying(isPlaying = true)
+    }
+
     private fun videoPagerFragment(
         videoData: List<VideoData>? = null,
         onPlayerRendering: Flow<Unit> = emptyFlow(),
@@ -232,6 +262,18 @@ class VideoPagerFragmentTest {
                 .perform(awaitIdleScrollState())
         }
 
+        fun partialSwipe() {
+            val partialSwipe = GeneralSwipeAction(
+                Swipe.SLOW,
+                { floatArrayOf(0f, 256f) },
+                { floatArrayOf(0f, 0f) },
+                Press.FINGER
+            )
+            onView(withId(R.id.view_pager))
+                .perform(partialSwipe)
+                .perform(awaitIdleScrollState())
+        }
+
         fun recreate() {
             scenario.recreate()
         }
@@ -245,6 +287,10 @@ class VideoPagerFragmentTest {
             scenario.onFragment { fragment ->
                 fragment.requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
+        }
+
+        fun setMediaItemIndex(index: Int) {
+            appPlayer.currentPlayerState = appPlayer.currentPlayerState.copy(currentMediaItemIndex = index)
         }
 
         fun assertPlayerCreated(count: Int = 1) {
@@ -265,6 +311,7 @@ class VideoPagerFragmentTest {
 
         fun assertPage(page: Int) {
             onView(withId(R.id.view_pager))
+                .perform(awaitIdleScrollState())
                 .check(matches(withPage(page)))
         }
 
