@@ -82,6 +82,186 @@ class RecyclerViewVideoDataUpdaterTest {
         assertMediaItemIdOrder(listOf("1", "2", "3"))
     }
 
+    @Test
+    fun shouldInsertAllExoPlayerMediaItems_whenIncomingDataMeansInsertingBeforeAndAfterCurrentItem() = updater {
+        val videoData = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            )
+        )
+        update(videoData)
+
+        val newList = listOf(
+            VideoData(
+                id = "3",
+                mediaUri = "3",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "2",
+                mediaUri = "2",
+                previewImageUri = ""
+            )
+        )
+        update(newList)
+
+        assertMediaItemIdOrder(listOf("3", "1", "2"))
+    }
+
+    @Test
+    fun shouldInsertAllExoPlayerMediaItems_whenIncomingDataDovetail() = updater {
+        val videoData = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "3",
+                mediaUri = "3",
+                previewImageUri = ""
+            ),
+        )
+        update(videoData)
+
+        val newList = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "2",
+                mediaUri = "2",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "3",
+                mediaUri = "3",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "4",
+                mediaUri = "4",
+                previewImageUri = ""
+            )
+        )
+        update(newList)
+
+        assertMediaItemIdOrder(listOf("1", "2", "3", "4"))
+    }
+
+    @Test
+    fun shouldRemoveExoPlayerMediaItem_whenMiddleItemIsRemoved() = updater {
+        val videoData = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "2",
+                mediaUri = "2",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "3",
+                mediaUri = "3",
+                previewImageUri = ""
+            ),
+        )
+        update(videoData)
+
+        val newList = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "3",
+                mediaUri = "3",
+                previewImageUri = ""
+            ),
+        )
+        update(newList)
+
+        assertMediaItemIdOrder(listOf("1", "3"))
+    }
+
+    @Test
+    fun shouldSwapPositions() = updater {
+        val videoData = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "2",
+                mediaUri = "2",
+                previewImageUri = ""
+            ),
+        )
+        update(videoData)
+
+        val newList = listOf(
+            VideoData(
+                id = "2",
+                mediaUri = "2",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            )
+        )
+        update(newList)
+
+        assertMediaItemIdOrder(listOf("2", "1"))
+    }
+
+    @Test
+    fun shouldChangeItems() = updater {
+        val videoData = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "2",
+                mediaUri = "2",
+                previewImageUri = ""
+            ),
+        )
+        update(videoData)
+
+        val newList = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1x",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "2",
+                mediaUri = "2x",
+                previewImageUri = ""
+            )
+        )
+        update(newList)
+
+        assertMediaItemIdOrder(listOf("1", "2"))
+    }
+
     private fun updater(block: suspend UpdaterRobot.() -> Unit) = runBlocking {
         withContext(Dispatchers.Main) {
             UpdaterRobot().use { it.block() }
