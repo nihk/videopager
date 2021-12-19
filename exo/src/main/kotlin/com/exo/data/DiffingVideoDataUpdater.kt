@@ -28,6 +28,7 @@ class DiffingVideoDataUpdater(
             DiffUtils.diff(oldMediaItems, newMediaItems)
         }
         patch.deltas.forEach { delta: AbstractDelta<MediaItem> ->
+            @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
             when (delta.type) {
                 DeltaType.CHANGE -> {
                     delta.delete(exoPlayer)
@@ -36,7 +37,6 @@ class DiffingVideoDataUpdater(
                 DeltaType.DELETE -> delta.delete(exoPlayer)
                 DeltaType.INSERT -> delta.insert(exoPlayer)
                 DeltaType.EQUAL -> {} // Nothing to do here
-                null -> error("Delta type was null")
             }
         }
     }
