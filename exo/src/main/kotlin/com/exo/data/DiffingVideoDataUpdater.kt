@@ -17,7 +17,7 @@ import kotlin.coroutines.CoroutineContext
  * adding the latest list of videos. That would disrupt the active video and be a janky UX. Instead,
  * use diffing to figure out what changed and only insert/delete/update those differences.
  */
-class DiffingVideoDataUpdater(
+internal class DiffingVideoDataUpdater(
     private val diffingContext: CoroutineContext
 ) : VideoDataUpdater {
     override suspend fun update(exoPlayer: ExoPlayer, incoming: List<VideoData>) {
