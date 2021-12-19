@@ -24,6 +24,7 @@ import com.videopager.ui.extensions.isIdle
 import com.videopager.ui.extensions.pageChanges
 import com.videopager.ui.extensions.pageIdlings
 import com.videopager.vm.VideoPagerViewModel
+import com.videopager.vm.VideoPagerViewModelFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
@@ -32,7 +33,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 
 class VideoPagerFragment(
-    private val viewModelFactory: VideoPagerViewModel.Factory,
+    private val viewModelFactory: VideoPagerViewModelFactory,
     private val appPlayerViewFactory: AppPlayerView.Factory,
     private val imageLoader: ImageLoader
 ) : Fragment(R.layout.video_pager_fragment) {

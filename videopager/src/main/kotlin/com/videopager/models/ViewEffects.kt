@@ -2,12 +2,12 @@ package com.videopager.models
 
 import androidx.annotation.DrawableRes
 
-sealed class ViewEffect
+internal sealed class ViewEffect
 
-sealed class PageEffect : ViewEffect()
+internal sealed class PageEffect : ViewEffect()
 
-data class AnimationEffect(@DrawableRes val drawable: Int) : PageEffect()
+internal data class AnimationEffect(@DrawableRes val drawable: Int) : PageEffect()
 
-object ResetAnimationsEffect : PageEffect()
+internal object ResetAnimationsEffect : PageEffect()
 
-data class PlayerErrorEffect(val throwable: Throwable) : ViewEffect()
+internal data class PlayerErrorEffect(val throwable: Throwable) : ViewEffect()

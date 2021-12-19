@@ -15,16 +15,16 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withChild
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.example.videopager.utils.atPage
+import com.example.videopager.utils.awaitIdleScrollState
+import com.example.videopager.utils.withPage
+import com.videopager.R
 import com.videopager.data.FakeVideoDataRepository
 import com.videopager.models.VideoData
 import com.videopager.players.FakeAppPlayer
 import com.videopager.utils.TEST_VIDEO_DATA
 import com.videopager.utils.TestImageLoader
-import com.example.videopager.utils.atPage
-import com.example.videopager.utils.awaitIdleScrollState
-import com.example.videopager.utils.withPage
-import com.videopager.R
-import com.videopager.vm.VideoPagerViewModel
+import com.videopager.vm.VideoPagerViewModelFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -197,7 +197,7 @@ class VideoPagerFragmentTest {
             themeResId = R.style.Theme_MaterialComponents_DayNight_DarkActionBar
         ) {
             VideoPagerFragment(
-                viewModelFactory = VideoPagerViewModel.Factory(
+                viewModelFactory = VideoPagerViewModelFactory(
                     repository = FakeVideoDataRepository(videoDataFlow),
                     appPlayerFactory = appPlayerFactory,
                 ),

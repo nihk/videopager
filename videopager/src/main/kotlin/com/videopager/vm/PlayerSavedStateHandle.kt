@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.videopager.models.PlayerState
 
 // Convenience wrapper for a SavedStateHandle.
-class PlayerSavedStateHandle(
+internal class PlayerSavedStateHandle(
     private val handle: SavedStateHandle
 ) {
     fun get(): PlayerState? {

@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-abstract class MviViewModel<Event, Result, State, Effect>(initialState: State) : ViewModel() {
+internal abstract class MviViewModel<Event, Result, State, Effect>(initialState: State) : ViewModel() {
     val states: StateFlow<State>
     val effects: Flow<Effect>
     private val events = MutableSharedFlow<Event>()

@@ -8,14 +8,14 @@ import com.example.videopager.data.RedditVideoDataRepository
 import com.exo.players.ExoAppPlayerFactory
 import com.exo.ui.ExoAppPlayerViewFactory
 import com.videopager.ui.VideoPagerFragment
-import com.videopager.vm.VideoPagerViewModel
+import com.videopager.vm.VideoPagerViewModelFactory
 
 class MainModule(activity: ComponentActivity) {
     val fragmentFactory: FragmentFactory = object : FragmentFactory() {
         override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
             return when (loadFragmentClass(classLoader, className)) {
                 VideoPagerFragment::class.java -> VideoPagerFragment(
-                    viewModelFactory = VideoPagerViewModel.Factory(
+                    viewModelFactory = VideoPagerViewModelFactory(
                         repository = RedditVideoDataRepository(),
                         appPlayerFactory = ExoAppPlayerFactory(
                             context = activity.applicationContext

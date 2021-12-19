@@ -1,16 +1,16 @@
 package com.videopager.models
 
-sealed class ViewEvent
+internal sealed class ViewEvent
 
-object LoadVideoDataEvent : ViewEvent()
+internal object LoadVideoDataEvent : ViewEvent()
 
-sealed class PlayerLifecycleEvent : ViewEvent() {
+internal sealed class PlayerLifecycleEvent : ViewEvent() {
     object Start : PlayerLifecycleEvent()
     data class Stop(val isChangingConfigurations: Boolean) : PlayerLifecycleEvent()
 }
 
-object TappedPlayerEvent : ViewEvent()
+internal object TappedPlayerEvent : ViewEvent()
 
-data class OnPageSettledEvent(val page: Int) : ViewEvent()
+internal data class OnPageSettledEvent(val page: Int) : ViewEvent()
 
-object PauseVideoEvent : ViewEvent()
+internal object PauseVideoEvent : ViewEvent()

@@ -44,7 +44,7 @@ import kotlinx.coroutines.flow.onEach
  * Owns a stateful [ViewState.appPlayer] instance that will get created and torn down in parallel
  * with Activity lifecycle state changes.
  */
-class VideoPagerViewModel(
+internal class VideoPagerViewModel(
     private val repository: VideoDataRepository,
     private val appPlayerFactory: AppPlayer.Factory,
     private val handle: PlayerSavedStateHandle,
@@ -188,30 +188,5 @@ class VideoPagerViewModel(
 
     private fun Flow<PlayerErrorResult>.toPlayerErrorEffects(): Flow<ViewEffect> {
         return mapLatest { result -> PlayerErrorEffect(result.throwable) }
-    }
-
-    class Factory(
-        private val repository: VideoDataRepository,
-        private val appPlayerFactory: AppPlayer.Factory
-    ) {
-        fun create(owner: SavedStateRegistryOwner): ViewModelProvider.Factory {
-            return object : AbstractSavedStateViewModelFactory(owner, null) {
-                override fun <T : ViewModel?> create(
-                    key: String,
-                    modelClass: Class<T>,
-                    handle: SavedStateHandle
-                ): T {
-                    val playerSavedStateHandle = PlayerSavedStateHandle(handle)
-
-                    @Suppress("UNCHECKED_CAST")
-                    return VideoPagerViewModel(
-                        repository = repository,
-                        appPlayerFactory = appPlayerFactory,
-                        handle = playerSavedStateHandle,
-                        initialState = ViewState(playerSavedStateHandle)
-                    ) as T
-                }
-            }
-        }
     }
 }

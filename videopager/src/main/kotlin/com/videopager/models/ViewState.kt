@@ -2,7 +2,7 @@ package com.videopager.models
 
 import com.videopager.players.AppPlayer
 
-data class ViewState(
+internal data class ViewState(
     val appPlayer: AppPlayer? = null,
     val attachPlayer: Boolean = false,
     val page: Int = 0,
