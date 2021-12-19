@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import coil.imageLoader
 import com.example.videopager.data.RedditVideoDataRepository
+import com.example.videopager.data.StreamingAssetVideoDataRepository
 import com.exo.players.ExoAppPlayerFactory
 import com.exo.ui.ExoAppPlayerViewFactory
 import com.videopager.ui.VideoPagerFragment

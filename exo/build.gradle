@@ -36,7 +36,7 @@ dependencies {
     implementation project(":videopager")
 
     implementation "com.google.android.exoplayer:exoplayer:2.16.1"
-    implementation "androidx.recyclerview:recyclerview:1.2.1"
+    implementation "io.github.java-diff-utils:java-diff-utils:4.11"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-RC3"
 
     androidTestImplementation "androidx.test:core-ktx:1.4.0"

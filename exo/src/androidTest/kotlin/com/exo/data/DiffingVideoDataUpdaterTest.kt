@@ -12,7 +12,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.Closeable
 
-class RecyclerViewVideoDataUpdaterTest {
+class DiffingVideoDataUpdaterTest {
     @Test
     fun shouldAddMediaItem_whenExoPlayerIsEmpty() = updater {
         val videoData = listOf(
@@ -35,6 +35,11 @@ class RecyclerViewVideoDataUpdaterTest {
                 id = "1",
                 mediaUri = "1",
                 previewImageUri = ""
+            ),
+            VideoData(
+                id = "2",
+                mediaUri = "1",
+                previewImageUri = ""
             )
         )
         update(videoData)
@@ -42,6 +47,45 @@ class RecyclerViewVideoDataUpdaterTest {
         update(emptyList())
 
         assertMediaItemIdOrder(emptyList())
+    }
+
+    @Test
+    fun shouldDeleteExoPlayerMediaItems() = updater {
+        val videoData = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "2",
+                mediaUri = "1",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "3",
+                mediaUri = "3",
+                previewImageUri = ""
+            ),
+            VideoData(
+                id = "4",
+                mediaUri = "4",
+                previewImageUri = ""
+            )
+        )
+        update(videoData)
+
+
+        val newList = listOf(
+            VideoData(
+                id = "3",
+                mediaUri = "3",
+                previewImageUri = ""
+            )
+        )
+        update(newList)
+
+        assertMediaItemIdOrder(listOf("3"))
     }
 
     @Test
@@ -234,12 +278,12 @@ class RecyclerViewVideoDataUpdaterTest {
         val videoData = listOf(
             VideoData(
                 id = "1",
-                mediaUri = "1",
+                mediaUri = "abc.net",
                 previewImageUri = ""
             ),
             VideoData(
                 id = "2",
-                mediaUri = "2",
+                mediaUri = "def.net",
                 previewImageUri = ""
             ),
         )
@@ -248,18 +292,42 @@ class RecyclerViewVideoDataUpdaterTest {
         val newList = listOf(
             VideoData(
                 id = "1",
-                mediaUri = "1x",
+                mediaUri = "xyz.net",
                 previewImageUri = ""
             ),
             VideoData(
                 id = "2",
-                mediaUri = "2x",
+                mediaUri = "tuv.net",
                 previewImageUri = ""
             )
         )
         update(newList)
 
         assertMediaItemIdOrder(listOf("1", "2"))
+        assertMediaItemUriOrder(listOf("xyz.net", "tuv.net"))
+    }
+
+    @Test
+    fun shouldKeepListWhenEqual() = updater {
+        val videoData = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            )
+        )
+        update(videoData)
+
+        val newList = listOf(
+            VideoData(
+                id = "1",
+                mediaUri = "1",
+                previewImageUri = ""
+            )
+        )
+        update(newList)
+
+        assertMediaItemIdOrder(listOf("1"))
     }
 
     private fun updater(block: suspend UpdaterRobot.() -> Unit) = runBlocking {
@@ -272,7 +340,7 @@ class RecyclerViewVideoDataUpdaterTest {
         private val exoPlayer = ExoPlayer.Builder(ApplicationProvider.getApplicationContext())
             .build()
         private val updater =
-            RecyclerViewVideoDataUpdater(diffingContext = Dispatchers.Main)
+            DiffingVideoDataUpdater(diffingContext = Dispatchers.Main)
 
         suspend fun update(videoData: List<VideoData>) {
             updater.update(exoPlayer, videoData)
@@ -280,6 +348,14 @@ class RecyclerViewVideoDataUpdaterTest {
 
         fun assertMediaItemIdOrder(ids: List<String>) {
             assertEquals(ids, exoPlayer.currentMediaItems.map(MediaItem::mediaId))
+        }
+
+        fun assertMediaItemUriOrder(uris: List<String>) {
+            assertEquals(
+                uris,
+                exoPlayer.currentMediaItems
+                    .map { mediaItem -> mediaItem.localConfiguration!!.uri.toString() }
+            )
         }
 
         override fun close() {

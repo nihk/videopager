@@ -1,7 +1,7 @@
 package com.exo.players
 
 import android.content.Context
-import com.exo.data.RecyclerViewVideoDataUpdater
+import com.exo.data.DiffingVideoDataUpdater
 import com.google.android.exoplayer2.ExoPlayer
 import com.videopager.players.AppPlayer
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ class ExoAppPlayerFactory(context: Context) : AppPlayer.Factory {
                     loopVideos()
                 }
             }
-        val updater = RecyclerViewVideoDataUpdater(Dispatchers.Default)
+        val updater = DiffingVideoDataUpdater(Dispatchers.Default)
         return ExoAppPlayer(exoPlayer, updater)
     }
 }
