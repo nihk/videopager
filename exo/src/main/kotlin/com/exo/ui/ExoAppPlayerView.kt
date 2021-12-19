@@ -1,12 +1,13 @@
-package com.videopager.ui
+package com.exo.ui
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import com.videopager.databinding.PlayerViewBinding
+import com.exo.databinding.PlayerViewBinding
+import com.exo.players.ExoAppPlayer
+import com.exo.ui.extensions.layoutInflater
 import com.videopager.players.AppPlayer
-import com.videopager.players.ExoAppPlayer
-import com.videopager.ui.extensions.layoutInflater
+import com.videopager.ui.AppPlayerView
 
 /**
  * An implementation of AppPlayerView that uses ExoPlayer APIs,

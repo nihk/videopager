@@ -4,10 +4,10 @@ import androidx.activity.ComponentActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import coil.imageLoader
-import com.videopager.data.RecyclerViewVideoDataUpdater
+import com.exo.data.RecyclerViewVideoDataUpdater
 import com.example.videopager.data.RedditVideoDataRepository
-import com.videopager.players.ExoAppPlayer
-import com.videopager.ui.ExoAppPlayerView
+import com.exo.players.ExoAppPlayer
+import com.exo.ui.ExoAppPlayerView
 import com.videopager.ui.VideoPagerFragment
 import com.videopager.vm.VideoPagerViewModel
 import kotlinx.coroutines.Dispatchers

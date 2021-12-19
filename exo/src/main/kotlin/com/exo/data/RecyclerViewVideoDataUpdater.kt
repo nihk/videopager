@@ -1,11 +1,11 @@
-package com.videopager.data
+package com.exo.data
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.videopager.models.VideoData
-import com.videopager.players.currentMediaItems
+import com.exo.players.currentMediaItems
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 

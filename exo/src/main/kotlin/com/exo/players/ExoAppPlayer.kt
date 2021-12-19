@@ -1,12 +1,13 @@
-package com.videopager.players
+package com.exo.players
 
 import android.content.Context
-import com.videopager.data.VideoDataUpdater
-import com.videopager.models.PlayerState
-import com.videopager.models.VideoData
+import com.exo.data.VideoDataUpdater
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
+import com.videopager.models.PlayerState
+import com.videopager.models.VideoData
+import com.videopager.players.AppPlayer
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -113,7 +114,7 @@ class ExoAppPlayer(
 
     class Factory(
         context: Context,
-        private val updater: VideoDataUpdater
+        private val updater: com.exo.data.VideoDataUpdater
     ) : AppPlayer.Factory {
         // Use application context to avoid leaking Activity.
         private val appContext = context.applicationContext

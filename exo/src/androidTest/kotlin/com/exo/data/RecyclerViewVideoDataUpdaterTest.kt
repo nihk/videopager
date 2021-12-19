@@ -1,14 +1,14 @@
-package com.videopager.data
+package com.exo.data
 
 import androidx.test.core.app.ApplicationProvider
-import com.videopager.players.currentMediaItems
-import com.videopager.models.VideoData
+import com.exo.players.currentMediaItems
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.videopager.models.VideoData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.Closeable
 
@@ -91,7 +91,8 @@ class RecyclerViewVideoDataUpdaterTest {
     class UpdaterRobot : Closeable {
         private val exoPlayer = ExoPlayer.Builder(ApplicationProvider.getApplicationContext())
             .build()
-        private val updater = RecyclerViewVideoDataUpdater(diffingContext = Dispatchers.Main)
+        private val updater =
+            com.exo.data.RecyclerViewVideoDataUpdater(diffingContext = Dispatchers.Main)
 
         suspend fun update(videoData: List<VideoData>) {
             updater.update(exoPlayer, videoData)

@@ -1,4 +1,4 @@
-package com.videopager.players
+package com.exo.players
 
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem

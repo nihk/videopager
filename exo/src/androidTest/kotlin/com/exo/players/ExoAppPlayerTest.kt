@@ -1,8 +1,7 @@
-package com.videopager.players
+package com.exo.players
 
 import androidx.test.core.app.ApplicationProvider
 import com.videopager.utils.TEST_VIDEO_DATA
-import com.videopager.data.RecyclerViewVideoDataUpdater
 import com.videopager.models.PlayerState
 import com.videopager.models.VideoData
 import com.google.android.exoplayer2.ExoPlayer
@@ -78,9 +77,9 @@ class ExoAppPlayerTest {
     }
 
     class ExoAppPlayerRobot : Closeable {
-        private val exoAppPlayer = ExoAppPlayer(
+        private val exoAppPlayer = com.exo.players.ExoAppPlayer(
             exoPlayer = ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
-            updater = RecyclerViewVideoDataUpdater(diffingContext = Dispatchers.Main)
+            updater = com.exo.data.RecyclerViewVideoDataUpdater(diffingContext = Dispatchers.Main)
         )
 
         suspend fun setUpWith(videoData: List<VideoData>, playerState: PlayerState?) {

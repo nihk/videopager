@@ -1,4 +1,4 @@
-package com.videopager.ui.extensions
+package com.exo.ui.extensions
 
 import android.content.Context
 import android.view.LayoutInflater

@@ -1,4 +1,4 @@
-package com.videopager.data
+package com.exo.data
 
 import com.google.android.exoplayer2.ExoPlayer
 import com.videopager.models.VideoData
