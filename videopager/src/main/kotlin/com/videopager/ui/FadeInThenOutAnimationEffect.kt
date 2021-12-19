@@ -7,7 +7,7 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 
 // This animation effect can be seen when you tap the player.
-class FadeInThenOutAnimationEffect(private val view: View) {
+internal class FadeInThenOutAnimationEffect(private val view: View) {
     private var animatorSet: AnimatorSet? = null
 
     fun go() {

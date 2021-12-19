@@ -24,7 +24,7 @@ import kotlinx.coroutines.isActive
  * [showPlayerFor] hides the video image preview of a given ViewHolder so that video playback can
  * be visible. It's called when the ExoPlayer instance has started rendering its first frame.
  */
-class PagerAdapter(
+internal class PagerAdapter(
     private val imageLoader: ImageLoader
 ) : ListAdapter<VideoData, PageViewHolder>(VideoDataDiffCallback) {
     private var recyclerView: RecyclerView? = null

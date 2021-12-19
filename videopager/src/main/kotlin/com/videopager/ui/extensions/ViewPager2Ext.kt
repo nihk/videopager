@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.drop
 
-fun ViewPager2.pageIdlings(): Flow<Unit> = callbackFlow {
+internal fun ViewPager2.pageIdlings(): Flow<Unit> = callbackFlow {
     val callback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageScrollStateChanged(state: Int) {
             if (state != ViewPager2.SCROLL_STATE_IDLE) return
@@ -19,7 +19,7 @@ fun ViewPager2.pageIdlings(): Flow<Unit> = callbackFlow {
     awaitClose { unregisterOnPageChangeCallback(callback) }
 }
 
-fun ViewPager2.pageChanges(): Flow<Unit> = callbackFlow {
+internal fun ViewPager2.pageChanges(): Flow<Unit> = callbackFlow {
     val callback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             trySend(Unit)
@@ -31,4 +31,4 @@ fun ViewPager2.pageChanges(): Flow<Unit> = callbackFlow {
     awaitClose { unregisterOnPageChangeCallback(callback) }
 }.drop(1) // Ignore the initial emission which happens immediately on subscription
 
-val ViewPager2.isIdle get() = scrollState == ViewPager2.SCROLL_STATE_IDLE
+internal val ViewPager2.isIdle get() = scrollState == ViewPager2.SCROLL_STATE_IDLE

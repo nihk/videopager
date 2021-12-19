@@ -12,7 +12,7 @@ import com.videopager.models.PageEffect
 import com.videopager.models.ResetAnimationsEffect
 import com.videopager.models.VideoData
 
-class PageViewHolder(
+internal class PageViewHolder(
     private val binding: PageItemBinding,
     private val imageLoader: ImageLoader,
     private val click: () -> Unit
