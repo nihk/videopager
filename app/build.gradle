@@ -38,6 +38,7 @@ android {
 }
 
 dependencies {
+    implementation project(":player")
     implementation project(":videopager")
     implementation project(":exo")
 

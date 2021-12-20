@@ -1,8 +1,8 @@
-package com.videopager.ui
+package com.player.ui
 
 import android.content.Context
 import android.view.View
-import com.videopager.players.AppPlayer
+import com.player.players.AppPlayer
 
 // Abstraction over the player view. This facilitates testing and hides implementation details.
 interface AppPlayerView {

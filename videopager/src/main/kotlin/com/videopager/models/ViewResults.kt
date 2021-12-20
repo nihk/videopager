@@ -1,7 +1,8 @@
 package com.videopager.models
 
 import androidx.annotation.DrawableRes
-import com.videopager.players.AppPlayer
+import com.player.models.VideoData
+import com.player.players.AppPlayer
 
 internal sealed class ViewResult
 

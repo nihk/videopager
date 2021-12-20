@@ -7,7 +7,7 @@ import com.github.difflib.patch.DeltaType
 import com.github.difflib.patch.Patch
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
-import com.videopager.models.VideoData
+import com.player.models.VideoData
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 

@@ -1,6 +1,6 @@
 package com.example.videopager.data
 
-import com.videopager.models.VideoData
+import com.player.models.VideoData
 import com.videopager.data.VideoDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

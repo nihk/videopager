@@ -1,0 +1,1 @@
+This module exposes player interfaces and models to be implemented and used, e.g. by the `:exo` and `:videopager` modules.

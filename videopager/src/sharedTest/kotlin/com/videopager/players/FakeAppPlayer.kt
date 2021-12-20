@@ -1,7 +1,8 @@
 package com.videopager.players
 
-import com.videopager.models.PlayerState
-import com.videopager.models.VideoData
+import com.player.models.PlayerState
+import com.player.players.AppPlayer
+import com.player.models.VideoData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll

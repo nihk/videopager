@@ -1,4 +1,4 @@
-package com.videopager.models
+package com.player.models
 
 data class VideoData(
     val id: String,

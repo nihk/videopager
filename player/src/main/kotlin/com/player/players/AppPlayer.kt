@@ -1,7 +1,7 @@
-package com.videopager.players
+package com.player.players
 
-import com.videopager.models.PlayerState
-import com.videopager.models.VideoData
+import com.player.models.PlayerState
+import com.player.models.VideoData
 import kotlinx.coroutines.flow.Flow
 
 // Abstract the underlying player to facilitate testing and hide player implementation details.

@@ -1,15 +1,15 @@
 package com.videopager.vm
 
 import androidx.lifecycle.SavedStateHandle
+import com.player.models.PlayerState
 import com.videopager.R
 import com.videopager.data.FakeVideoDataRepository
 import com.videopager.models.AnimationEffect
 import com.videopager.models.OnPageSettledEvent
 import com.videopager.models.PlayerErrorEffect
 import com.videopager.models.PlayerLifecycleEvent
-import com.videopager.models.PlayerState
 import com.videopager.models.TappedPlayerEvent
-import com.videopager.models.VideoData
+import com.player.models.VideoData
 import com.videopager.models.ViewEffect
 import com.videopager.models.ViewState
 import com.videopager.players.FakeAppPlayer

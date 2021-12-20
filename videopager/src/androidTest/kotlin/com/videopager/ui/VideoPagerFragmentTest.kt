@@ -18,9 +18,10 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withChild
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.player.models.VideoData
+import com.player.ui.AppPlayerView
 import com.videopager.R
 import com.videopager.data.FakeVideoDataRepository
-import com.videopager.models.VideoData
 import com.videopager.players.FakeAppPlayer
 import com.videopager.utils.TEST_VIDEO_DATA
 import com.videopager.utils.TestImageLoader
@@ -188,22 +189,6 @@ class VideoPagerFragmentTest {
         assertPlaying(isPlaying = true)
     }
 
-    @Test
-    fun whenListDiffed_shouldMaintainCurrentVideo() = videoPagerFragment {
-        emit(TEST_VIDEO_DATA.takeLast(1))
-
-        assertPage(0)
-        assertPlayerViewPosition(0)
-        assertPlaying(isPlaying = true)
-
-        emit(TEST_VIDEO_DATA.takeLast(2))
-        setMediaItemIndex(1)
-
-        assertPage(1)
-        assertPlayerViewPosition(1)
-        assertPlaying(isPlaying = true)
-    }
-
     private fun videoPagerFragment(
         videoData: List<VideoData>? = null,
         onPlayerRendering: Flow<Unit> = emptyFlow(),
@@ -287,10 +272,6 @@ class VideoPagerFragmentTest {
             scenario.onFragment { fragment ->
                 fragment.requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
-        }
-
-        fun setMediaItemIndex(index: Int) {
-            appPlayer.currentPlayerState = appPlayer.currentPlayerState.copy(currentMediaItemIndex = index)
         }
 
         fun assertPlayerCreated(count: Int = 1) {

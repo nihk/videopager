@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.savedstate.SavedStateRegistryOwner
 import com.videopager.data.VideoDataRepository
-import com.videopager.players.AppPlayer
+import com.player.players.AppPlayer
 import com.videopager.ui.extensions.ViewState
 
 class VideoPagerViewModelFactory(

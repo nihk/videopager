@@ -1,6 +1,6 @@
 package com.videopager.utils
 
-import com.videopager.models.VideoData
+import com.player.models.VideoData
 
 internal val TEST_VIDEO_DATA = listOf(
     VideoData(

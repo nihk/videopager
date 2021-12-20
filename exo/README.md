@@ -1,1 +1,1 @@
-This module implements `:videopager` interfaces using ExoPlayer. 
+This module implements `:player` interfaces using ExoPlayer. 

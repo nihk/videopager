@@ -4,7 +4,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.exo.players.currentMediaItems
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
-import com.videopager.models.VideoData
+import com.player.models.VideoData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

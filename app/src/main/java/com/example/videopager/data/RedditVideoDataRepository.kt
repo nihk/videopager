@@ -1,7 +1,7 @@
 package com.example.videopager.data
 
 import android.util.Log
-import com.videopager.models.VideoData
+import com.player.models.VideoData
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.videopager.data.VideoDataRepository

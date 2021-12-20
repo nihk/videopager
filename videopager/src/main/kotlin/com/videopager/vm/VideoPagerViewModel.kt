@@ -23,7 +23,7 @@ import com.videopager.models.ViewEffect
 import com.videopager.models.ViewEvent
 import com.videopager.models.ViewResult
 import com.videopager.models.ViewState
-import com.videopager.players.AppPlayer
+import com.player.players.AppPlayer
 import com.videopager.ui.extensions.ViewState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance

@@ -1,6 +1,6 @@
 package com.example.videopager.data
 
-import com.videopager.models.VideoData
+import com.player.models.VideoData
 
 object AssetVideoData {
     private const val ASSET_PATH = "file:///android_asset"

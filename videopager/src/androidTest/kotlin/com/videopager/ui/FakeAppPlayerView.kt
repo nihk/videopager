@@ -4,7 +4,8 @@ import android.content.Context
 import android.graphics.Color
 import android.view.View
 import android.widget.FrameLayout
-import com.videopager.players.AppPlayer
+import com.player.players.AppPlayer
+import com.player.ui.AppPlayerView
 
 class FakeAppPlayerView(
     context: Context

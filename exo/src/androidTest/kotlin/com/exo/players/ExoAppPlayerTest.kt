@@ -3,10 +3,10 @@ package com.exo.players
 import androidx.test.core.app.ApplicationProvider
 import com.exo.data.DiffingVideoDataUpdater
 import com.exo.data.TEST_VIDEO_DATA
-import com.videopager.models.PlayerState
-import com.videopager.models.VideoData
+import com.player.models.VideoData
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.player.models.PlayerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

@@ -1,7 +1,7 @@
 package com.videopager.vm
 
 import androidx.lifecycle.SavedStateHandle
-import com.videopager.models.PlayerState
+import com.player.models.PlayerState
 
 // Convenience wrapper for a SavedStateHandle.
 internal class PlayerSavedStateHandle(

@@ -1,4 +1,4 @@
-package com.videopager.models
+package com.player.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

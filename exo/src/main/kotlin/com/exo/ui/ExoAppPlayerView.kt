@@ -4,8 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import com.exo.databinding.PlayerViewBinding
 import com.exo.players.ExoAppPlayer
-import com.videopager.players.AppPlayer
-import com.videopager.ui.AppPlayerView
+import com.player.players.AppPlayer
+import com.player.ui.AppPlayerView
 
 /**
  * An implementation of AppPlayerView that uses ExoPlayer APIs,

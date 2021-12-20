@@ -6,11 +6,12 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
 import coil.load
+import com.player.ui.AppPlayerView
 import com.videopager.databinding.PageItemBinding
 import com.videopager.models.AnimationEffect
 import com.videopager.models.PageEffect
 import com.videopager.models.ResetAnimationsEffect
-import com.videopager.models.VideoData
+import com.player.models.VideoData
 
 internal class PageViewHolder(
     private val binding: PageItemBinding,
