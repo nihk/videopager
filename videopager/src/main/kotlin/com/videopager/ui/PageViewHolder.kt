@@ -1,6 +1,5 @@
 package com.videopager.ui
 
-import android.view.View
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +11,7 @@ import com.videopager.models.AnimationEffect
 import com.videopager.models.PageEffect
 import com.videopager.models.ResetAnimationsEffect
 import com.player.models.VideoData
+import com.videopager.ui.extensions.findParentById
 
 internal class PageViewHolder(
     private val binding: PageItemBinding,
@@ -52,12 +52,13 @@ internal class PageViewHolder(
          * be attached to a View from a previous page. In that case, remove it from that parent
          * before adding it to this ViewHolder's View, and cleanup state from the previous ViewHolder.
          */
-        (appPlayerView.view.parent?.parent as? View)
+        appPlayerView.view.findParentById(binding.root.id)
             ?.let(PageItemBinding::bind)
             ?.apply {
                 playerContainer.removeView(appPlayerView.view)
                 previewImage.isVisible = true
             }
+
         binding.playerContainer.addView(appPlayerView.view)
     }
 
