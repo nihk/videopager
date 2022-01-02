@@ -12,6 +12,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.concurrent.CancellationException
 
 class RedditVideoDataRepository : VideoDataRepository {
     private val api = Retrofit.Builder()
@@ -51,6 +52,7 @@ class RedditVideoDataRepository : VideoDataRepository {
 
             emit(videoData)
         } catch (throwable: Throwable) {
+            if (throwable is CancellationException) throw throwable
             Log.d("asdf", "Error", throwable)
         }
     }
