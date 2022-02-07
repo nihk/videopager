@@ -212,10 +212,12 @@ class VideoPagerFragmentTest {
             themeResId = R.style.Theme_MaterialComponents_DayNight_DarkActionBar
         ) {
             VideoPagerFragment(
-                viewModelFactory = VideoPagerViewModelFactory(
-                    repository = FakeVideoDataRepository(videoDataFlow),
-                    appPlayerFactory = appPlayerFactory,
-                ),
+                viewModelFactory = { owner ->
+                    VideoPagerViewModelFactory(
+                        repository = FakeVideoDataRepository(videoDataFlow),
+                        appPlayerFactory = appPlayerFactory,
+                    ).create(owner)
+                },
                 appPlayerViewFactory = object : AppPlayerView.Factory {
                     override fun create(context: Context): AppPlayerView {
                         return appPlayerView

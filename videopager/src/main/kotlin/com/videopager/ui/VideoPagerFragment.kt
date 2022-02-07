@@ -5,7 +5,9 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.savedstate.SavedStateRegistryOwner
 import androidx.viewpager2.widget.ViewPager2
 import coil.ImageLoader
 import com.google.android.material.snackbar.Snackbar
@@ -34,11 +36,11 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 
 class VideoPagerFragment(
-    private val viewModelFactory: VideoPagerViewModelFactory,
+    private val viewModelFactory: (SavedStateRegistryOwner) -> ViewModelProvider.Factory,
     private val appPlayerViewFactory: AppPlayerView.Factory,
     private val imageLoader: ImageLoader
 ) : Fragment(R.layout.video_pager_fragment) {
-    private val viewModel: VideoPagerViewModel by viewModels { viewModelFactory.create(this) }
+    private val viewModel: VideoPagerViewModel by viewModels { viewModelFactory(this) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
